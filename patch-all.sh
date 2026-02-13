@@ -35,7 +35,7 @@ python3 <(
         DM-003-macos-freemem \
         DM-004-preload-worker-stub \
         DM-005-consolidation-worker-stub; do
-        fix="$SCRIPT_DIR/$d/fix.py"
+        fix="$SCRIPT_DIR/patch/$d/fix.py"
         [ -f "$fix" ] && cat "$fix"
     done
 
@@ -43,19 +43,19 @@ python3 <(
     for d in \
         CF-001-doctor-yaml \
         CF-002-config-export-yaml; do
-        fix="$SCRIPT_DIR/$d/fix.py"
+        fix="$SCRIPT_DIR/patch/$d/fix.py"
         [ -f "$fix" ] && cat "$fix"
     done
 
     # Embedding & HNSW (EM-002 is fix.sh, handled separately)
-    fix="$SCRIPT_DIR/EM-001-embedding-ignores-config/fix.py"
+    fix="$SCRIPT_DIR/patch/EM-001-embedding-ignores-config/fix.py"
     [ -f "$fix" ] && cat "$fix"
 
     # Display & Cosmetic
     for d in \
         UI-001-intelligence-stats-crash \
         UI-002-neural-status-not-loaded; do
-        fix="$SCRIPT_DIR/$d/fix.py"
+        fix="$SCRIPT_DIR/patch/$d/fix.py"
         [ -f "$fix" ] && cat "$fix"
     done
 
@@ -64,18 +64,18 @@ python3 <(
         NS-001-discovery-default-namespace \
         NS-002-targeted-require-namespace \
         NS-003-namespace-typo-pattern; do
-        fix="$SCRIPT_DIR/$d/fix.py"
+        fix="$SCRIPT_DIR/patch/$d/fix.py"
         [ -f "$fix" ] && cat "$fix"
     done
 
     # Ghost Vector cleanup
-    fix="$SCRIPT_DIR/GV-001-hnsw-ghost-vectors/fix.py"
+    fix="$SCRIPT_DIR/patch/GV-001-hnsw-ghost-vectors/fix.py"
     [ -f "$fix" ] && cat "$fix"
 
     echo 'print(f"\n[PATCHES] Done: {applied} applied, {skipped} already present")'
 )
 
 # EM-002: transformers cache permissions (shell-based, optional)
-if [ -f "$SCRIPT_DIR/EM-002-transformers-cache-eacces/fix.sh" ]; then
-    bash "$SCRIPT_DIR/EM-002-transformers-cache-eacces/fix.sh" 2>/dev/null || true
+if [ -f "$SCRIPT_DIR/patch/EM-002-transformers-cache-eacces/fix.sh" ]; then
+    bash "$SCRIPT_DIR/patch/EM-002-transformers-cache-eacces/fix.sh" 2>/dev/null || true
 fi
