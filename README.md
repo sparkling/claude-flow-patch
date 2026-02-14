@@ -103,7 +103,7 @@ claude-flow-patch/
     common.py            # Shared patch()/patch_all() helpers + path variables
   patch/
     HW-001-stdin-hang/
-      issue.md           # Bug description, root cause, fix strategy
+      README.md          # Bug description, root cause, fix strategy
       fix.py             # Idempotent patch script
     HW-002-failures-swallowed/
       ...
