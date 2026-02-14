@@ -33,11 +33,9 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 
 ## Patch Index
 
-<div align="left" style="width:100%">
-
 ### HW — Headless Worker Execution
 
-| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
 |----|-------------|--------------|
 | [HW&#8209;001](patch/HW-001-stdin-hang/) | Spawned headless workers hang indefinitely waiting for input that never arrives | [#1111](https://github.com/ruvnet/claude-flow/issues/1111) |
 | [HW&#8209;002](patch/HW-002-failures-swallowed/) | Worker failures are silently reported as success, hiding errors from the caller | [#1112](https://github.com/ruvnet/claude-flow/issues/1112) |
@@ -45,7 +43,7 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 
 ### DM — Daemon & Workers
 
-| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
 |----|-------------|--------------|
 | [DM&#8209;001](patch/DM-001-daemon-log-zero/) | daemon.log is always 0 bytes — no daemon output is ever persisted | [#1116](https://github.com/ruvnet/claude-flow/issues/1116) |
 | [DM&#8209;002](patch/DM-002-cpu-load-threshold/) | Default maxCpuLoad of 2.0 blocks all workers on multi-core machines | [#1138](https://github.com/ruvnet/claude-flow/issues/1138) |
@@ -55,28 +53,28 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 
 ### CF — Config & Doctor
 
-| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
 |----|-------------|--------------|
 | [CF&#8209;001](patch/CF-001-doctor-yaml/) | `doctor` command only checks for JSON config, ignoring YAML config files | [#1141](https://github.com/ruvnet/claude-flow/issues/1141) |
 | [CF&#8209;002](patch/CF-002-config-export-yaml/) | `config export` outputs hardcoded defaults instead of the actual project config | [#1142](https://github.com/ruvnet/claude-flow/issues/1142) |
 
 ### EM — Embeddings & HNSW Init
 
-| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
 |----|-------------|--------------|
 | [EM&#8209;001](patch/EM-001-embedding-ignores-config/) | Embedding system ignores project config for model name and HNSW dimensions | [#1143](https://github.com/ruvnet/claude-flow/issues/1143) |
 | [EM&#8209;002](patch/EM-002-transformers-cache-eacces/) | `@xenova/transformers` cache directory has wrong permissions (EACCES) | [#1144](https://github.com/ruvnet/claude-flow/issues/1144) |
 
 ### UI — Display & Cosmetic
 
-| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
 |----|-------------|--------------|
 | [UI&#8209;001](patch/UI-001-intelligence-stats-crash/) | `intelligence stats` command crashes with `.toFixed()` on undefined values | [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
 | [UI&#8209;002](patch/UI-002-neural-status-not-loaded/) | `neural status` always shows "Not loaded" even when neural patterns exist | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
 
 ### NS — Memory Namespace
 
-| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
 |----|-------------|--------------|
 | [NS&#8209;001](patch/NS-001-discovery-default-namespace/) | Search and list operations default to `'default'` namespace, missing entries in other namespaces | [#1123](https://github.com/ruvnet/claude-flow/issues/1123) |
 | [NS&#8209;002](patch/NS-002-targeted-require-namespace/) | Store, delete, and retrieve silently fall back to `'default'` and accept `'all'` as a namespace | [#581](https://github.com/ruvnet/claude-flow/issues/581) |
@@ -84,11 +82,9 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 
 ### GV — Ghost Vectors
 
-| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
 |----|-------------|--------------|
 | [GV&#8209;001](patch/GV-001-hnsw-ghost-vectors/) | Deleting a memory entry leaves orphaned vectors in the HNSW index | [#1122](https://github.com/ruvnet/claude-flow/issues/1122) |
-
-</div>
 
 ## Totals
 
