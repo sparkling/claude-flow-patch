@@ -33,58 +33,62 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 
 ## Patch Index
 
+<div align="left" style="width:100%">
+
 ### HW — Headless Worker Execution
 
-| ID | Description | GitHub Issue |
+| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
 |----|-------------|--------------|
-| <nobr>[HW-001](patch/HW-001-stdin-hang/)</nobr> | Spawned headless workers hang indefinitely waiting for input that never arrives | [#1111](https://github.com/ruvnet/claude-flow/issues/1111) |
-| <nobr>[HW-002](patch/HW-002-failures-swallowed/)</nobr> | Worker failures are silently reported as success, hiding errors from the caller | [#1112](https://github.com/ruvnet/claude-flow/issues/1112) |
-| <nobr>[HW-003](patch/HW-003-aggressive-intervals/)</nobr> | Worker scheduling fires too frequently, wasting CPU on idle polling | [#1113](https://github.com/ruvnet/claude-flow/issues/1113) |
+| [HW&#8209;001](patch/HW-001-stdin-hang/) | Spawned headless workers hang indefinitely waiting for input that never arrives | [#1111](https://github.com/ruvnet/claude-flow/issues/1111) |
+| [HW&#8209;002](patch/HW-002-failures-swallowed/) | Worker failures are silently reported as success, hiding errors from the caller | [#1112](https://github.com/ruvnet/claude-flow/issues/1112) |
+| [HW&#8209;003](patch/HW-003-aggressive-intervals/) | Worker scheduling fires too frequently, wasting CPU on idle polling | [#1113](https://github.com/ruvnet/claude-flow/issues/1113) |
 
 ### DM — Daemon & Workers
 
-| ID | Description | GitHub Issue |
+| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
 |----|-------------|--------------|
-| <nobr>[DM-001](patch/DM-001-daemon-log-zero/)</nobr> | daemon.log is always 0 bytes — no daemon output is ever persisted | [#1116](https://github.com/ruvnet/claude-flow/issues/1116) |
-| <nobr>[DM-002](patch/DM-002-cpu-load-threshold/)</nobr> | Default maxCpuLoad of 2.0 blocks all workers on multi-core machines | [#1138](https://github.com/ruvnet/claude-flow/issues/1138) |
-| <nobr>[DM-003](patch/DM-003-macos-freemem/)</nobr> | macOS `freemem()` reports ~0% available, blocking all worker scheduling | [#1077](https://github.com/ruvnet/claude-flow/issues/1077) |
-| <nobr>[DM-004](patch/DM-004-preload-worker-stub/)</nobr> | Preload worker is referenced but has no implementation and is missing from defaults | [#1139](https://github.com/ruvnet/claude-flow/issues/1139) |
-| <nobr>[DM-005](patch/DM-005-consolidation-worker-stub/)</nobr> | Consolidation worker has no decay or rebuild logic | [#1140](https://github.com/ruvnet/claude-flow/issues/1140) |
+| [DM&#8209;001](patch/DM-001-daemon-log-zero/) | daemon.log is always 0 bytes — no daemon output is ever persisted | [#1116](https://github.com/ruvnet/claude-flow/issues/1116) |
+| [DM&#8209;002](patch/DM-002-cpu-load-threshold/) | Default maxCpuLoad of 2.0 blocks all workers on multi-core machines | [#1138](https://github.com/ruvnet/claude-flow/issues/1138) |
+| [DM&#8209;003](patch/DM-003-macos-freemem/) | macOS `freemem()` reports ~0% available, blocking all worker scheduling | [#1077](https://github.com/ruvnet/claude-flow/issues/1077) |
+| [DM&#8209;004](patch/DM-004-preload-worker-stub/) | Preload worker is referenced but has no implementation and is missing from defaults | [#1139](https://github.com/ruvnet/claude-flow/issues/1139) |
+| [DM&#8209;005](patch/DM-005-consolidation-worker-stub/) | Consolidation worker has no decay or rebuild logic | [#1140](https://github.com/ruvnet/claude-flow/issues/1140) |
 
 ### CF — Config & Doctor
 
-| ID | Description | GitHub Issue |
+| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
 |----|-------------|--------------|
-| <nobr>[CF-001](patch/CF-001-doctor-yaml/)</nobr> | `doctor` command only checks for JSON config, ignoring YAML config files | [#1141](https://github.com/ruvnet/claude-flow/issues/1141) |
-| <nobr>[CF-002](patch/CF-002-config-export-yaml/)</nobr> | `config export` outputs hardcoded defaults instead of the actual project config | [#1142](https://github.com/ruvnet/claude-flow/issues/1142) |
+| [CF&#8209;001](patch/CF-001-doctor-yaml/) | `doctor` command only checks for JSON config, ignoring YAML config files | [#1141](https://github.com/ruvnet/claude-flow/issues/1141) |
+| [CF&#8209;002](patch/CF-002-config-export-yaml/) | `config export` outputs hardcoded defaults instead of the actual project config | [#1142](https://github.com/ruvnet/claude-flow/issues/1142) |
 
 ### EM — Embeddings & HNSW Init
 
-| ID | Description | GitHub Issue |
+| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
 |----|-------------|--------------|
-| <nobr>[EM-001](patch/EM-001-embedding-ignores-config/)</nobr> | Embedding system ignores project config for model name and HNSW dimensions | [#1143](https://github.com/ruvnet/claude-flow/issues/1143) |
-| <nobr>[EM-002](patch/EM-002-transformers-cache-eacces/)</nobr> | `@xenova/transformers` cache directory has wrong permissions (EACCES) | [#1144](https://github.com/ruvnet/claude-flow/issues/1144) |
+| [EM&#8209;001](patch/EM-001-embedding-ignores-config/) | Embedding system ignores project config for model name and HNSW dimensions | [#1143](https://github.com/ruvnet/claude-flow/issues/1143) |
+| [EM&#8209;002](patch/EM-002-transformers-cache-eacces/) | `@xenova/transformers` cache directory has wrong permissions (EACCES) | [#1144](https://github.com/ruvnet/claude-flow/issues/1144) |
 
 ### UI — Display & Cosmetic
 
-| ID | Description | GitHub Issue |
+| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
 |----|-------------|--------------|
-| <nobr>[UI-001](patch/UI-001-intelligence-stats-crash/)</nobr> | `intelligence stats` command crashes with `.toFixed()` on undefined values | [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
-| <nobr>[UI-002](patch/UI-002-neural-status-not-loaded/)</nobr> | `neural status` always shows "Not loaded" even when neural patterns exist | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
+| [UI&#8209;001](patch/UI-001-intelligence-stats-crash/) | `intelligence stats` command crashes with `.toFixed()` on undefined values | [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
+| [UI&#8209;002](patch/UI-002-neural-status-not-loaded/) | `neural status` always shows "Not loaded" even when neural patterns exist | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
 
 ### NS — Memory Namespace
 
-| ID | Description | GitHub Issue |
+| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
 |----|-------------|--------------|
-| <nobr>[NS-001](patch/NS-001-discovery-default-namespace/)</nobr> | Search and list operations default to `'default'` namespace, missing entries in other namespaces | [#1123](https://github.com/ruvnet/claude-flow/issues/1123) |
-| <nobr>[NS-002](patch/NS-002-targeted-require-namespace/)</nobr> | Store, delete, and retrieve silently fall back to `'default'` and accept `'all'` as a namespace | [#581](https://github.com/ruvnet/claude-flow/issues/581) |
-| <nobr>[NS-003](patch/NS-003-namespace-typo-pattern/)</nobr> | Hardcoded namespace string `'pattern'` vs actual namespace `'patterns'` | [#1136](https://github.com/ruvnet/claude-flow/issues/1136) |
+| [NS&#8209;001](patch/NS-001-discovery-default-namespace/) | Search and list operations default to `'default'` namespace, missing entries in other namespaces | [#1123](https://github.com/ruvnet/claude-flow/issues/1123) |
+| [NS&#8209;002](patch/NS-002-targeted-require-namespace/) | Store, delete, and retrieve silently fall back to `'default'` and accept `'all'` as a namespace | [#581](https://github.com/ruvnet/claude-flow/issues/581) |
+| [NS&#8209;003](patch/NS-003-namespace-typo-pattern/) | Hardcoded namespace string `'pattern'` vs actual namespace `'patterns'` | [#1136](https://github.com/ruvnet/claude-flow/issues/1136) |
 
 ### GV — Ghost Vectors
 
-| ID | Description | GitHub Issue |
+| ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description | GitHub&nbsp;Issue |
 |----|-------------|--------------|
-| <nobr>[GV-001](patch/GV-001-hnsw-ghost-vectors/)</nobr> | Deleting a memory entry leaves orphaned vectors in the HNSW index | [#1122](https://github.com/ruvnet/claude-flow/issues/1122) |
+| [GV&#8209;001](patch/GV-001-hnsw-ghost-vectors/) | Deleting a memory entry leaves orphaned vectors in the HNSW index | [#1122](https://github.com/ruvnet/claude-flow/issues/1122) |
+
+</div>
 
 ## Totals
 
