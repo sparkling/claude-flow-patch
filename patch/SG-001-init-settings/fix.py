@@ -1,9 +1,8 @@
-# SG-001: Settings generator outputs invalid Claude Code hook events
-# GitHub: #1150
-# Introduced: 94c32ea (Feb 12, 2026)
+# SG-001: Init generates invalid settings
+# GitHub: #1150 | Commit: 94c32ea
 
-# Op 1: Remove TeammateIdle block (lines 304-315 in source)
-patch("1: remove TeammateIdle",
+# Remove TeammateIdle
+patch("SG-001a: remove TeammateIdle",
     SETTINGS_GEN,
     """    // TeammateIdle — auto-assign pending tasks to idle teammates
     hooks.TeammateIdle = [
@@ -17,10 +16,10 @@ patch("1: remove TeammateIdle",
             ],
         },
     ];""",
-    "    // TeammateIdle removed — not a valid Claude Code hook event (see #1150)")
+    "    // TeammateIdle removed (invalid hook event, see #1150)")
 
-# Op 2: Remove TaskCompleted block (lines 316-327 in source)
-patch("2: remove TaskCompleted",
+# Remove TaskCompleted
+patch("SG-001b: remove TaskCompleted",
     SETTINGS_GEN,
     """    // TaskCompleted — train patterns and record completion
     hooks.TaskCompleted = [
@@ -34,10 +33,10 @@ patch("2: remove TaskCompleted",
             ],
         },
     ];""",
-    "    // TaskCompleted removed — not a valid Claude Code hook event (see #1150)")
+    "    // TaskCompleted removed (invalid hook event, see #1150)")
 
-# Op 3: Enhance SubagentStop to include teammate-idle for auto-assignment
-patch("3: enhance SubagentStop with teammate-idle",
+# Add SubagentStop with teammate-idle
+patch("SG-001c: add SubagentStop",
     SETTINGS_GEN,
     """    // SubagentStart — status update
     hooks.SubagentStart = [
@@ -64,21 +63,20 @@ patch("3: enhance SubagentStop with teammate-idle",
             ],
         },
     ];
-    // SubagentStop — task completion + teammate idle (replaces invalid TeammateIdle/TaskCompleted)
+    // SubagentStop — replaces invalid TeammateIdle/TaskCompleted (#1150)
     hooks.SubagentStop = [
         {
             hooks: [
-                {
-                    type: 'command',
-                    command: 'node .claude/helpers/hook-handler.cjs post-task',
-                    timeout: 5000,
-                },
-                {
-                    type: 'command',
-                    command: 'npx @claude-flow/cli@latest hooks teammate-idle',
-                    timeout: 5000,
-                },
+                { type: 'command', command: 'node .claude/helpers/hook-handler.cjs post-task', timeout: 5000 },
+                { type: 'command', command: 'npx @claude-flow/cli@latest hooks teammate-idle', timeout: 5000 },
             ],
         },
     ];
     // TeammateIdle removed""")
+
+# Fix permission patterns
+patch("SG-001d: fix @claude-flow permission", SETTINGS_GEN,
+    "'Bash(npx @claude-flow*)'", "'Bash(npx @claude-flow/cli:*)'")
+
+patch("SG-001e: fix claude-flow permission", SETTINGS_GEN,
+    "'Bash(npx claude-flow*)'", "'Bash(npx claude-flow:*)'")

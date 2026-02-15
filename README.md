@@ -90,12 +90,11 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 
 | ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
 |----|-------------|--------------|
-| [SG&#8209;001](patch/SG-001-invalid-hook-events/) | Init generates invalid Claude Code hook events (TaskCompleted, TeammateIdle) | [#1150](https://github.com/ruvnet/claude-flow/issues/1150) |
-| [SG&#8209;002](patch/SG-002-permission-syntax/) | Init generates invalid permission patterns (`*` instead of `:*`) | [#773](https://github.com/ruvnet/claude-flow/issues/773) |
+| [SG&#8209;001](patch/SG-001-init-settings/) | Init generates invalid hooks and permission patterns | [#1150](https://github.com/ruvnet/claude-flow/issues/1150) |
 
 ## Totals
 
-- **20 issues** across 8 categories
+- **19 issues** across 8 categories
 
 ## Repository Structure
 
