@@ -13,12 +13,14 @@ fi
 VERSION=$(grep -o '"version":"[^"]*"' "$(dirname "$MEMORY")/../../package.json" 2>/dev/null | cut -d'"' -f4)
 COMMANDS_DIR=$(dirname "$SERVICES")/../commands
 MCP_TOOLS_DIR=$(dirname "$MEMORY")/../mcp-tools
+INIT_DIR=$(dirname "$MEMORY")/../init
 
 # Quick sentinel checks by issue ID:
 # EM-001 (embeddings.json), DM-002 (maxCpuLoad), DM-004 (loadEmbeddingModel),
 # DM-005 (applyTemporalDecay), UI-002 (getHNSWIndex in neural.js),
 # NS-001 (all namespaces), NS-002 (Namespace is required + cannot be 'all'),
-# NS-001 (nsFilter), NS-003 ('patterns' typo)
+# NS-001 (nsFilter), NS-003 ('patterns' typo),
+# SG-001 (SubagentStop + TeammateIdle removed + permission patterns)
 if grep -q "embeddings.json" "$MEMORY" 2>/dev/null \
    && grep -q "maxCpuLoad:" "$SERVICES" 2>/dev/null \
    && grep -q "loadEmbeddingModel" "$SERVICES" 2>/dev/null \
@@ -28,7 +30,10 @@ if grep -q "embeddings.json" "$MEMORY" 2>/dev/null \
    && grep -q "Namespace is required" "$MCP_TOOLS_DIR/memory-tools.js" 2>/dev/null \
    && grep -q "nsFilter" "$MEMORY" 2>/dev/null \
    && grep -q "|| 'patterns'" "$MCP_TOOLS_DIR/hooks-tools.js" 2>/dev/null \
-   && grep -q "cannot be .all." "$MCP_TOOLS_DIR/memory-tools.js" 2>/dev/null; then
+   && grep -q "cannot be .all." "$MCP_TOOLS_DIR/memory-tools.js" 2>/dev/null \
+   && grep -q "hooks.SubagentStop" "$INIT_DIR/settings-generator.js" 2>/dev/null \
+   && grep -q "TeammateIdle removed" "$INIT_DIR/settings-generator.js" 2>/dev/null \
+   && grep -q "@claude-flow/cli:\*" "$INIT_DIR/settings-generator.js" 2>/dev/null; then
   echo "[PATCHES] OK: All patches verified (v$VERSION)"
   exit 0
 fi

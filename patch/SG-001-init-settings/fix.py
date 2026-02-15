@@ -1,10 +1,25 @@
 # SG-001: Init generates invalid settings
-# GitHub: #1150 | Commit: 94c32ea
+# GitHub: #1150
+#
+# Problem: TeammateIdle and TaskCompleted are not valid Claude Code hook events.
+# Fix: Replace with SubagentStop (valid event that fires on task completion).
 
-# Remove TeammateIdle
-patch("SG-001a: remove TeammateIdle",
+# Single atomic patch: replace invalid hooks with SubagentStop
+patch("SG-001a: replace invalid hooks with SubagentStop",
     SETTINGS_GEN,
-    """    // TeammateIdle — auto-assign pending tasks to idle teammates
+    """    // SubagentStart — status update
+    hooks.SubagentStart = [
+        {
+            hooks: [
+                {
+                    type: 'command',
+                    command: 'node .claude/helpers/hook-handler.cjs status',
+                    timeout: 3000,
+                },
+            ],
+        },
+    ];
+    // TeammateIdle — auto-assign pending tasks to idle teammates
     hooks.TeammateIdle = [
         {
             hooks: [
@@ -15,13 +30,8 @@ patch("SG-001a: remove TeammateIdle",
                 },
             ],
         },
-    ];""",
-    "    // TeammateIdle removed (invalid hook event, see #1150)")
-
-# Remove TaskCompleted
-patch("SG-001b: remove TaskCompleted",
-    SETTINGS_GEN,
-    """    // TaskCompleted — train patterns and record completion
+    ];
+    // TaskCompleted — train patterns and record completion
     hooks.TaskCompleted = [
         {
             hooks: [
@@ -32,12 +42,8 @@ patch("SG-001b: remove TaskCompleted",
                 },
             ],
         },
-    ];""",
-    "    // TaskCompleted removed (invalid hook event, see #1150)")
-
-# Add SubagentStop with teammate-idle
-patch("SG-001c: add SubagentStop",
-    SETTINGS_GEN,
+    ];
+    return hooks;""",
     """    // SubagentStart — status update
     hooks.SubagentStart = [
         {
@@ -50,33 +56,34 @@ patch("SG-001c: add SubagentStop",
             ],
         },
     ];
-    // TeammateIdle removed""",
-    """    // SubagentStart — status update
-    hooks.SubagentStart = [
-        {
-            hooks: [
-                {
-                    type: 'command',
-                    command: 'node .claude/helpers/hook-handler.cjs status',
-                    timeout: 3000,
-                },
-            ],
-        },
-    ];
-    // SubagentStop — replaces invalid TeammateIdle/TaskCompleted (#1150)
+    // SubagentStop — task completion + teammate idle (replaces invalid TeammateIdle/TaskCompleted)
     hooks.SubagentStop = [
         {
             hooks: [
-                { type: 'command', command: 'node .claude/helpers/hook-handler.cjs post-task', timeout: 5000 },
-                { type: 'command', command: 'npx @claude-flow/cli@latest hooks teammate-idle', timeout: 5000 },
+                {
+                    type: 'command',
+                    command: 'node .claude/helpers/hook-handler.cjs post-task',
+                    timeout: 5000,
+                },
+                {
+                    type: 'command',
+                    command: 'npx @claude-flow/cli@latest hooks teammate-idle',
+                    timeout: 5000,
+                },
             ],
         },
     ];
-    // TeammateIdle removed""")
+    // TeammateIdle removed — not a valid Claude Code hook event (see #1150)
+    // TaskCompleted removed — not a valid Claude Code hook event (see #1150)
+    return hooks;""")
 
-# Fix permission patterns
-patch("SG-001d: fix @claude-flow permission", SETTINGS_GEN,
-    "'Bash(npx @claude-flow*)'", "'Bash(npx @claude-flow/cli:*)'")
+# Fix permission patterns (glob patterns that are too broad)
+patch("SG-001b: fix @claude-flow permission pattern",
+    SETTINGS_GEN,
+    "'Bash(npx @claude-flow*)'",
+    "'Bash(npx @claude-flow/cli:*)'")
 
-patch("SG-001e: fix claude-flow permission", SETTINGS_GEN,
-    "'Bash(npx claude-flow*)'", "'Bash(npx claude-flow:*)'")
+patch("SG-001c: fix claude-flow permission pattern",
+    SETTINGS_GEN,
+    "'Bash(npx claude-flow*)'",
+    "'Bash(npx claude-flow:*)'")
