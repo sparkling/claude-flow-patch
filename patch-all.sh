@@ -72,6 +72,14 @@ python3 <(
     fix="$SCRIPT_DIR/patch/GV-001-hnsw-ghost-vectors/fix.py"
     [ -f "$fix" ] && cat "$fix"
 
+    # Settings Generator (SG-001 must run before SG-002)
+    for d in \
+        SG-001-invalid-hook-events \
+        SG-002-permission-syntax; do
+        fix="$SCRIPT_DIR/patch/$d/fix.py"
+        [ -f "$fix" ] && cat "$fix"
+    done
+
     echo 'print(f"\n[PATCHES] Done: {applied} applied, {skipped} already present")'
 )
 

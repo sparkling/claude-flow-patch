@@ -61,3 +61,7 @@ MCP_MEMORY = base + "/mcp-tools/memory-tools.js"
 MCP_HOOKS = base + "/mcp-tools/hooks-tools.js"
 CLI_MEMORY = commands + "/memory.js"
 EMB_TOOLS = base + "/mcp-tools/embeddings-tools.js"
+
+# Init module
+init = base + "/init"
+SETTINGS_GEN = init + "/settings-generator.js"
