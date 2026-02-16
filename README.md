@@ -7,12 +7,28 @@ These patches fix 22 bugs and missing features in the `@claude-flow/cli` and `ru
 ## Quick Start
 
 ```bash
-# Apply all patches (idempotent, safe to re-run)
+# Apply all patches to both global (npx cache) and local (node_modules)
 bash patch-all.sh
+
+# Apply only to global npx cache
+bash patch-all.sh --scope global
+
+# Apply only to local node_modules
+bash patch-all.sh --scope local
 
 # Verify patches are applied
 bash check-patches.sh
 ```
+
+### Scope Options
+
+| Scope | Description |
+|-------|-------------|
+| `both` | Patch both global npx cache and local node_modules (default) |
+| `global` | Patch only `~/.npm/_npx/*/node_modules/` |
+| `local` | Patch only `./node_modules/` and parent directories |
+
+**Why both?** When you run `npx @claude-flow/cli`, npm uses your local `node_modules` if present, otherwise the global npx cache. Patching both ensures fixes work regardless of how the CLI is invoked.
 
 ## How It Works
 
