@@ -15,12 +15,12 @@ COMMANDS_DIR=$(dirname "$SERVICES")/../commands
 MCP_TOOLS_DIR=$(dirname "$MEMORY")/../mcp-tools
 INIT_DIR=$(dirname "$MEMORY")/../init
 
-# Quick sentinel checks by issue ID:
+# Quick sentinel checks by issue ID (18 patches):
 # EM-001 (embeddings.json), DM-002 (maxCpuLoad), DM-004 (loadEmbeddingModel),
 # DM-005 (applyTemporalDecay), UI-002 (getHNSWIndex in neural.js),
-# NS-001 (all namespaces), NS-002 (Namespace is required + cannot be 'all'),
-# NS-001 (nsFilter), NS-003 ('patterns' typo),
-# SG-001 (SubagentStop + TeammateIdle removed + permission patterns)
+# NS-001 (all namespaces + nsFilter), NS-002 (Namespace is required + cannot be 'all'),
+# NS-003 ('patterns' typo), SG-001 (SubagentStop + TeammateIdle removed + permissions)
+# Removed: HK-001, RV-001, RV-002, UI-001, IN-001 (resolved by copying full intelligence.cjs)
 if grep -q "embeddings.json" "$MEMORY" 2>/dev/null \
    && grep -q "maxCpuLoad:" "$SERVICES" 2>/dev/null \
    && grep -q "loadEmbeddingModel" "$SERVICES" 2>/dev/null \

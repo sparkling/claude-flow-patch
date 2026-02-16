@@ -164,12 +164,8 @@ apply_patches() {
     [ -f "$fix" ] && cat "$fix"
 
     # Display & Cosmetic
-    for d in \
-        UI-001-intelligence-stats-crash \
-        UI-002-neural-status-not-loaded; do
-        fix="$SCRIPT_DIR/patch/$d/fix.py"
-        [ -f "$fix" ] && cat "$fix"
-    done
+    fix="$SCRIPT_DIR/patch/UI-002-neural-status-not-loaded/fix.py"
+    [ -f "$fix" ] && cat "$fix"
 
     # Memory Namespace (order matters: NS-001 before NS-002 before NS-003)
     for d in \
@@ -191,19 +187,6 @@ apply_patches() {
     # Memory Management
     fix="$SCRIPT_DIR/patch/MM-001-memory-persist-path/fix.py"
     [ -f "$fix" ] && cat "$fix"
-
-    # Hooks Persistence
-    fix="$SCRIPT_DIR/patch/HK-001-hooks-tools-stub/fix.py"
-    [ -f "$fix" ] && cat "$fix"
-
-    # RuVector Intelligence (only if ruvector found)
-    echo 'if ruvector_cli:'
-    for d in \
-        RV-001-force-learn-tick \
-        RV-002-trajectory-load; do
-        fix="$SCRIPT_DIR/patch/$d/fix.py"
-        [ -f "$fix" ] && echo '    pass' && cat "$fix" | sed 's/^/    /'
-    done
 
     echo "print(f\"[$label] Done: {applied} applied, {skipped} already present\")"
   )

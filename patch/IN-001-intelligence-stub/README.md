@@ -2,69 +2,60 @@
 
 **Severity**: Critical
 **GitHub**: [#1154](https://github.com/ruvnet/claude-flow/issues/1154)
+**Status**: RESOLVED
 
 ## Root Cause
 
-`.claude/helpers/intelligence.cjs` (197 lines) is a **minimal stub**. The comment says "Minimal fallback — full version is copied from package source" but the full version was **never copied**.
+`findSourceHelpersDir()` in `dist/src/init/executor.js` (line 855) fails to resolve the package's `.claude/helpers/` directory when running via npx. It tries 4 path strategies, all fail with npx-cached installs. The comment at line 395 says it explicitly: *"Source not found (npx with broken paths) — use generated fallbacks"*.
 
-The stub only does:
-- Simple token-based Jaccard similarity (not vector search)
-- `consolidate()` just clears the pending file without processing
-- `feedback()` is a no-op
+This causes `executeUpgrade()` to call `generateIntelligenceStub()` (from `helpers-generator.js` line 557) instead of copying the real file. The stub is 197 lines with:
+- `feedback()` as a no-op
+- `consolidate()` that counts lines and wipes the file
+- `getContext()` using simple Jaccard word overlap with no learning
+- No PageRank, no graph, no confidence tracking
 
-Meanwhile, config claims features that aren't active:
-```yaml
-memory:
-  enableHNSW: true      # ← Not used
-neural:
-  enabled: true         # ← Not used
+## The Full Version Exists in the Package
+
+The **916-line full `intelligence.cjs`** ships in the `@claude-flow/cli` package at:
+```
+node_modules/@claude-flow/cli/.claude/helpers/intelligence.cjs
 ```
 
-## The Real Implementation
+It implements:
+- PageRank-ranked memory graph (nodes, edges, power iteration with damping)
+- Trigram matching with stop-word filtering
+- Confidence feedback loop (boost on success, decay on failure)
+- Consolidation: insight generation for hot files, confidence decay for stale entries, graph rebuild
+- Snapshot-based trend tracking (up to 50 snapshots)
+- Bootstrap from MEMORY.md files when store is empty
+- Same 6-method API: `{ init, getContext, recordEdit, feedback, consolidate, stats }`
+- Same data directory: `.claude-flow/data/`
 
-The full implementation exists in ruvector:
-- `node_modules/ruvector/dist/core/intelligence-engine.js` (1029 lines)
-- Has: HNSW vector search, SONA learning, ONNX embeddings, trajectories, EWC++
+## Fix
 
-## Fix Options
+Copy the full `intelligence.cjs` from the package to replace the stub:
 
-### Option A: Wrapper (Recommended)
-Replace the stub with a CJS wrapper that delegates to ruvector:
-
-```javascript
-const { Intelligence } = require('ruvector');
-let _intel = null;
-
-function getIntel() {
-  if (!_intel) {
-    _intel = new Intelligence();
-    // Note: Can't await in CJS, but ruvector handles lazy init
-  }
-  return _intel;
-}
-
-module.exports = {
-  consolidate: () => getIntel().consolidate(),
-  feedback: (type, data) => getIntel().feedback(type, data),
-  findSimilar: (emb) => getIntel().findSimilar(emb),
-  // ... other methods
-};
-```
-
-### Option B: Use MCP tools directly
-The MCP server has working intelligence tools that bypass the stub.
-
-### Option C: Run ruvector init
 ```bash
-npx ruvector hooks init --force --fast
+# Find the package's helpers directory
+SRC=$(find ~/.npm/_npx -path '*/@claude-flow/cli/.claude/helpers/intelligence.cjs' 2>/dev/null | head -1)
+
+# Copy to project
+cp "$SRC" .claude/helpers/intelligence.cjs
 ```
 
-## Files to Patch
+This is a drop-in replacement — same export signature, same data files, additive new files (`graph-state.json`, `intelligence-snapshot.json`).
 
-- `.claude/helpers/intelligence.cjs` — Replace stub with wrapper
+## Verification
 
-## Status
+```bash
+# Should show nodes > 0, edges > 0 (stub always showed edges: 0)
+node .claude/helpers/intelligence.cjs stats
 
-- [x] GitHub issue created (#1154)
-- [ ] Fix implemented
-- [ ] Patch tested
+# Should show PageRank sum ~1.0
+node .claude/helpers/intelligence.cjs stats --json
+```
+
+## Files
+
+- `.claude/helpers/intelligence.cjs` — Replace stub with full version from package
+- `dist/src/init/executor.js` — Upstream bug: `findSourceHelpersDir()` fails with npx paths

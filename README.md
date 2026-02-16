@@ -2,7 +2,7 @@
 
 Community patches for [`@claude-flow/cli`](https://www.npmjs.com/package/@claude-flow/cli) **v3.1.0-alpha.39**.
 
-These patches fix 22 bugs and missing features in the `@claude-flow/cli` and `ruvector` npm packages. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached CLI source files.
+These patches fix 18 bugs and missing features in the `@claude-flow/cli` npm package. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached CLI source files.
 
 ## Quick Start
 
@@ -47,6 +47,18 @@ The `check-patches.sh` sentinel runs on session start to detect npx cache wipes 
 
 Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src/`.
 
+## Resolved Issues
+
+The following issues were resolved without runtime patches:
+
+| ID | Resolution |
+|----|------------|
+| [IN&#8209;001](patch/IN-001-intelligence-stub/) | `intelligence.cjs` stub replaced by copying the full 916-line version from the `@claude-flow/cli` package. Root cause: `findSourceHelpersDir()` fails with npx paths. See [#1154](https://github.com/ruvnet/claude-flow/issues/1154). |
+| HK&#8209;001 | MCP hook handlers (`hooks-tools.js`) are not in the active learning pipeline — local `hook-handler.cjs` handles all hooks. [#1058](https://github.com/ruvnet/claude-flow/issues/1058) |
+| RV&#8209;001 | `ruvector hooks force-learn` not needed — local `intelligence.cjs` handles learning via hooks. |
+| RV&#8209;002 | `ruvector` trajectory persistence not needed — not in the hook execution path. |
+| UI&#8209;001 | CLI `hooks intelligence stats` crash not in active path — local `node intelligence.cjs stats` provides working diagnostics. [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
+
 ## Patch Index
 
 ### HW — Headless Worker Execution
@@ -85,7 +97,6 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 
 | ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
 |----|-------------|--------------|
-| [UI&#8209;001](patch/UI-001-intelligence-stats-crash/) | `intelligence stats` command crashes with `.toFixed()` on undefined values | [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
 | [UI&#8209;002](patch/UI-002-neural-status-not-loaded/) | `neural status` always shows "Not loaded" even when neural patterns exist | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
 
 ### NS — Memory Namespace
@@ -114,22 +125,10 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 |----|-------------|--------------|
 | [MM&#8209;001](patch/MM-001-memory-persist-path/) | memory-initializer.js ignores persistPath config, hardcodes .swarm/ | [#1152](https://github.com/ruvnet/claude-flow/issues/1152) |
 
-### HK — Hooks Persistence
-
-| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
-|----|-------------|--------------|
-| [HK&#8209;001](patch/HK-001-hooks-tools-stub/) | MCP hook handlers return fake success but don't persist any data | [#1058](https://github.com/ruvnet/claude-flow/issues/1058) |
-
-### RV — RuVector Intelligence
-
-| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
-|----|-------------|--------------|
-| [RV&#8209;001](patch/RV-001-force-learn-tick/) | `force-learn` calls `intel.tick()` which doesn't exist (should be `engine.tick()`) | TBD |
-| [RV&#8209;002](patch/RV-002-trajectory-load/) | `activeTrajectories` not loaded from saved file, breaking cross-command persistence | TBD |
-
 ## Totals
 
-- **23 issues** across 11 categories
+- **18 active patches** across 9 categories
+- **5 resolved issues** (see Resolved Issues above)
 
 ## Repository Structure
 
@@ -148,9 +147,8 @@ claude-flow-patch/
       fix.py             # Idempotent patch script
     HW-002-failures-swallowed/
       ...
-    RV-001-force-learn-tick/
-    RV-002-trajectory-load/
-    (22 issue directories total)
+    IN-001-intelligence-stub/  # Resolved — README only, no fix.py
+    (19 issue directories total)
 ```
 
 ## Application Order
