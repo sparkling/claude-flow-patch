@@ -1,16 +1,21 @@
+# Claude Flow runtime state
 .claude-flow/
+.swarm/
 
-# Codex local configuration
+# Codex local overrides
 .codex/
 
-# Claude Flow runtime data
-.claude-flow/data/
-.claude-flow/logs/
+# Claude Code local overrides
+CLAUDE.local.md
 
 # Environment variables
 .env
 .env.local
 .env.*.local
 
-# Claude Code local config
-CLAUDE.local.md
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
