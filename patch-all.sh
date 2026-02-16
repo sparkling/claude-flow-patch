@@ -76,6 +76,10 @@ python3 <(
     fix="$SCRIPT_DIR/patch/SG-001-init-settings/fix.py"
     [ -f "$fix" ] && cat "$fix"
 
+    # Memory Management
+    fix="$SCRIPT_DIR/patch/MM-001-memory-persist-path/fix.py"
+    [ -f "$fix" ] && cat "$fix"
+
     echo 'print(f"\n[PATCHES] Done: {applied} applied, {skipped} already present")'
 )
 
