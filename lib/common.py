@@ -76,6 +76,8 @@ EMB_TOOLS = base + "/mcp-tools/embeddings-tools.js" if base else ""
 # Init module
 init = base + "/init" if base else ""
 SETTINGS_GEN = init + "/settings-generator.js" if init else ""
+HELPERS_GEN = init + "/helpers-generator.js" if init else ""
+EXECUTOR = init + "/executor.js" if init else ""
 
 # RuVector (separate package, path set by patch-all.sh)
 ruvector_cli = os.environ.get("RUVECTOR_CLI", "")

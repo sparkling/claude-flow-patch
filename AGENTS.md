@@ -4,7 +4,7 @@ Agent instructions for automated patch management of `@claude-flow/cli` **v3.1.0
 
 ## Purpose
 
-This repository contains 20 runtime patches for the `@claude-flow/cli` and `ruv-swarm` npm packages. Patches fix bugs in the published npm tarballs by performing idempotent string replacements on the npx-cached source files.
+This repository contains 22 runtime patches for the `@claude-flow/cli` and `ruv-swarm` npm packages. Patches fix bugs in the published npm tarballs by performing idempotent string replacements on the npx-cached source files.
 
 ## Agent Responsibilities
 
@@ -92,6 +92,30 @@ This repository contains 20 runtime patches for the `@claude-flow/cli` and `ruv-
 | ID | Issue | Fix |
 |----|-------|-----|
 | GV-001 | [#1122 Ghost vectors after delete](https://github.com/ruvnet/claude-flow/issues/1122) | Remove from HNSW entries Map + save metadata |
+
+### Intelligence (IN)
+
+| ID | Issue | Fix |
+|----|-------|-----|
+| IN-001 | [#1154 intelligence.cjs generated as stub](https://github.com/ruvnet/claude-flow/issues/1154) | Try reading real intelligence.cjs from package before falling back to stub |
+
+### Settings Generator (SG)
+
+| ID | Issue | Fix |
+|----|-------|-----|
+| SG-001 | [#1150 Init generates invalid hooks](https://github.com/ruvnet/claude-flow/issues/1150) | Replace invalid hooks with SubagentStop, fix permissions, use `$CLAUDE_PROJECT_DIR` |
+
+### Memory Management (MM)
+
+| ID | Issue | Fix |
+|----|-------|-----|
+| MM-001 | [#1152 memory-initializer ignores persistPath](https://github.com/ruvnet/claude-flow/issues/1152) | Remove dead persistPath config (never consumed) |
+
+### Hooks (HK)
+
+| ID | Issue | Fix |
+|----|-------|-----|
+| HK-001 | [#1155 post-edit file_path "unknown"](https://github.com/ruvnet/claude-flow/issues/1155) | Read `tool_input.file_path` from stdin JSON instead of env var |
 
 ### ruv-swarm (RS)
 

@@ -192,6 +192,14 @@ apply_patches() {
     fix="$SCRIPT_DIR/patch/MM-001-memory-persist-path/fix.py"
     [ -f "$fix" ] && cat "$fix"
 
+    # Intelligence
+    fix="$SCRIPT_DIR/patch/IN-001-intelligence-stub/fix.py"
+    [ -f "$fix" ] && cat "$fix"
+
+    # Hooks
+    fix="$SCRIPT_DIR/patch/HK-001-post-edit-file-path/fix.py"
+    [ -f "$fix" ] && cat "$fix"
+
     # ruv-swarm (separate package)
     fix="$SCRIPT_DIR/patch/RS-001-better-sqlite3-node24/fix.py"
     [ -f "$fix" ] && cat "$fix"

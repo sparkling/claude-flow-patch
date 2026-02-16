@@ -2,7 +2,7 @@
 
 Community patches for [`@claude-flow/cli`](https://www.npmjs.com/package/@claude-flow/cli) **v3.1.0-alpha.40** and [`ruv-swarm`](https://www.npmjs.com/package/ruv-swarm) **v1.0.20**.
 
-These patches fix 20 bugs and missing features in the `@claude-flow/cli` and `ruv-swarm` npm packages. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached source files.
+These patches fix 22 bugs and missing features in the `@claude-flow/cli` and `ruv-swarm` npm packages. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached source files.
 
 ## Quick Start
 
@@ -103,6 +103,12 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 |----|-------------|--------------|
 | [GV&#8209;001](patch/GV-001-hnsw-ghost-vectors/) | Deleting a memory entry leaves orphaned vectors in the HNSW index | [#1122](https://github.com/ruvnet/claude-flow/issues/1122) |
 
+### IN — Intelligence
+
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
+|----|-------------|--------------|
+| [IN&#8209;001](patch/IN-001-intelligence-stub/) | `init` generates 197-line intelligence stub instead of full 916-line version when source dir not found | [#1154](https://github.com/ruvnet/claude-flow/issues/1154) |
+
 ### SG — Settings Generator
 
 | ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
@@ -115,6 +121,12 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 |----|-------------|--------------|
 | [MM&#8209;001](patch/MM-001-memory-persist-path/) | memory-initializer.js ignores persistPath config, hardcodes .swarm/ | [#1152](https://github.com/ruvnet/claude-flow/issues/1152) |
 
+### HK — Hooks
+
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
+|----|-------------|--------------|
+| [HK&#8209;001](patch/HK-001-post-edit-file-path/) | post-edit hook records file_path as "unknown" — reads env var instead of stdin JSON | [#1155](https://github.com/ruvnet/claude-flow/issues/1155) |
+
 ### RS — ruv-swarm
 
 | ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
@@ -123,7 +135,7 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 
 ## Totals
 
-- **20 active patches** across 10 categories
+- **22 active patches** across 12 categories
 
 ## Repository Structure
 
@@ -142,12 +154,14 @@ claude-flow-patch/
       fix.py             # Idempotent patch script
     HW-002-failures-swallowed/
       ...
-    IN-001-intelligence-stub/  # README only, no fix.py (workaround applied manually)
+    IN-001-intelligence-stub/
+      README.md
+      fix.py
     RS-001-better-sqlite3-node24/
       README.md
       fix.py
       rebuild.sh        # Post-patch: reinstall better-sqlite3@^12 with prebuilts
-    (21 issue directories total)
+    (23 issue directories total, 22 with fix.py)
 ```
 
 ## Application Order

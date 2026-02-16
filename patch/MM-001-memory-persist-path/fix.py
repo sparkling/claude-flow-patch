@@ -41,8 +41,6 @@ patch("MM-001: revert config reading (restore .swarm/ hardcoding)",
         const dbPath = options?.dbPath || path.join(swarmDir, 'memory.db');""")
 
 # Second: Remove persistPath from generated config.yaml (init/executor.js)
-EXECUTOR = init + "/executor.js"
-
 patch("MM-001: remove persistPath from config.yaml template",
     EXECUTOR,
     """memory:
