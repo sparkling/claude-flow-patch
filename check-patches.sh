@@ -15,16 +15,18 @@ COMMANDS_DIR=$(dirname "$SERVICES")/../commands
 MCP_TOOLS_DIR=$(dirname "$MEMORY")/../mcp-tools
 INIT_DIR=$(dirname "$MEMORY")/../init
 
-# Quick sentinel checks by issue ID (18 patches):
+# Quick sentinel checks by issue ID (19 patches):
 # EM-001 (embeddings.json), DM-002 (maxCpuLoad), DM-004 (loadEmbeddingModel),
-# DM-005 (applyTemporalDecay), UI-002 (getHNSWIndex in neural.js),
+# DM-005 (applyTemporalDecay), UI-001 (SONA null checks in hooks.js),
+# UI-002 (getHNSWIndex in neural.js),
 # NS-001 (all namespaces + nsFilter), NS-002 (Namespace is required + cannot be 'all'),
 # NS-003 ('patterns' typo), SG-001 (SubagentStop + TeammateIdle removed + permissions)
-# Removed: HK-001, RV-001, RV-002, UI-001, IN-001 (resolved by copying full intelligence.cjs)
+# Resolved without patches: HK-001, RV-001, RV-002, IN-001
 if grep -q "embeddings.json" "$MEMORY" 2>/dev/null \
    && grep -q "maxCpuLoad:" "$SERVICES" 2>/dev/null \
    && grep -q "loadEmbeddingModel" "$SERVICES" 2>/dev/null \
    && grep -q "applyTemporalDecay" "$SERVICES" 2>/dev/null \
+   && grep -q "learningTimeMs != null" "$COMMANDS_DIR/hooks.js" 2>/dev/null \
    && grep -q "getHNSWIndex" "$COMMANDS_DIR/neural.js" 2>/dev/null \
    && grep -q "all namespaces" "$MCP_TOOLS_DIR/memory-tools.js" 2>/dev/null \
    && grep -q "Namespace is required" "$MCP_TOOLS_DIR/memory-tools.js" 2>/dev/null \

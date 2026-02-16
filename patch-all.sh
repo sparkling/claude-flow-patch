@@ -164,8 +164,12 @@ apply_patches() {
     [ -f "$fix" ] && cat "$fix"
 
     # Display & Cosmetic
-    fix="$SCRIPT_DIR/patch/UI-002-neural-status-not-loaded/fix.py"
-    [ -f "$fix" ] && cat "$fix"
+    for d in \
+        UI-001-intelligence-stats-crash \
+        UI-002-neural-status-not-loaded; do
+        fix="$SCRIPT_DIR/patch/$d/fix.py"
+        [ -f "$fix" ] && cat "$fix"
+    done
 
     # Memory Namespace (order matters: NS-001 before NS-002 before NS-003)
     for d in \
