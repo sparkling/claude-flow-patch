@@ -1,10 +1,14 @@
 # SG-001: Init generates invalid settings
 # GitHub: #1150
 #
-# Problem: TeammateIdle and TaskCompleted are not valid Claude Code hook events.
-# Fix: Replace with SubagentStop (valid event that fires on task completion).
+# Problems:
+# 1. TeammateIdle and TaskCompleted are not valid Claude Code hook events
+# 2. Permission patterns are too broad (glob wildcards)
+# 3. Hook paths use relative .claude/helpers/ which breaks from subdirectories
+#
+# Fix: Replace invalid hooks with SubagentStop, fix permissions, use $CLAUDE_PROJECT_DIR
 
-# Single atomic patch: replace invalid hooks with SubagentStop
+# SG-001a: Replace invalid hooks with SubagentStop (with correct $CLAUDE_PROJECT_DIR paths)
 patch("SG-001a: replace invalid hooks with SubagentStop",
     SETTINGS_GEN,
     """    // SubagentStart — status update
@@ -50,7 +54,7 @@ patch("SG-001a: replace invalid hooks with SubagentStop",
             hooks: [
                 {
                     type: 'command',
-                    command: 'node .claude/helpers/hook-handler.cjs status',
+                    command: 'node "$CLAUDE_PROJECT_DIR"/.claude/helpers/hook-handler.cjs status',
                     timeout: 3000,
                 },
             ],
@@ -62,7 +66,7 @@ patch("SG-001a: replace invalid hooks with SubagentStop",
             hooks: [
                 {
                     type: 'command',
-                    command: 'node .claude/helpers/hook-handler.cjs post-task',
+                    command: 'node "$CLAUDE_PROJECT_DIR"/.claude/helpers/hook-handler.cjs post-task',
                     timeout: 5000,
                 },
                 {
@@ -77,25 +81,27 @@ patch("SG-001a: replace invalid hooks with SubagentStop",
     // TaskCompleted removed — not a valid Claude Code hook event (see #1150)
     return hooks;""")
 
-# Fix permission patterns (glob patterns that are too broad)
-patch("SG-001b: fix @claude-flow permission pattern",
+# SG-001b: Fix permission patterns (too broad) and add $CLAUDE_PROJECT_DIR
+patch("SG-001b: fix permissions",
     SETTINGS_GEN,
-    "'Bash(npx @claude-flow*)'",
-    "'Bash(npx @claude-flow/cli:*)'")
+    """    permissions: {
+        allow: [
+            'Bash(npx @claude-flow*)',
+            'Bash(npx claude-flow*)',
+            'Bash(node .claude/*)',
+            'mcp__claude-flow__:*',
+        ],""",
+    """    permissions: {
+        allow: [
+            'Bash(npx @claude-flow/cli:*)',
+            'Bash(npx claude-flow:*)',
+            'Bash(node "$CLAUDE_PROJECT_DIR"/.claude/*)',
+            'mcp__claude-flow__:*',
+        ],""")
 
-patch("SG-001c: fix claude-flow permission pattern",
-    SETTINGS_GEN,
-    "'Bash(npx claude-flow*)'",
-    "'Bash(npx claude-flow:*)'")
-
-# Fix hook paths to use $CLAUDE_PROJECT_DIR (works from any subdirectory)
-# Without this, hooks fail when Claude runs from a subdirectory (e.g., scripts/foo/)
-patch_all("SG-001d: use CLAUDE_PROJECT_DIR for hook paths",
+# SG-001c: Fix all other hook paths to use $CLAUDE_PROJECT_DIR
+# (catches statusline, pre-bash, post-edit, route, session hooks, etc.)
+patch_all("SG-001c: use CLAUDE_PROJECT_DIR for all hook paths",
     SETTINGS_GEN,
     "command: 'node .claude/helpers/",
     'command: \'node "$CLAUDE_PROJECT_DIR"/.claude/helpers/')
-
-patch("SG-001e: add CLAUDE_PROJECT_DIR to permissions",
-    SETTINGS_GEN,
-    "'Bash(node .claude/*)'",
-    "'Bash(node \"$CLAUDE_PROJECT_DIR\"/.claude/*)'")
