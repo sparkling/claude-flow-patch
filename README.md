@@ -6,29 +6,31 @@ These patches fix 26 bugs and missing features in the `@claude-flow/cli`, `ruvec
 
 ## Quick Start
 
+**Patch before init.** Several patches fix the init/generator scripts. If you run `claude-flow init` before patching, the generated `.claude/helpers/` files will be stubs with no learning, no PageRank, and no-op feedback. Always patch first:
+
 ```bash
-# Apply all patches to both global (npx cache) and local (node_modules)
+# 1. Patch first — fixes the init generators
 bash patch-all.sh
 
-# Apply only to global npx cache
-bash patch-all.sh --scope global
+# 2. Then init (or re-init if already initialized)
+npx @claude-flow/cli@latest init            # fresh project
+npx @claude-flow/cli@latest init upgrade    # existing project
 
-# Apply only to local node_modules
-bash patch-all.sh --scope local
-
-# Verify patches are applied
+# 3. Verify
 bash check-patches.sh
 ```
 
+If you already initialized before patching, see [Init-Script Patches](#init-script-patches-local-project-action-required) below.
+
 ### Scope Options
 
-| Scope | Description |
-|-------|-------------|
-| `both` | Patch both global npx cache and local node_modules (default) |
-| `global` | Patch only `~/.npm/_npx/*/node_modules/` |
-| `local` | Patch only `./node_modules/` and parent directories |
+```bash
+bash patch-all.sh                # both global + local (default)
+bash patch-all.sh --scope global # only ~/.npm/_npx/*/node_modules/
+bash patch-all.sh --scope local  # only ./node_modules/ and parents
+```
 
-**Why both?** When you run `npx @claude-flow/cli`, npm uses your local `node_modules` if present, otherwise the global npx cache. Patching both ensures fixes work regardless of how the CLI is invoked.
+**Why both scopes?** `npx @claude-flow/cli` uses your local `node_modules` if present, otherwise the global npx cache. Patching both ensures fixes work regardless of how the CLI is invoked.
 
 ## How It Works
 
@@ -172,6 +174,51 @@ claude-flow-patch/
       rebuild.sh        # Post-patch: reinstall better-sqlite3@^12 with prebuilts
     (26 defect directories total, 25 with fix.py)
 ```
+
+## Init-Script Patches (Local Project Action Required)
+
+Four patches target the **init/generator scripts** (`executor.js`, `settings-generator.js`, `helpers-generator.js`). These fix the code that *generates* your `.claude/` project files — but applying `patch-all.sh` does **not** update files already generated in your project. You must take one additional step.
+
+### Affected Defects
+
+| ID | What it patches | What's wrong in your local project | Fix |
+|----|----------------|-----------------------------------|-----|
+| **IN-001** | `init/executor.js` — intelligence.cjs generator | `.claude/helpers/intelligence.cjs` is a 197-line stub (no PageRank, no graph, `feedback()` is a no-op) | Copy full version from package |
+| **HK-001** | `init/helpers-generator.js` — hook-handler.cjs generator | `.claude/helpers/hook-handler.cjs` reads `TOOL_INPUT_*` env vars instead of stdin JSON; post-edit always logs `file: "unknown"` | Copy full version from package |
+| **SG-001** | `init/settings-generator.js` — settings.json generator | `.claude/settings.json` may contain invalid hook events (`TeammateIdle`, `TaskCompleted`), overly broad permissions, relative hook paths without `$CLAUDE_PROJECT_DIR` | Re-run init upgrade |
+| **MM-001** | `init/executor.js` — config.yaml generator | `.claude-flow/config.yaml` contains misleading `persistPath` setting that nothing reads | Re-run init or manually remove the line |
+
+### How to Fix
+
+**Option A: Copy full helpers from the package** (recommended)
+
+After applying `patch-all.sh`, copy the real helper files over the stubs:
+
+```bash
+# Apply patches to the init scripts first
+bash patch-all.sh
+
+# Then copy full helpers from the patched package to your project
+SRC=$(find ~/.npm/_npx -path '*/@claude-flow/cli/.claude/helpers' -type d 2>/dev/null | head -1)
+for f in intelligence.cjs hook-handler.cjs session.js learning-service.mjs metrics-db.mjs statusline.cjs; do
+  [ -f "$SRC/$f" ] && cp "$SRC/$f" .claude/helpers/ && echo "Copied: $f"
+done
+```
+
+**Option B: Re-run init upgrade** (regenerates from patched scripts)
+
+```bash
+bash patch-all.sh
+npx @claude-flow/cli@latest init upgrade --force
+```
+
+This regenerates all helpers using the now-patched generator code. However, it may overwrite other customizations in `.claude/`.
+
+### Why This Happens
+
+These patches fix the **generator functions** inside the npm package (e.g., `generateIntelligenceStub()` in `executor.js`). When the generator runs via `claude-flow init`, it produces the project files in `.claude/helpers/`. If your project was initialized *before* `patch-all.sh` was applied, the stubs are already on disk. `patch-all.sh` only patches the npm package source — it does not touch files already generated in your project.
+
+Additionally, `init upgrade` only force-overwrites 3 "critical" helpers (`auto-memory-hook.mjs`, `hook-handler.cjs`, `intelligence.cjs`). The other 30+ helper files (shell scripts for daemon management, health monitoring, security scanning, swarm hooks, etc.) are only copied on fresh `init`, not on upgrade. If these are missing, use Option A above to copy the full set.
 
 ## Application Order
 

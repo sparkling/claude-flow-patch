@@ -15,6 +15,26 @@
         "CLAUDE_FLOW_MEMORY_BACKEND": "hybrid"
       },
       "autoStart": false
+    },
+    "ruv-swarm": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "ruv-swarm",
+        "mcp",
+        "start",
+        "--stability"
+      ],
+      "autoStart": false
+    },
+    "ruvector": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "ruvector",
+        "mcp"
+      ],
+      "autoStart": false
     }
   }
 }

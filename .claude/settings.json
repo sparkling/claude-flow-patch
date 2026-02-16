@@ -37,19 +37,16 @@
     ],
     "SessionStart": [
       {
-        "matcher": "startup|resume",
         "hooks": [
           {
             "type": "command",
             "command": "node .claude/helpers/hook-handler.cjs session-restore",
-            "timeout": 15000,
-            "continueOnError": true
+            "timeout": 15000
           },
           {
             "type": "command",
             "command": "node .claude/helpers/auto-memory-hook.mjs import",
-            "timeout": 8000,
-            "continueOnError": true
+            "timeout": 8000
           }
         ]
       }
@@ -60,8 +57,7 @@
           {
             "type": "command",
             "command": "node .claude/helpers/hook-handler.cjs session-end",
-            "timeout": 10000,
-            "continueOnError": true
+            "timeout": 10000
           }
         ]
       }
@@ -72,8 +68,37 @@
           {
             "type": "command",
             "command": "node .claude/helpers/auto-memory-hook.mjs sync",
-            "timeout": 10000,
-            "continueOnError": true
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/helpers/hook-handler.cjs compact-manual"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/helpers/hook-handler.cjs session-end",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/helpers/hook-handler.cjs compact-auto"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/helpers/hook-handler.cjs session-end",
+            "timeout": 6000
           }
         ]
       }
@@ -84,8 +109,29 @@
           {
             "type": "command",
             "command": "node .claude/helpers/hook-handler.cjs status",
-            "timeout": 3000,
-            "continueOnError": true
+            "timeout": 3000
+          }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/helpers/hook-handler.cjs post-task",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/helpers/hook-handler.cjs post-task",
+            "timeout": 5000
           }
         ]
       }

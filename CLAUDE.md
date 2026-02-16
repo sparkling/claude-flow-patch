@@ -26,6 +26,53 @@ Runtime patches for `@claude-flow/cli` **v3.1.0-alpha.40**, `ruvector`, and `ruv
 - ALWAYS update ALL listing files when adding/removing a defect (see checklist)
 - Patch order matters: NS-001 before NS-002 before NS-003
 
+## Init-Script Patches (Local Project Action Required)
+
+**Always patch before init.** Four defects fix the init/generator scripts that produce your
+local `.claude/` project files. If you run `claude-flow init` before `patch-all.sh`, the
+generated helpers will be stubs (no learning, no PageRank, no-op feedback). The correct order:
+
+```bash
+bash patch-all.sh                               # 1. patch first
+npx @claude-flow/cli@latest init                # 2. fresh init
+npx @claude-flow/cli@latest init upgrade        #    ...or upgrade existing
+```
+
+If you already initialized before patching, you must refresh the local files manually.
+Additionally, `init upgrade` only force-overwrites 3 "critical" helpers; the other 30+ files
+(shell scripts for daemon, health, security, swarm) are only copied on fresh init. Use
+Option A below to get the full set.
+
+### Affected Defects
+
+| ID | Generator patched | Local file affected | Problem if not refreshed |
+|----|-------------------|---------------------|--------------------------|
+| IN-001 | `init/executor.js` | `.claude/helpers/intelligence.cjs` | 197-line stub: no PageRank, no graph, `feedback()` is a no-op, no learning |
+| HK-001 | `init/helpers-generator.js` | `.claude/helpers/hook-handler.cjs` | Reads env vars instead of stdin JSON; post-edit logs `file: "unknown"` |
+| SG-001 | `init/settings-generator.js` | `.claude/settings.json` | May contain invalid hook events, broad permissions, relative paths |
+| MM-001 | `init/executor.js` | `.claude-flow/config.yaml` | Misleading `persistPath` setting that nothing reads |
+
+### How to Refresh After Patching
+
+**Option A -- copy full helpers from package (recommended):**
+
+```bash
+bash patch-all.sh
+SRC=$(find ~/.npm/_npx -path '*/@claude-flow/cli/.claude/helpers' -type d 2>/dev/null | head -1)
+for f in intelligence.cjs hook-handler.cjs session.js learning-service.mjs metrics-db.mjs statusline.cjs; do
+  [ -f "$SRC/$f" ] && cp "$SRC/$f" .claude/helpers/ && echo "Copied: $f"
+done
+```
+
+**Option B -- re-run init upgrade (regenerates from patched scripts):**
+
+```bash
+bash patch-all.sh
+npx @claude-flow/cli@latest init upgrade --force
+```
+
+Caution: Option B may overwrite other customizations in `.claude/`.
+
 ## Project Structure
 
 ```
