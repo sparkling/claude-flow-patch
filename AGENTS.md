@@ -2,8 +2,8 @@
 
 > Runtime patches for `@claude-flow/cli` v3.1.0-alpha.40, `ruvector`, and `ruv-swarm` v1.0.20.
 
-**Full defect index, workflows, policies, and checklists are in [CLAUDE.md](CLAUDE.md).**
-CLAUDE.md is the single source of truth -- do not duplicate its content here.
+**Full defect index, workflows, policies, and checklists are in [README.md](README.md).**
+README.md is the single source of truth -- do not duplicate its content here.
 
 ## Project Overview
 
