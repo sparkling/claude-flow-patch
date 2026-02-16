@@ -12,5 +12,5 @@ patch("RV-002a: add activeTrajectories to defaults",
 # Fix 2: Add activeTrajectories to loaded data return
 patch("RV-002b: load activeTrajectories from file",
     RV_CLI,
-    "// Preserve learning data if present\n        learning: data.learning || undefined",
-    "// Preserve learning data if present\n        learning: data.learning || undefined,\n        // Preserve active trajectories for cross-command persistence\n        activeTrajectories: data.activeTrajectories || {}")
+    "// Preserve learning data if present\n          learning: data.learning || undefined",
+    "// Preserve learning data if present\n          learning: data.learning || undefined,\n          // Preserve active trajectories for cross-command persistence\n          activeTrajectories: data.activeTrajectories || {}")
