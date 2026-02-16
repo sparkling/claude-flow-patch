@@ -1,6 +1,6 @@
 # Claude Code Configuration -- claude-flow-patch
 
-Patches for `@claude-flow/cli` **v3.1.0-alpha.39**.
+Patches for `@claude-flow/cli` **v3.1.0-alpha.40** and `ruv-swarm` **v1.0.20**.
 
 ## Rules
 
@@ -24,9 +24,12 @@ patch/                 # One directory per issue
 
 ## Target
 
-- Package: `@claude-flow/cli@3.1.0-alpha.39`
+- Package: `@claude-flow/cli@3.1.0-alpha.40`
 - Location: `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src/`
 - The `BASE` env var is set by `patch-all.sh` to the `dist/src/` directory
+- Package: `ruv-swarm@1.0.20`
+- Location: `~/.npm/_npx/*/node_modules/ruv-swarm/`
+- RS patches find their own target paths via glob (not `BASE`)
 
 ## Patch Categories
 
@@ -39,8 +42,9 @@ patch/                 # One directory per issue
 | UI | Display & Cosmetic | 2 |
 | NS | Memory Namespace | 3 |
 | GV | Ghost Vectors | 1 |
+| RS | ruv-swarm | 1 |
 
-## All 18 Patches
+## All 20 Patches
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -62,6 +66,9 @@ patch/                 # One directory per issue
 | NS-002 | [#581 Store/delete/retrieve fall back to 'default' + accept 'all'](https://github.com/ruvnet/claude-flow/issues/581) | Critical |
 | NS-003 | [#1136 Namespace typo 'pattern' vs 'patterns'](https://github.com/ruvnet/claude-flow/issues/1136) | Medium |
 | GV-001 | [#1122 HNSW ghost vectors persist after memory delete](https://github.com/ruvnet/claude-flow/issues/1122) | Medium |
+| SG-001 | [#1150 Init generates invalid hooks and permissions](https://github.com/ruvnet/claude-flow/issues/1150) | High |
+| MM-001 | [#1152 memory-initializer.js ignores persistPath](https://github.com/ruvnet/claude-flow/issues/1152) | Medium |
+| RS-001 | [ruv-FANN#185 ruv-swarm: better-sqlite3 lacks Node 24 binaries](https://github.com/ruvnet/ruv-FANN/issues/185) | Critical |
 
 ## Writing a New Patch
 

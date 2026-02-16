@@ -1,10 +1,10 @@
 # AGENTS.md -- claude-flow-patch
 
-Agent instructions for automated patch management of `@claude-flow/cli` **v3.1.0-alpha.39**.
+Agent instructions for automated patch management of `@claude-flow/cli` **v3.1.0-alpha.40** and `ruv-swarm` **v1.0.20**.
 
 ## Purpose
 
-This repository contains 18 runtime patches for the `@claude-flow/cli` npm package. Patches fix bugs in the published npm tarball by performing idempotent string replacements on the npx-cached source files.
+This repository contains 20 runtime patches for the `@claude-flow/cli` and `ruv-swarm` npm packages. Patches fix bugs in the published npm tarballs by performing idempotent string replacements on the npx-cached source files.
 
 ## Agent Responsibilities
 
@@ -92,6 +92,12 @@ This repository contains 18 runtime patches for the `@claude-flow/cli` npm packa
 | ID | Issue | Fix |
 |----|-------|-----|
 | GV-001 | [#1122 Ghost vectors after delete](https://github.com/ruvnet/claude-flow/issues/1122) | Remove from HNSW entries Map + save metadata |
+
+### ruv-swarm (RS)
+
+| ID | Issue | Fix |
+|----|-------|-----|
+| RS-001 | [ruv-FANN#185 MCP crashes on Node 24](https://github.com/ruvnet/ruv-FANN/issues/185) | Bump `better-sqlite3` dep from `^11.6.0` to `^12.0.0` + rebuild |
 
 ## Key Design Decisions
 

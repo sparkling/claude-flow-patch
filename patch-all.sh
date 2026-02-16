@@ -192,6 +192,10 @@ apply_patches() {
     fix="$SCRIPT_DIR/patch/MM-001-memory-persist-path/fix.py"
     [ -f "$fix" ] && cat "$fix"
 
+    # ruv-swarm (separate package)
+    fix="$SCRIPT_DIR/patch/RS-001-better-sqlite3-node24/fix.py"
+    [ -f "$fix" ] && cat "$fix"
+
     echo "print(f\"[$label] Done: {applied} applied, {skipped} already present\")"
   )
 

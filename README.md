@@ -1,8 +1,8 @@
 # claude-flow-patch
 
-Community patches for [`@claude-flow/cli`](https://www.npmjs.com/package/@claude-flow/cli) **v3.1.0-alpha.39**.
+Community patches for [`@claude-flow/cli`](https://www.npmjs.com/package/@claude-flow/cli) **v3.1.0-alpha.40** and [`ruv-swarm`](https://www.npmjs.com/package/ruv-swarm) **v1.0.20**.
 
-These patches fix 19 bugs and missing features in the `@claude-flow/cli` npm package. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached CLI source files.
+These patches fix 20 bugs and missing features in the `@claude-flow/cli` and `ruv-swarm` npm packages. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached source files.
 
 ## Quick Start
 
@@ -39,13 +39,14 @@ bash check-patches.sh
 
 The `check-patches.sh` sentinel runs on session start to detect npx cache wipes and auto-reapply.
 
-## Target Version
+## Target Versions
 
 | Package | Version |
 |---------|---------|
-| `@claude-flow/cli` | `3.1.0-alpha.39` |
+| `@claude-flow/cli` | `3.1.0-alpha.40` |
+| `ruv-swarm` | `1.0.20` |
 
-Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src/`.
+Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src/` and `~/.npm/_npx/*/node_modules/ruv-swarm/`.
 
 ## Patch Index
 
@@ -114,9 +115,15 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 |----|-------------|--------------|
 | [MM&#8209;001](patch/MM-001-memory-persist-path/) | memory-initializer.js ignores persistPath config, hardcodes .swarm/ | [#1152](https://github.com/ruvnet/claude-flow/issues/1152) |
 
+### RS — ruv-swarm
+
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
+|----|-------------|--------------|
+| [RS&#8209;001](patch/RS-001-better-sqlite3-node24/) | `better-sqlite3@^11.6.0` lacks Node 24 prebuilt binaries — MCP server crashes on startup | [ruv-FANN#185](https://github.com/ruvnet/ruv-FANN/issues/185) |
+
 ## Totals
 
-- **19 active patches** across 9 categories
+- **20 active patches** across 10 categories
 
 ## Repository Structure
 
@@ -136,7 +143,11 @@ claude-flow-patch/
     HW-002-failures-swallowed/
       ...
     IN-001-intelligence-stub/  # README only, no fix.py (workaround applied manually)
-    (20 issue directories total)
+    RS-001-better-sqlite3-node24/
+      README.md
+      fix.py
+      rebuild.sh        # Post-patch: reinstall better-sqlite3@^12 with prebuilts
+    (21 issue directories total)
 ```
 
 ## Application Order
@@ -148,7 +159,7 @@ Patches are applied in a specific order by `patch-all.sh`. Notable dependency:
 
 ## Compatibility
 
-- Tested against `@claude-flow/cli@3.1.0-alpha.39`
+- Tested against `@claude-flow/cli@3.1.0-alpha.40` and `ruv-swarm@1.0.20`
 - Requires Python 3.6+ and Bash
 - Works on Linux and macOS (DM-003 is macOS-only, auto-skipped on Linux)
 
