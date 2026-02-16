@@ -115,7 +115,11 @@ RV_CLI=$(find ~/.npm/_npx -name "cli.js" -path "*/ruvector/bin/*" 2>/dev/null | 
 if [ -n "$RV_CLI" ]; then
   check "Need engine for tick" "$RV_CLI"                 # RV-001
   check "activeTrajectories: data.activeTrajectories" "$RV_CLI"  # RV-002
+  check "RV-003: sync stats" "$RV_CLI"                  # RV-003
 fi
+
+# HK — Hooks (continued)
+check "HK-003" "$MCP_TOOLS_DIR/hooks-tools.js"          # HK-003
 
 # RS — ruv-swarm (separate package, may not be installed)
 RS_PKG=$(find ~/.npm/_npx -path "*/ruv-swarm/package.json" 2>/dev/null | head -1)

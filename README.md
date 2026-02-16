@@ -2,7 +2,7 @@
 
 Community patches for [`@claude-flow/cli`](https://www.npmjs.com/package/@claude-flow/cli) **v3.1.0-alpha.40**, [`ruvector`](https://www.npmjs.com/package/ruvector), and [`ruv-swarm`](https://www.npmjs.com/package/ruv-swarm) **v1.0.20**.
 
-These patches fix 26 bugs and missing features across 13 categories. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached source files.
+These patches fix 28 defects across 13 categories. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached source files.
 
 ## Quick Start
 
@@ -87,12 +87,12 @@ claude-flow-patch/
       README.md          # Defect report: title, severity, root cause, fix
       fix.py             # Idempotent patch script (25 defects)
       fix.sh             # Shell-based patch script (EM-002)
-    (26 defect directories total)
+    (28 defect directories total)
 ```
 
 ## Defect Index
 
-26 defects across 13 categories.
+28 defects across 13 categories.
 
 ### HW -- Headless Worker Execution
 
@@ -171,6 +171,7 @@ claude-flow-patch/
 |----|-------------|----------|--------------|
 | [HK&#8209;001](patch/HK-001-post-edit-file-path/) | post-edit hook records file_path as "unknown" -- reads env var instead of stdin JSON | Medium | [#1155](https://github.com/ruvnet/claude-flow/issues/1155) |
 | [HK&#8209;002](patch/HK-002-hooks-tools-stub/) | MCP hook handlers (postEdit, postCommand, postTask) return fake data without persisting | High | [#1058](https://github.com/ruvnet/claude-flow/issues/1058) |
+| [HK&#8209;003](patch/HK-003-metrics-hardcoded/) | `hooks_metrics` MCP handler returns hardcoded fake data instead of reading persisted metrics | High | [#1158](https://github.com/ruvnet/claude-flow/issues/1158) |
 
 ### RV -- RuVector Intelligence
 
@@ -178,6 +179,7 @@ claude-flow-patch/
 |----|-------------|----------|--------------|
 | [RV&#8209;001](patch/RV-001-force-learn-tick/) | `force-learn` command crashes -- calls `intel.tick()` which doesn't exist on the Intelligence class | Medium | [#1156](https://github.com/ruvnet/claude-flow/issues/1156) |
 | [RV&#8209;002](patch/RV-002-trajectory-load/) | `activeTrajectories` not loaded from file -- `trajectory-step`/`trajectory-end` fail with "No active trajectory" | High | [#1157](https://github.com/ruvnet/claude-flow/issues/1157) |
+| [RV&#8209;003](patch/RV-003-trajectory-stats-sync/) | `trajectory-end` does not update `stats` counters -- `hooks stats` reports zeros despite real data | Medium | [ruv-FANN#186](https://github.com/ruvnet/ruv-FANN/issues/186) |
 
 ### RS -- ruv-swarm
 

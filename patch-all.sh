@@ -210,6 +210,13 @@ apply_patches() {
     fix="$SCRIPT_DIR/patch/RV-002-trajectory-load/fix.py"
     [ -f "$fix" ] && cat "$fix"
 
+    fix="$SCRIPT_DIR/patch/RV-003-trajectory-stats-sync/fix.py"
+    [ -f "$fix" ] && cat "$fix"
+
+    # Hooks (continued)
+    fix="$SCRIPT_DIR/patch/HK-003-metrics-hardcoded/fix.py"
+    [ -f "$fix" ] && cat "$fix"
+
     # ruv-swarm (separate package)
     fix="$SCRIPT_DIR/patch/RS-001-better-sqlite3-node24/fix.py"
     [ -f "$fix" ] && cat "$fix"
