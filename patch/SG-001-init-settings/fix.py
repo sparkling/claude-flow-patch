@@ -87,3 +87,15 @@ patch("SG-001c: fix claude-flow permission pattern",
     SETTINGS_GEN,
     "'Bash(npx claude-flow*)'",
     "'Bash(npx claude-flow:*)'")
+
+# Fix hook paths to use $CLAUDE_PROJECT_DIR (works from any subdirectory)
+# Without this, hooks fail when Claude runs from a subdirectory (e.g., scripts/foo/)
+patch_all("SG-001d: use CLAUDE_PROJECT_DIR for hook paths",
+    SETTINGS_GEN,
+    "command: 'node .claude/helpers/",
+    'command: \'node "$CLAUDE_PROJECT_DIR"/.claude/helpers/')
+
+patch("SG-001e: add CLAUDE_PROJECT_DIR to permissions",
+    SETTINGS_GEN,
+    "'Bash(node .claude/*)'",
+    "'Bash(node \"$CLAUDE_PROJECT_DIR\"/.claude/*)'")
