@@ -2,7 +2,7 @@
 
 Community patches for [`@claude-flow/cli`](https://www.npmjs.com/package/@claude-flow/cli) **v3.1.0-alpha.39**.
 
-These patches fix 18 bugs and missing features in the `@claude-flow/cli` npm package. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached CLI source files.
+These patches fix 20 bugs and missing features in the `@claude-flow/cli` npm package. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached CLI source files.
 
 ## Quick Start
 
@@ -92,9 +92,15 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 |----|-------------|--------------|
 | [SG&#8209;001](patch/SG-001-init-settings/) | Init generates invalid hooks and permission patterns | [#1150](https://github.com/ruvnet/claude-flow/issues/1150) |
 
+### MM — Memory Management
+
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
+|----|-------------|--------------|
+| [MM&#8209;001](patch/MM-001-memory-persist-path/) | memory-initializer.js ignores persistPath config, hardcodes .swarm/ | [#1152](https://github.com/ruvnet/claude-flow/issues/1152) |
+
 ## Totals
 
-- **19 issues** across 8 categories
+- **20 issues** across 9 categories
 
 ## Repository Structure
 
@@ -113,7 +119,7 @@ claude-flow-patch/
       fix.py             # Idempotent patch script
     HW-002-failures-swallowed/
       ...
-    (18 issue directories total)
+    (20 issue directories total)
 ```
 
 ## Application Order
