@@ -84,14 +84,14 @@ patch("SG-001a: replace invalid hooks with SubagentStop",
 # SG-001b: Fix permission patterns (too broad) and add $CLAUDE_PROJECT_DIR
 patch("SG-001b: fix permissions",
     SETTINGS_GEN,
-    """    permissions: {
+    """    settings.permissions = {
         allow: [
             'Bash(npx @claude-flow*)',
             'Bash(npx claude-flow*)',
             'Bash(node .claude/*)',
             'mcp__claude-flow__:*',
         ],""",
-    """    permissions: {
+    """    settings.permissions = {
         allow: [
             'Bash(npx @claude-flow/cli:*)',
             'Bash(npx claude-flow:*)',
