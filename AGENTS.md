@@ -1,28 +1,33 @@
 # claude-flow-patch
 
-> Runtime patches for `@claude-flow/cli` v3.1.0-alpha.40, `ruvector`, and `ruv-swarm` v1.0.20.
+> Runtime patches for `@claude-flow/cli` v3.1.0-alpha.40, `ruvector`, and `ruv-swarm` v1.0.20
 
-**Full defect index, workflows, policies, and checklists are in [README.md](README.md).**
-README.md is the single source of truth -- do not duplicate its content here.
+**Claude Code instructions are in [CLAUDE.md](CLAUDE.md). Project-specific instructions (defect index, workflows, policies) are in [README.md](README.md).**
 
 ## Project Overview
+
+A Claude Flow powered project
 
 **Tech Stack**: Python (patches), Bash (orchestration)
 **Architecture**: Idempotent runtime patching via string replacement
 
 ## Quick Start
 
+### Apply Patches
 ```bash
-# Apply all patches
 bash patch-all.sh
+```
 
-# Verify patches
+### Verify
+```bash
 bash check-patches.sh
 ```
 
 ## Agent Coordination
 
 ### Swarm Configuration
+
+This project uses hierarchical swarm coordination for complex tasks:
 
 | Setting | Value | Purpose |
 |---------|-------|---------|
@@ -34,25 +39,20 @@ bash check-patches.sh
 ### When to Use Swarms
 
 **Invoke swarm for:**
-- Multi-defect batch patching (3+ defects)
-- New defect creation (research + implement + verify)
-- Cross-category refactoring
+- Multi-file changes (3+ files)
+- New feature implementation
+- Cross-module refactoring
+- API changes with tests
+- Security-related changes
+- Performance optimization
 
 **Skip swarm for:**
-- Single defect fix
-- Sentinel check
-- Documentation-only updates
+- Single file edits
+- Simple bug fixes (1-2 lines)
+- Documentation updates
+- Configuration changes
 
-### Agent Types
-
-| Type | Role | Use Case |
-|------|------|----------|
-| `researcher` | Defect analysis | Reading GitHub issues, understanding root cause |
-| `coder` | Patch implementation | Writing fix.py scripts |
-| `tester` | Verification | Running patch-all.sh and check-patches.sh |
-| `reviewer` | Code review | Checking patch correctness and idempotency |
-
-## Available Skills
+### Available Skills
 
 Use `$skill-name` syntax to invoke:
 
@@ -63,42 +63,62 @@ Use `$skill-name` syntax to invoke:
 | `$sparc-methodology` | Structured development workflow |
 | `$security-audit` | Security scanning and CVE detection |
 
-## Platform Compatibility
+### Agent Types
 
-| Platform | Config File | Skill Syntax |
-|----------|-------------|--------------|
-| Claude Code | CLAUDE.md + .claude/ | /skill-name |
-| OpenAI Codex | AGENTS.md + .agents/ | $skill-name |
-
-### Configuration
-
-- **Codex**: `.agents/config.toml` (project), `.codex/config.toml` (local, gitignored)
-- **Claude Code**: `CLAUDE.md` + `.claude/settings.json`
-
-## MCP Integration
-
-```bash
-npx @claude-flow/cli@latest mcp start
-```
+| Type | Role | Use Case |
+|------|------|----------|
+| `researcher` | Requirements analysis | Understanding scope |
+| `architect` | System design | Planning structure |
+| `coder` | Implementation | Writing code |
+| `tester` | Test creation | Quality assurance |
+| `reviewer` | Code review | Security and quality |
 
 ## Code Standards
 
-- NEVER modify files inside the npm/npx cache directly -- edit `fix.py` scripts in `patch/`
-- NEVER run individual `fix.py` files standalone -- always use `bash patch-all.sh`
-- ALWAYS verify with `bash check-patches.sh` after applying
-- Patch order matters: NS-001 before NS-002 before NS-003
+### File Organization
+- **NEVER** save to root folder
+- `/src` - Source code files
+- `/tests` - Test files
+- `/docs` - Documentation
+- `/config` - Configuration files
+
+### Quality Rules
+- Files under 500 lines
+- No hardcoded secrets
+- Input validation at boundaries
+- Typed interfaces for public APIs
+- TDD London School (mock-first) preferred
+
+### Commit Messages
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+Co-Authored-By: claude-flow <ruv@ruv.net>
+```
+
+Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 
 ## Security
 
-- NEVER commit .env files or secrets
+### Critical Rules
+- NEVER commit secrets, credentials, or .env files
 - NEVER hardcode API keys
-- Patches only modify the npx cache, never the npm registry package
+- Always validate user input
+- Use parameterized queries for SQL
+- Sanitize output to prevent XSS
+
+### Path Security
+- Validate all file paths
+- Prevent directory traversal (../)
+- Use absolute paths internally
 
 ## Memory System
 
 ### Storing Patterns
 ```bash
-npx @claude-flow/cli@latest memory store \
+npx @claude-flow/cli memory store \
   --key "pattern-name" \
   --value "pattern description" \
   --namespace patterns
@@ -106,7 +126,7 @@ npx @claude-flow/cli@latest memory store \
 
 ### Searching Memory
 ```bash
-npx @claude-flow/cli@latest memory search \
+npx @claude-flow/cli memory search \
   --query "search terms" \
   --namespace patterns
 ```
