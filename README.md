@@ -47,16 +47,6 @@ The `check-patches.sh` sentinel runs on session start to detect npx cache wipes 
 
 Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src/`.
 
-## Resolved Issues
-
-The following issues were resolved without runtime patches:
-
-| ID | Resolution |
-|----|------------|
-| [IN&#8209;001](patch/IN-001-intelligence-stub/) | `intelligence.cjs` stub replaced by copying the full 916-line version from the `@claude-flow/cli` package. Root cause: `findSourceHelpersDir()` fails with npx paths. See [#1154](https://github.com/ruvnet/claude-flow/issues/1154). |
-| HK&#8209;001 | MCP hook handlers (`hooks-tools.js`) are not in the active learning pipeline — local `hook-handler.cjs` handles all hooks. [#1058](https://github.com/ruvnet/claude-flow/issues/1058) |
-| RV&#8209;001 | `ruvector hooks force-learn` not needed — local `intelligence.cjs` handles learning via hooks. |
-| RV&#8209;002 | `ruvector` trajectory persistence not needed — not in the hook execution path. |
 ## Patch Index
 
 ### HW — Headless Worker Execution
@@ -127,7 +117,6 @@ The following issues were resolved without runtime patches:
 ## Totals
 
 - **19 active patches** across 9 categories
-- **4 resolved issues** (see Resolved Issues above)
 
 ## Repository Structure
 
@@ -146,7 +135,7 @@ claude-flow-patch/
       fix.py             # Idempotent patch script
     HW-002-failures-swallowed/
       ...
-    IN-001-intelligence-stub/  # Resolved — README only, no fix.py
+    IN-001-intelligence-stub/  # README only, no fix.py (workaround applied manually)
     (20 issue directories total)
 ```
 

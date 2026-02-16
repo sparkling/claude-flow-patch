@@ -21,7 +21,7 @@ INIT_DIR=$(dirname "$MEMORY")/../init
 # UI-002 (getHNSWIndex in neural.js),
 # NS-001 (all namespaces + nsFilter), NS-002 (Namespace is required + cannot be 'all'),
 # NS-003 ('patterns' typo), SG-001 (SubagentStop + TeammateIdle removed + permissions)
-# Resolved without patches: HK-001, RV-001, RV-002, IN-001
+# Closed as non-issues: HK-001, RV-001, RV-002, IN-001
 if grep -q "embeddings.json" "$MEMORY" 2>/dev/null \
    && grep -q "maxCpuLoad:" "$SERVICES" 2>/dev/null \
    && grep -q "loadEmbeddingModel" "$SERVICES" 2>/dev/null \
