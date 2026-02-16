@@ -114,6 +114,12 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 |----|-------------|--------------|
 | [MM&#8209;001](patch/MM-001-memory-persist-path/) | memory-initializer.js ignores persistPath config, hardcodes .swarm/ | [#1152](https://github.com/ruvnet/claude-flow/issues/1152) |
 
+### HK — Hooks Persistence
+
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
+|----|-------------|--------------|
+| [HK&#8209;001](patch/HK-001-hooks-tools-stub/) | MCP hook handlers return fake success but don't persist any data | [#1058](https://github.com/ruvnet/claude-flow/issues/1058) |
+
 ### RV — RuVector Intelligence
 
 | ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
@@ -123,7 +129,7 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 
 ## Totals
 
-- **22 issues** across 10 categories
+- **23 issues** across 11 categories
 
 ## Repository Structure
 

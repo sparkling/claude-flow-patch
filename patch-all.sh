@@ -192,6 +192,10 @@ apply_patches() {
     fix="$SCRIPT_DIR/patch/MM-001-memory-persist-path/fix.py"
     [ -f "$fix" ] && cat "$fix"
 
+    # Hooks Persistence
+    fix="$SCRIPT_DIR/patch/HK-001-hooks-tools-stub/fix.py"
+    [ -f "$fix" ] && cat "$fix"
+
     # RuVector Intelligence (only if ruvector found)
     echo 'if ruvector_cli:'
     for d in \
