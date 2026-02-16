@@ -13,9 +13,13 @@ if [ -z "$RS_DIR" ]; then
   exit 0
 fi
 
-echo "[RS-001] Reinstalling better-sqlite3@^12.0.0 in: $RS_DIR"
+# Install at the npx cache root (where better-sqlite3 is hoisted),
+# not inside ruv-swarm's own node_modules
+NPX_ROOT=$(echo "$RS_DIR" | sed 's|/node_modules/ruv-swarm$||')
 
-cd "$RS_DIR"
+echo "[RS-001] Reinstalling better-sqlite3@^12.0.0 in: $NPX_ROOT"
+
+cd "$NPX_ROOT"
 npm install better-sqlite3@"^12.0.0" --no-save 2>&1
 
 echo "[RS-001] Verifying..."
