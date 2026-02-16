@@ -1,15 +1,10 @@
-# MM-001: memory-initializer.js ignores persistPath config, hardcodes .swarm/
+# MM-001: Remove dead persistPath config from init command
+# The persistPath setting is generated but never consumed - all code uses hardcoded .swarm/
+# Rather than patching 15+ files to respect it, we remove the misleading config option.
 
-patch("MM-001: read persistPath from config",
+# First: Revert any previous MM-001 patch that tried to read persistPath
+patch("MM-001: revert config reading (restore .swarm/ hardcoding)",
     MI,
-    """        // Persistent storage paths
-        const swarmDir = path.join(process.cwd(), '.swarm');
-        if (!fs.existsSync(swarmDir)) {
-            fs.mkdirSync(swarmDir, { recursive: true });
-        }
-        const hnswPath = path.join(swarmDir, 'hnsw.index');
-        const metadataPath = path.join(swarmDir, 'hnsw.metadata.json');
-        const dbPath = options?.dbPath || path.join(swarmDir, 'memory.db');""",
     """        // MM-001: Read persistPath from config instead of hardcoding .swarm/
         let dataDir = path.join(process.cwd(), '.swarm'); // fallback
         try {
@@ -35,4 +30,27 @@ patch("MM-001: read persistPath from config",
         }
         const hnswPath = path.join(dataDir, 'hnsw.index');
         const metadataPath = path.join(dataDir, 'hnsw.metadata.json');
-        const dbPath = options?.dbPath || path.join(dataDir, 'memory.db');""")
+        const dbPath = options?.dbPath || path.join(dataDir, 'memory.db');""",
+    """        // Persistent storage paths
+        const swarmDir = path.join(process.cwd(), '.swarm');
+        if (!fs.existsSync(swarmDir)) {
+            fs.mkdirSync(swarmDir, { recursive: true });
+        }
+        const hnswPath = path.join(swarmDir, 'hnsw.index');
+        const metadataPath = path.join(swarmDir, 'hnsw.metadata.json');
+        const dbPath = options?.dbPath || path.join(swarmDir, 'memory.db');""")
+
+# Second: Remove persistPath from generated config.yaml (init/executor.js)
+EXECUTOR = init + "/executor.js"
+
+patch("MM-001: remove persistPath from config.yaml template",
+    EXECUTOR,
+    """memory:
+  backend: ${options.runtime.memoryBackend}
+  enableHNSW: ${options.runtime.enableHNSW}
+  persistPath: .claude-flow/data
+  cacheSize: 100""",
+    """memory:
+  backend: ${options.runtime.memoryBackend}
+  enableHNSW: ${options.runtime.enableHNSW}
+  cacheSize: 100""")
