@@ -1,8 +1,6 @@
 # UI-002: neural status shows "Not loaded" for installed components
 # Absorbed from old patch-18. Applied manually to npx cache.
 
-NEURAL = commands + "/neural.js"
-
 # Update import to include getHNSWIndex
 patch("18a: neural.js import getHNSWIndex",
     NEURAL,

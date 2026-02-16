@@ -42,6 +42,7 @@ EXECUTOR="$INIT_DIR/executor.js"
 # IN-001: intelligenceContent in executor.js (replaces generateIntelligenceStub inline)
 # MM-001: persistPath removed from executor.js (absence check)
 # HK-001: stdinData stdin parsing in helpers-generator.js
+# HK-002: getRealStoreFunction persistence in hooks-tools.js
 # RS-001: better-sqlite3 ^12 in ruv-swarm (checked separately)
 
 all_ok=true
@@ -89,6 +90,7 @@ check "hnswIndex.entries.delete" "$MEMORY"             # GV-001 (note: ?. in act
 # SG — Settings Generator
 check "hooks.SubagentStop" "$INIT_DIR/settings-generator.js"    # SG-001a
 check "TeammateIdle removed" "$INIT_DIR/settings-generator.js"  # SG-001a
+check "CLAUDE_PROJECT_DIR" "$INIT_DIR/settings-generator.js"    # SG-001b/c
 
 # IN — Intelligence
 check "intelligenceContent" "$EXECUTOR"                    # IN-001
@@ -100,11 +102,19 @@ fi
 
 # HK — Hooks
 check "stdinData" "$INIT_DIR/helpers-generator.js"     # HK-001
+check "HK-002a" "$MCP_TOOLS_DIR/hooks-tools.js"       # HK-002
 
 # GV-001 uses optional chaining so check more broadly
 if ! grep -q "hnswIndex" "$MEMORY" 2>/dev/null; then
   # If even hnswIndex isn't there, something is very wrong
   all_ok=false
+fi
+
+# RV — RuVector intelligence (separate package, may not be installed)
+RV_CLI=$(find ~/.npm/_npx -name "cli.js" -path "*/ruvector/bin/*" 2>/dev/null | head -1)
+if [ -n "$RV_CLI" ]; then
+  check "Need engine for tick" "$RV_CLI"                 # RV-001
+  check "activeTrajectories: data.activeTrajectories" "$RV_CLI"  # RV-002
 fi
 
 # RS — ruv-swarm (separate package, may not be installed)

@@ -71,6 +71,9 @@ MI = memory + "/memory-initializer.js" if memory else ""
 MCP_MEMORY = base + "/mcp-tools/memory-tools.js" if base else ""
 MCP_HOOKS = base + "/mcp-tools/hooks-tools.js" if base else ""
 CLI_MEMORY = commands + "/memory.js" if commands else ""
+CONF = commands + "/config.js" if commands else ""
+HOOKS_CMD = commands + "/hooks.js" if commands else ""
+NEURAL = commands + "/neural.js" if commands else ""
 EMB_TOOLS = base + "/mcp-tools/embeddings-tools.js" if base else ""
 
 # Init module

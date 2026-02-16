@@ -1,8 +1,8 @@
 # claude-flow-patch
 
-Community patches for [`@claude-flow/cli`](https://www.npmjs.com/package/@claude-flow/cli) **v3.1.0-alpha.40** and [`ruv-swarm`](https://www.npmjs.com/package/ruv-swarm) **v1.0.20**.
+Community patches for [`@claude-flow/cli`](https://www.npmjs.com/package/@claude-flow/cli) **v3.1.0-alpha.40**, [`ruvector`](https://www.npmjs.com/package/ruvector), and [`ruv-swarm`](https://www.npmjs.com/package/ruv-swarm) **v1.0.20**.
 
-These patches fix 22 bugs and missing features in the `@claude-flow/cli` and `ruv-swarm` npm packages. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached source files.
+These patches fix 26 bugs and missing features in the `@claude-flow/cli`, `ruvector`, and `ruv-swarm` npm packages. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached source files.
 
 ## Quick Start
 
@@ -44,11 +44,12 @@ The `check-patches.sh` sentinel runs on session start to detect npx cache wipes 
 | Package | Version |
 |---------|---------|
 | `@claude-flow/cli` | `3.1.0-alpha.40` |
+| `ruvector` | (bundled) |
 | `ruv-swarm` | `1.0.20` |
 
-Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src/` and `~/.npm/_npx/*/node_modules/ruv-swarm/`.
+Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src/`, `~/.npm/_npx/*/node_modules/ruvector/bin/`, and `~/.npm/_npx/*/node_modules/ruv-swarm/`.
 
-## Patch Index
+## Defect Index
 
 ### HW — Headless Worker Execution
 
@@ -126,6 +127,14 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 | ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
 |----|-------------|--------------|
 | [HK&#8209;001](patch/HK-001-post-edit-file-path/) | post-edit hook records file_path as "unknown" — reads env var instead of stdin JSON | [#1155](https://github.com/ruvnet/claude-flow/issues/1155) |
+| [HK&#8209;002](patch/HK-002-hooks-tools-stub/) | MCP hook handlers (postEdit, postCommand, postTask) return fake data without persisting | [#1058](https://github.com/ruvnet/claude-flow/issues/1058) |
+
+### RV — RuVector Intelligence
+
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
+|----|-------------|--------------|
+| [RV&#8209;001](patch/RV-001-force-learn-tick/) | `force-learn` command crashes — calls `intel.tick()` which doesn't exist on the Intelligence class | [#1156](https://github.com/ruvnet/claude-flow/issues/1156) |
+| [RV&#8209;002](patch/RV-002-trajectory-load/) | `activeTrajectories` not loaded from file — `trajectory-step`/`trajectory-end` fail with "No active trajectory" | [#1157](https://github.com/ruvnet/claude-flow/issues/1157) |
 
 ### RS — ruv-swarm
 
@@ -135,14 +144,14 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 
 ## Totals
 
-- **22 active patches** across 12 categories
+- **26 defects** across 13 categories
 
 ## Repository Structure
 
 ```
 claude-flow-patch/
   README.md              # This file
-  CLAUDE.md              # Claude Code instructions for working with patches
+  CLAUDE.md              # Claude Code instructions for working with defects
   AGENTS.md              # Agent instructions for automated patching
   patch-all.sh           # Apply all patches (entry point)
   check-patches.sh       # Sentinel: verify + auto-reapply
@@ -161,7 +170,7 @@ claude-flow-patch/
       README.md
       fix.py
       rebuild.sh        # Post-patch: reinstall better-sqlite3@^12 with prebuilts
-    (23 issue directories total, 22 with fix.py)
+    (26 defect directories total, 25 with fix.py)
 ```
 
 ## Application Order

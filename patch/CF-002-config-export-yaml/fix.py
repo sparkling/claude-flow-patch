@@ -3,8 +3,6 @@
 # NOTE: This patch was originally applied via sed, not via patch().
 # The patch() calls below replicate the same changes.
 
-CONF = commands + "/config.js"
-
 # Add fs/path imports after existing imports
 patch("16a: config.js add readYamlConfig",
     CONF,

@@ -1,5 +1,5 @@
 #!/bin/bash
-# patch-all.sh — Orchestrator for folder-per-issue patches
+# patch-all.sh — Orchestrator for folder-per-defect patches
 # Safe to run multiple times. Each fix.py is idempotent via patch()/patch_all().
 #
 # Usage:
@@ -198,6 +198,16 @@ apply_patches() {
 
     # Hooks
     fix="$SCRIPT_DIR/patch/HK-001-post-edit-file-path/fix.py"
+    [ -f "$fix" ] && cat "$fix"
+
+    fix="$SCRIPT_DIR/patch/HK-002-hooks-tools-stub/fix.py"
+    [ -f "$fix" ] && cat "$fix"
+
+    # RuVector intelligence
+    fix="$SCRIPT_DIR/patch/RV-001-force-learn-tick/fix.py"
+    [ -f "$fix" ] && cat "$fix"
+
+    fix="$SCRIPT_DIR/patch/RV-002-trajectory-load/fix.py"
     [ -f "$fix" ] && cat "$fix"
 
     # ruv-swarm (separate package)

@@ -55,7 +55,10 @@ node .claude/helpers/intelligence.cjs stats
 node .claude/helpers/intelligence.cjs stats --json
 ```
 
-## Files
+## Files Patched
 
-- `.claude/helpers/intelligence.cjs` — Replace stub with full version from package
-- `dist/src/init/executor.js` — Upstream bug: `findSourceHelpersDir()` fails with npx paths
+- `init/executor.js`
+
+## Ops
+
+2 ops in fix.py

@@ -1,39 +1,113 @@
-# Claude Code Configuration -- claude-flow-patch
+# claude-flow-patch
 
-Patches for `@claude-flow/cli` **v3.1.0-alpha.40** and `ruv-swarm` **v1.0.20**.
+Runtime patches for `@claude-flow/cli` **v3.1.0-alpha.40**, `ruvector`, and `ruv-swarm` **v1.0.20**.
+
+## Terminology
+
+| Term | Meaning | Example |
+|------|---------|---------|
+| **Defect** | A tracked problem (bug or missing feature). Each defect has its own directory under `patch/` with a README.md and fix.py. | "Defect HW-001", "26 defects across 13 categories" |
+| **Patch** | The code change that addresses a defect. Implemented as `fix.py` (or `fix.sh`) using `patch()`/`patch_all()` calls. We patch because we can't fix upstream. | "fix.py contains 3 patch ops" |
+| **GitHub issue** | The upstream issue on github.com/ruvnet/claude-flow. Always say "GitHub issue", never just "issue". | "GitHub issue #1111" |
+| **Defect ID** | The unique identifier for a defect: `{PREFIX}-{NNN}`. | HW-001, NS-003, RS-001 |
+
+- Use **defect** for the tracked problem (the folder, the ID, the concept).
+- Use **patch** for the code change applied to the library (`fix.py`, `patch()`, `patch-all.sh`).
+- Always say **GitHub issue** for the upstream reference -- never bare "issue".
 
 ## Rules
 
-- NEVER modify files inside the npm/npx cache directly -- always edit `fix.py` scripts in `patch/`
-- ALWAYS run `bash patch-all.sh` to apply changes, never run individual `fix.py` files standalone
+- NEVER modify files inside the npm/npx cache directly -- edit `fix.py` scripts in `patch/`
+- NEVER run individual `fix.py` files standalone -- always use `bash patch-all.sh`
+- NEVER delete a defect without confirming it is truly obsolete -- see "Removing a Defect" below
+- NEVER reuse a defect ID that was previously assigned to a different GitHub issue
+- ONE defect directory and ONE fix.py per GitHub issue -- do not combine multiple GitHub issues into one defect or split one GitHub issue across multiple defects
 - ALWAYS verify with `bash check-patches.sh` after applying
-- Each `fix.py` uses `patch()` or `patch_all()` from `lib/common.py` -- these are idempotent
+- ALWAYS update ALL listing files when adding/removing a defect (see checklist)
 - Patch order matters: NS-001 before NS-002 before NS-003
-- EVERY patch MUST have a GitHub issue -- create one if none exists
-- ALWAYS update ALL listing files when adding a patch (see checklist below)
 
 ## Project Structure
 
 ```
-patch-all.sh           # Orchestrator -- applies all patches in order
-check-patches.sh       # Sentinel -- detects wipes, auto-reapplies
-lib/common.py          # Shared helpers: patch(), patch_all(), file paths
-patch/                 # One directory per issue
+patch-all.sh            # Orchestrator -- applies all patches in order
+check-patches.sh        # Sentinel -- detects wipes, auto-reapplies
+lib/common.py           # Shared helpers: patch(), patch_all(), path variables
+README.md               # Human-facing index with descriptions
+CLAUDE.md               # This file -- AI instructions (single source of truth)
+AGENTS.md               # Points here
+patch/
   {PREFIX}-{NNN}-{slug}/
-    README.md          # Bug report: title, severity, root cause, fix
-    fix.py             # Idempotent patch (uses patch()/patch_all())
+    README.md           # Defect report: title, severity, root cause, fix
+    fix.py              # Idempotent patch script (uses patch()/patch_all())
 ```
 
-## Target
+## Target Packages
 
-- Package: `@claude-flow/cli@3.1.0-alpha.40`
-- Location: `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src/`
-- The `BASE` env var is set by `patch-all.sh` to the `dist/src/` directory
-- Package: `ruv-swarm@1.0.20`
-- Location: `~/.npm/_npx/*/node_modules/ruv-swarm/`
-- RS patches find their own target paths via glob (not `BASE`)
+| Package | Version | Location | Env var |
+|---------|---------|----------|---------|
+| `@claude-flow/cli` | `3.1.0-alpha.40` | `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src/` | `BASE` |
+| `ruvector` | (bundled) | `~/.npm/_npx/*/node_modules/ruvector/bin/cli.js` | `RUVECTOR_CLI` |
+| `ruv-swarm` | `1.0.20` | `~/.npm/_npx/*/node_modules/ruv-swarm/` | (found via glob) |
 
-## Patch Categories
+`BASE` is set by `patch-all.sh`. All path variables in `lib/common.py` derive from it.
+`RUVECTOR_CLI` is set by `patch-all.sh` to the ruvector CLI entry point.
+RS-001 locates its own target via `find`.
+
+## GitHub Issue Policy
+
+Every defect MUST link to a GitHub issue. No exceptions.
+
+### Before creating a new defect, always search first:
+
+```bash
+gh issue list --repo ruvnet/claude-flow --search "<keywords>" --limit 10
+```
+
+### If an open GitHub issue exists:
+
+Post a single comment with the patch details. Do NOT post multiple comments, closing remarks, or history. One clean comment per defect:
+
+```bash
+gh issue comment <NUMBER> --repo ruvnet/claude-flow --body "$(cat <<'EOF'
+## Fix
+
+Defect **{PREFIX}-{NNN}** in [claude-flow-patch](https://github.com/hpettersen/claude-flow-patch).
+
+<What the patch does. Be specific. Include a table if multiple ops.>
+EOF
+)"
+```
+
+### If no GitHub issue exists:
+
+```bash
+gh issue create --repo ruvnet/claude-flow \
+  --title "Bug: <short description>" \
+  --body "$(cat <<'EOF'
+## Summary
+<1-2 sentences>
+
+## Root Cause
+<what's wrong and why>
+
+## Fix
+<what the patch does>
+
+## Files Affected
+- <dist/src/path/to/file.js>
+EOF
+)"
+```
+
+Save the returned GitHub issue number for the defect README.md.
+
+### Comment hygiene:
+
+- One comment per defect, describing the patch. No meta-commentary.
+- If you need to replace a comment, delete the old one first (`gh api -X DELETE`).
+- Do not reference defect history, deletion/restoration, or internal decisions.
+
+## Defect Categories
 
 | Prefix | Category | Count |
 |--------|----------|-------|
@@ -47,10 +121,11 @@ patch/                 # One directory per issue
 | IN | Intelligence | 1 |
 | SG | Settings Generator | 1 |
 | MM | Memory Management | 1 |
-| HK | Hooks | 1 |
+| HK | Hooks | 2 |
+| RV | RuVector Intelligence | 2 |
 | RS | ruv-swarm | 1 |
 
-## All 22 Patches
+## All 26 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -75,64 +150,47 @@ patch/                 # One directory per issue
 | IN-001 | [#1154 intelligence.cjs generated as stub instead of full version](https://github.com/ruvnet/claude-flow/issues/1154) | High |
 | SG-001 | [#1150 Init generates invalid hooks and permissions](https://github.com/ruvnet/claude-flow/issues/1150) | High |
 | MM-001 | [#1152 memory-initializer.js ignores persistPath](https://github.com/ruvnet/claude-flow/issues/1152) | Medium |
-| HK-001 | [#1155 post-edit hook records file_path as "unknown" -- reads env var instead of stdin JSON](https://github.com/ruvnet/claude-flow/issues/1155) | Medium |
+| HK-001 | [#1155 post-edit hook records file_path as "unknown"](https://github.com/ruvnet/claude-flow/issues/1155) | Medium |
+| HK-002 | [#1058 MCP hook handlers are stubs that don't persist data](https://github.com/ruvnet/claude-flow/issues/1058) | High |
+| RV-001 | [#1156 force-learn crashes -- intel.tick() doesn't exist](https://github.com/ruvnet/claude-flow/issues/1156) | Medium |
+| RV-002 | [#1157 activeTrajectories not loaded from file](https://github.com/ruvnet/claude-flow/issues/1157) | High |
 | RS-001 | [ruv-FANN#185 ruv-swarm: better-sqlite3 lacks Node 24 binaries](https://github.com/ruvnet/ruv-FANN/issues/185) | Critical |
 
 ---
 
-## Writing a New Patch (Full Workflow)
+## Creating a New Defect
 
-### Step 1: GitHub Issue
+Follow every step. Do not skip any.
 
-Search for an existing issue first:
+### Step 1: Find or create a GitHub issue
+
+Search first:
 
 ```bash
 gh issue list --repo ruvnet/claude-flow --search "<keywords>" --limit 10
 ```
 
-**If an issue exists**: comment on it with the root cause and fix. Note the issue number.
+- **GitHub issue exists and is open**: note the number, post a patch comment (see GitHub Issue Policy above).
+- **GitHub issue exists but is closed**: reopen it with a comment explaining why.
+- **No GitHub issue exists**: create one (see GitHub Issue Policy above). Save the returned `#number`.
 
-```bash
-gh issue comment <NUMBER> --repo ruvnet/claude-flow --body "Root cause: ...
-Fix: ...
-Patch: <PREFIX>-<NNN> in github.com/<user>/claude-flow-patch"
-```
+### Step 2: Choose a defect ID
 
-**If no issue exists**: create one with full details.
+Format: `{PREFIX}-{NNN}`
 
-```bash
-gh issue create --repo ruvnet/claude-flow \
-  --title "Bug: <short description>" \
-  --body "$(cat <<'EOF'
-## Summary
-<1-2 sentences>
+- `PREFIX`: 2-letter category code from the table above. Create a new prefix if no existing category fits.
+- `NNN`: next sequential number within that category (e.g. if HK-002 exists, next is HK-003).
+- NEVER reuse an ID previously assigned to a different GitHub issue, even if that defect was deleted.
 
-## Root Cause
-<what's wrong and why>
-
-## Fix
-<what the patch does>
-
-## Files Affected
-- <dist/src/path/to/file.js>
-EOF
-)"
-```
-
-Save the returned issue URL (e.g. `#1155`).
-
-### Step 2: Create the Patch Directory
+### Step 3: Create the defect directory
 
 ```bash
 mkdir -p patch/{PREFIX}-{NNN}-{slug}/
 ```
 
-**Naming conventions**:
-- `PREFIX`: 2-letter category code (see table above, or create a new one)
-- `NNN`: 3-digit number, sequential within category
-- `slug`: lowercase-kebab-case summary (e.g. `post-edit-file-path`)
+`slug`: lowercase-kebab-case summary (e.g. `post-edit-file-path`).
 
-### Step 3: Write README.md
+### Step 4: Write README.md
 
 Create `patch/{PREFIX}-{NNN}-{slug}/README.md`:
 
@@ -159,9 +217,9 @@ Create `patch/{PREFIX}-{NNN}-{slug}/README.md`:
 <N> ops in fix.py
 ```
 
-### Step 4: Write fix.py
+### Step 5: Write fix.py
 
-Create `patch/{PREFIX}-{NNN}-{slug}/fix.py`. Each op uses `patch()` or `patch_all()`:
+Create `patch/{PREFIX}-{NNN}-{slug}/fix.py`:
 
 ```python
 # {PREFIX}-{NNN}: Short title
@@ -169,105 +227,117 @@ Create `patch/{PREFIX}-{NNN}-{slug}/fix.py`. Each op uses `patch()` or `patch_al
 
 patch("{PREFIX}-{NNN}a: description of first change",
     TARGET_VAR,        # Path variable from lib/common.py
-    """old string""",  # Exact string to find (copy from target file)
+    """old string""",  # Exact string to find (copy-paste from target file)
     """new string""")  # Replacement string
-
-patch("{PREFIX}-{NNN}b: description of second change",
-    TARGET_VAR,
-    """old string""",
-    """new string""")
 ```
 
 **API**:
 - `patch(label, filepath, old, new)` -- replace first occurrence only
 - `patch_all(label, filepath, old, new)` -- replace ALL occurrences
 
-**Path variables** (from `lib/common.py`):
+Both are idempotent: skip if `new` already present, warn if `old` not found.
 
-| Variable | File |
-|----------|------|
-| `HWE` | `services/headless-worker-executor.js` |
-| `WD` | `services/worker-daemon.js` |
-| `DJ` | `commands/daemon.js` |
-| `DOC` | `commands/doctor.js` |
-| `MI` | `memory/memory-initializer.js` |
-| `MCP_MEMORY` | `mcp-tools/memory-tools.js` |
-| `MCP_HOOKS` | `mcp-tools/hooks-tools.js` |
-| `CLI_MEMORY` | `commands/memory.js` |
-| `EMB_TOOLS` | `mcp-tools/embeddings-tools.js` |
-| `SETTINGS_GEN` | `init/settings-generator.js` |
-| `HELPERS_GEN` | `init/helpers-generator.js` |
-| `EXECUTOR` | `init/executor.js` |
-| `ruvector_cli` | `ruvector/bin/cli.js` (separate package) |
+**Path variables** (defined in `lib/common.py`):
 
-If you need a new path variable, add it to `lib/common.py` following the existing pattern.
+| Variable | File | Package |
+|----------|------|---------|
+| `HWE` | `services/headless-worker-executor.js` | @claude-flow/cli |
+| `WD` | `services/worker-daemon.js` | @claude-flow/cli |
+| `DJ` | `commands/daemon.js` | @claude-flow/cli |
+| `DOC` | `commands/doctor.js` | @claude-flow/cli |
+| `MI` | `memory/memory-initializer.js` | @claude-flow/cli |
+| `MCP_MEMORY` | `mcp-tools/memory-tools.js` | @claude-flow/cli |
+| `MCP_HOOKS` | `mcp-tools/hooks-tools.js` | @claude-flow/cli |
+| `CLI_MEMORY` | `commands/memory.js` | @claude-flow/cli |
+| `CONF` | `commands/config.js` | @claude-flow/cli |
+| `HOOKS_CMD` | `commands/hooks.js` | @claude-flow/cli |
+| `NEURAL` | `commands/neural.js` | @claude-flow/cli |
+| `EMB_TOOLS` | `mcp-tools/embeddings-tools.js` | @claude-flow/cli |
+| `SETTINGS_GEN` | `init/settings-generator.js` | @claude-flow/cli |
+| `HELPERS_GEN` | `init/helpers-generator.js` | @claude-flow/cli |
+| `EXECUTOR` | `init/executor.js` | @claude-flow/cli |
+| `ruvector_cli` | `bin/cli.js` | ruvector |
 
-### Step 5: Add to patch-all.sh
+To target a new file, add a variable to `lib/common.py` following the existing pattern.
 
-Open `patch-all.sh` and add the fix.py in the correct category section:
+### Step 6: Register in patch-all.sh
+
+Add the fix.py in the correct category section:
 
 ```bash
-# {Category Name}
 fix="$SCRIPT_DIR/patch/{PREFIX}-{NNN}-{slug}/fix.py"
 [ -f "$fix" ] && cat "$fix"
 ```
 
-**Order matters** if the patch depends on another patch being applied first.
+Order matters when patches depend on each other (e.g. NS-001 before NS-002).
 
-### Step 6: Add sentinel check to check-patches.sh
+### Step 7: Add sentinel to check-patches.sh
 
-Add a `check` call with a unique string that only exists after the patch is applied:
+Add a `check` call with a string unique to the patched code:
 
 ```bash
-# {PREFIX} -- {Category}
 check "unique_string_from_patched_code" "$TARGET_FILE"  # {PREFIX}-{NNN}
 ```
 
-Choose a string that:
-- Only appears in the file AFTER the patch is applied
-- Is specific enough not to match unrelated code
-- Doesn't need regex escaping in `grep -q`
+The string must:
+- Only appear in the file AFTER the patch is applied
+- Be specific enough not to match unrelated code
+- Not require regex escaping in `grep -q`
 
-### Step 7: Update ALL Listing Files
+### Step 8: Update listing files
 
-**This is critical -- every patch must appear in ALL of these**:
+Every defect must appear in both:
 
-1. **`README.md`** -- Add row to the category table in Patch Index section. Update totals.
-2. **`CLAUDE.md`** (this file) -- Add row to "All N Patches" table. Update count + category table.
-3. **`AGENTS.md`** -- Add row to the category table. Update count in Purpose section.
+1. **`README.md`** -- add row to the category table, update totals
+2. **`CLAUDE.md`** (this file) -- add row to "All N Defects" table, update Defect Categories count, update total
 
-### Step 8: Test
+### Step 9: Test
 
 ```bash
-# Apply (should show "Applied: ...")
+# Apply -- should show "Applied: ..."
 bash patch-all.sh --scope global
 
-# Re-run (should show "0 applied, N already present")
+# Idempotency -- should show "0 applied, N already present"
 bash patch-all.sh --scope global
 
-# Sentinel (should show "OK: All patches verified")
+# Sentinel -- should show "OK: All patches verified"
 bash check-patches.sh
 ```
 
 ### Full Checklist
 
-- [ ] GitHub issue exists (search first, create if needed)
-- [ ] `patch/{PREFIX}-{NNN}-{slug}/README.md` created
+- [ ] GitHub issue exists (searched first, created only if none found)
+- [ ] GitHub issue comment posted with patch details
+- [ ] `patch/{PREFIX}-{NNN}-{slug}/README.md` created with all required sections
 - [ ] `patch/{PREFIX}-{NNN}-{slug}/fix.py` created with `patch()`/`patch_all()` calls
 - [ ] Path variable added to `lib/common.py` (if targeting a new file)
-- [ ] `patch-all.sh` updated with new fix.py in correct section
-- [ ] `check-patches.sh` updated with sentinel grep
-- [ ] `README.md` Patch Index table updated + totals updated
-- [ ] `CLAUDE.md` patch table updated + category table updated + totals updated
-- [ ] `AGENTS.md` patch table updated + totals updated
+- [ ] `patch-all.sh` updated with new fix.py entry
+- [ ] `check-patches.sh` updated with sentinel check
+- [ ] `README.md` updated (row + totals)
+- [ ] `CLAUDE.md` updated (row + category count + totals)
 - [ ] `bash patch-all.sh` applies successfully
 - [ ] `bash patch-all.sh` is idempotent (0 applied on re-run)
 - [ ] `bash check-patches.sh` shows OK
 
+---
+
+## Removing a Defect
+
+Before removing any defect:
+
+1. Confirm the bug is genuinely fixed upstream or the patch is truly unreachable.
+2. Do NOT remove a defect just because a local workaround exists -- the MCP-level patch may still be needed.
+3. If removing, retire the defect ID permanently. Never reassign a deleted ID to a different GitHub issue.
+4. Update both listing files (README.md, CLAUDE.md).
+5. Remove the sentinel from `check-patches.sh`.
+6. Remove the entry from `patch-all.sh`.
+
+---
+
 ## Commands
 
 ```bash
-# Apply all patches
+# Apply all patches (default: both global + local)
 bash patch-all.sh
 
 # Apply to specific scope
@@ -280,3 +350,28 @@ bash check-patches.sh
 # Check target version
 grep '"version"' ~/.npm/_npx/*/node_modules/@claude-flow/cli/package.json
 ```
+
+### Scope Options
+
+| Scope | Target | When to use |
+|-------|--------|-------------|
+| `both` | Global npx cache + local `node_modules` (default) | Normal usage -- covers both invocation paths |
+| `global` | `~/.npm/_npx/*/node_modules/` only | CI or when no local install exists |
+| `local` | `./node_modules/` and parent directories only | Monorepo or project-local installs |
+
+`npx @claude-flow/cli` uses local `node_modules` if present, otherwise the global npx cache. Patching `both` ensures fixes apply regardless of invocation method.
+
+## Dependency Order
+
+These patches must be applied in sequence (enforced by `patch-all.sh`):
+
+1. NS-001 (discovery defaults) -> NS-002 (namespace enforcement) -> NS-003 (typo fix)
+
+All other patches are independent.
+
+## Key Design Decisions
+
+- **Idempotent**: `patch()` checks if `new` string is already present before replacing.
+- **Non-destructive**: patches only modify the npx cache, never the npm registry package.
+- **Platform-aware**: DM-003 is macOS-only (auto-skipped on Linux).
+- **Sentinel-guarded**: `check-patches.sh` detects cache wipes and auto-reapplies.
