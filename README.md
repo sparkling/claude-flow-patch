@@ -2,7 +2,7 @@
 
 Community patches for [`@claude-flow/cli`](https://www.npmjs.com/package/@claude-flow/cli) **v3.1.0-alpha.39**.
 
-These patches fix 20 bugs and missing features in the `@claude-flow/cli` npm package. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached CLI source files.
+These patches fix 22 bugs and missing features in the `@claude-flow/cli` and `ruvector` npm packages. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached CLI source files.
 
 ## Quick Start
 
@@ -98,9 +98,16 @@ Patches target files under `~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src
 |----|-------------|--------------|
 | [MM&#8209;001](patch/MM-001-memory-persist-path/) | memory-initializer.js ignores persistPath config, hardcodes .swarm/ | [#1152](https://github.com/ruvnet/claude-flow/issues/1152) |
 
+### RV — RuVector Intelligence
+
+| ID | Description <img width="600" height="1" /> | GitHub&nbsp;Issue |
+|----|-------------|--------------|
+| [RV&#8209;001](patch/RV-001-force-learn-tick/) | `force-learn` calls `intel.tick()` which doesn't exist (should be `engine.tick()`) | TBD |
+| [RV&#8209;002](patch/RV-002-trajectory-load/) | `activeTrajectories` not loaded from saved file, breaking cross-command persistence | TBD |
+
 ## Totals
 
-- **20 issues** across 9 categories
+- **22 issues** across 10 categories
 
 ## Repository Structure
 
@@ -119,7 +126,9 @@ claude-flow-patch/
       fix.py             # Idempotent patch script
     HW-002-failures-swallowed/
       ...
-    (20 issue directories total)
+    RV-001-force-learn-tick/
+    RV-002-trajectory-load/
+    (22 issue directories total)
 ```
 
 ## Application Order

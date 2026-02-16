@@ -65,3 +65,6 @@ EMB_TOOLS = base + "/mcp-tools/embeddings-tools.js"
 # Init module
 init = base + "/init"
 SETTINGS_GEN = init + "/settings-generator.js"
+
+# RuVector (separate package, path set by patch-all.sh)
+ruvector_cli = os.environ.get("RUVECTOR_CLI", "")

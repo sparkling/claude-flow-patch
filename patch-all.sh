@@ -16,6 +16,15 @@ SERVICES="$BASE/services"
 COMMANDS="$BASE/commands"
 VERSION=$(grep -o '"version": "[^"]*"' "$BASE/../../package.json" 2>/dev/null | head -1 | cut -d'"' -f4)
 
+# Find ruvector CLI (may be in npx cache or project node_modules)
+export RUVECTOR_CLI=$(ls -t ~/.npm/_npx/*/node_modules/ruvector/bin/cli.js 2>/dev/null | head -1)
+if [ -z "$RUVECTOR_CLI" ]; then
+  # Fall back to common project locations
+  for p in ./node_modules/ruvector/bin/cli.js ../*/node_modules/ruvector/bin/cli.js; do
+    [ -f "$p" ] && RUVECTOR_CLI="$p" && break
+  done
+fi
+
 echo "[PATCHES] Patching v$VERSION at: $BASE"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -79,6 +88,15 @@ python3 <(
     # Memory Management
     fix="$SCRIPT_DIR/patch/MM-001-memory-persist-path/fix.py"
     [ -f "$fix" ] && cat "$fix"
+
+    # RuVector Intelligence (only if ruvector found)
+    echo 'if ruvector_cli:'
+    for d in \
+        RV-001-force-learn-tick \
+        RV-002-trajectory-load; do
+        fix="$SCRIPT_DIR/patch/$d/fix.py"
+        [ -f "$fix" ] && echo '    pass' && cat "$fix" | sed 's/^/    /'
+    done
 
     echo 'print(f"\n[PATCHES] Done: {applied} applied, {skipped} already present")'
 )
