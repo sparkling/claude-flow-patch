@@ -171,23 +171,28 @@ for (let i = 0; i < versions.length; i++) {
   for (const c of windowCommits.slice(0, 5)) {
     console.log(`    - ${c.title}`);
     if (c.body) {
-      // Show first 3 non-empty body lines, indented
       const bodyLines = c.body.split('\n')
         .filter(l => l.trim())
         .filter(l => !l.startsWith('Co-Authored-By'))
-        .slice(0, 3);
+        .filter(l => !l.startsWith('Published:'))
+        .slice(0, 6);
       for (const bl of bodyLines) {
         console.log(`      ${bl.trim()}`);
       }
     }
-    // Fetch linked GitHub issue details (if not already shown by commit body)
+    // Fetch linked GitHub issues for additional context
     for (const issueNum of extractIssueRefs(c.title)) {
       if (seenIssues.has(issueNum)) continue;
       seenIssues.add(issueNum);
       const issue = fetchIssue(issueNum);
-      if (issue && issue.body.length > 0 && !c.body) {
-        for (const bl of issue.body) {
-          console.log(`      ${bl}`);
+      if (issue && issue.body.length > 0) {
+        // Show issue body lines that aren't already in the commit body
+        const extra = issue.body.filter(l => !c.body?.includes(l));
+        if (extra.length > 0) {
+          console.log(`      Issue #${issueNum}: ${issue.title} [${issue.state}]`);
+          for (const bl of extra.slice(0, 4)) {
+            console.log(`        ${bl}`);
+          }
         }
       }
     }
