@@ -23,7 +23,13 @@ bash check-patches.sh
 grep '"version"' ~/.npm/_npx/*/node_modules/@claude-flow/cli/package.json
 ```
 
-If you already initialized before patching, see [Init-Script Patches](#init-script-patches-local-project-action-required) below.
+If you already initialized before patching, run:
+
+```bash
+bash repair-post-init.sh --target /path/to/project
+```
+
+See [Init-Script Patches](#init-script-patches-local-project-action-required) for details.
 
 ### Scope Options
 
@@ -80,6 +86,7 @@ claude-flow-patch/
   AGENTS.md              # Codex agent configuration (init --codex boilerplate)
   patch-all.sh           # Apply all patches (entry point)
   check-patches.sh       # Sentinel: verify + auto-reapply
+  repair-post-init.sh    # Rehydrate local .claude/helpers after patching
   lib/
     common.py            # Shared patch()/patch_all() helpers + path variables
   patch/
@@ -222,6 +229,29 @@ npx @claude-flow/cli@latest init upgrade --force
 ```
 
 Caution: Option B may overwrite other customizations in `.claude/`.
+
+**Option C: Use `repair-post-init.sh`** (automated)
+
+This script automates Option A and adds compatibility handling for projects
+that use `claude-flow-guidance-implementation`:
+
+- runs patch verification preflight (`check-patches.sh`)
+- locates patched helper source (`local node_modules` or `~/.npm/_npx` cache)
+- backs up existing `.claude/helpers` (default)
+- rehydrates helper files into the target project
+- installs a guidance-aware `hook-handler.cjs` when available
+- adds `.js`/`.cjs` compatibility copies for `router`, `session`, `memory`
+
+```bash
+# from claude-flow-patch repo
+bash repair-post-init.sh --target ~/src/my-project
+
+# dry-run
+bash repair-post-init.sh --target ~/src/my-project --dry-run
+
+# force global npx-cache helper source
+bash repair-post-init.sh --target ~/src/my-project --source global
+```
 
 ### Why This Happens
 
