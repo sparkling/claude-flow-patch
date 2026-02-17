@@ -1,0 +1,53 @@
+{
+  "patterns": {},
+  "memories": [],
+  "trajectories": [
+    {
+      "id": "traj_1771274391699_143dgpanm",
+      "context": "ruvector patch healthcheck",
+      "agent": "coder",
+      "steps": [
+        {
+          "action": "store and search",
+          "result": "ok",
+          "reward": 1,
+          "time": 1771274391746
+        }
+      ],
+      "startTime": 1771274391699,
+      "endTime": 1771274391794,
+      "quality": 0.8,
+      "success": true
+    },
+    {
+      "id": "traj_1771275093858_rqwh68k7x",
+      "context": "test-verification",
+      "agent": "unknown",
+      "steps": [
+        {
+          "action": "verify-patch",
+          "result": "ok",
+          "reward": 0.5,
+          "time": 1771275100114
+        }
+      ],
+      "startTime": 1771275093858,
+      "endTime": 1771275100673,
+      "quality": 0.8,
+      "success": true
+    }
+  ],
+  "errors": {},
+  "file_sequences": [],
+  "agents": {},
+  "edges": [],
+  "stats": {
+    "total_patterns": 0,
+    "total_memories": 0,
+    "total_trajectories": 2,
+    "total_errors": 0,
+    "session_count": 0,
+    "last_session": 0
+  },
+  "activeTrajectories": {}
+}
