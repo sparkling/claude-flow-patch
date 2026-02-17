@@ -105,6 +105,38 @@ function commitsForWindow(thisTime, prevTime) {
     .filter(c => !/^Checkpoint:/.test(c.title));
 }
 
+// ── GitHub issue details ──
+
+const issueCache = new Map();
+
+function fetchIssue(num) {
+  if (issueCache.has(num)) return issueCache.get(num);
+  const raw = run(`gh api repos/ruvnet/claude-flow/issues/${num}`);
+  if (!raw) { issueCache.set(num, null); return null; }
+  try {
+    const data = JSON.parse(raw);
+    const body = (data.body ?? '').split('\n')
+      .filter(l => l.trim())
+      .filter(l => !l.startsWith('##'))       // skip markdown headers
+      .filter(l => !l.startsWith('```'))       // skip code fences
+      .filter(l => !l.startsWith('Fixes #'))   // skip "Fixes #NNN"
+      .filter(l => !l.startsWith('Co-Authored'))
+      .slice(0, 4)
+      .map(l => l.trim());
+    const result = { title: data.title, state: data.state, body };
+    issueCache.set(num, result);
+    return result;
+  } catch { issueCache.set(num, null); return null; }
+}
+
+/**
+ * Extract GitHub issue numbers from a commit title, e.g. "(#1165)" -> [1165]
+ */
+function extractIssueRefs(title) {
+  const matches = [...title.matchAll(/#(\d+)/g)];
+  return matches.map(m => parseInt(m[1], 10));
+}
+
 // ── Dep diff helper ──
 
 function getDeps(version) {
@@ -135,6 +167,7 @@ for (let i = 0; i < versions.length; i++) {
   const prevTime = versions[i + 1]?.[1] ?? allVersions[allVersions.indexOf(versions[i]) + 1]?.[1];
   const windowCommits = commitsForWindow(time, prevTime);
 
+  const seenIssues = new Set();
   for (const c of windowCommits.slice(0, 5)) {
     console.log(`    - ${c.title}`);
     if (c.body) {
@@ -145,6 +178,17 @@ for (let i = 0; i < versions.length; i++) {
         .slice(0, 3);
       for (const bl of bodyLines) {
         console.log(`      ${bl.trim()}`);
+      }
+    }
+    // Fetch linked GitHub issue details (if not already shown by commit body)
+    for (const issueNum of extractIssueRefs(c.title)) {
+      if (seenIssues.has(issueNum)) continue;
+      seenIssues.add(issueNum);
+      const issue = fetchIssue(issueNum);
+      if (issue && issue.body.length > 0 && !c.body) {
+        for (const bl of issue.body) {
+          console.log(`      ${bl}`);
+        }
       }
     }
   }
