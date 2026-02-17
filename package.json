@@ -1,6 +1,6 @@
 {
   "name": "claude-flow-patch",
-  "version": "0.1.4",
+  "version": "3.1.0-alpha.41",
   "description": "Patch toolkit for @claude-flow/cli init/runtime defects with verify and post-init repair commands",
   "scripts": {
     "package": "bash npm/package.sh",
