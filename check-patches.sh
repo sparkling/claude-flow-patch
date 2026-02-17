@@ -53,6 +53,15 @@ all_ok=true
 for sentinel_file in "$SCRIPT_DIR"/patch/*/sentinel; do
   [ -f "$sentinel_file" ] || continue
 
+  # PATCH_INCLUDE / PATCH_EXCLUDE env vars filter by directory name regex
+  dirname=$(basename "$(dirname "$sentinel_file")")
+  if [ -n "${PATCH_INCLUDE:-}" ] && ! echo "$dirname" | grep -qE "$PATCH_INCLUDE"; then
+    continue
+  fi
+  if [ -n "${PATCH_EXCLUDE:-}" ] && echo "$dirname" | grep -qE "$PATCH_EXCLUDE"; then
+    continue
+  fi
+
   # Read package line (default: claude-flow)
   pkg="claude-flow"
   pkg_line=$(grep -m1 '^package:' "$sentinel_file" 2>/dev/null || true)

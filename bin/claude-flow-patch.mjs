@@ -37,8 +37,15 @@ function usage() {
   claude-flow-patch check                    Verify patch sentinels are present
   claude-flow-patch repair [options]         Post-init repair
 
-Options for default (all patches):
+Options for default (all patches) and check:
+  --include <regex>                          Only patches matching regex (against dir name)
+  --exclude <regex>                          Skip patches matching regex (against dir name)
   --scope global|local|both                  Target scope (default: both)
+
+  Examples:
+    claude-flow-patch --include "^DM-"       Only daemon patches
+    claude-flow-patch --exclude "^RV-"       Skip ruvector patches
+    claude-flow-patch --include "DM-001|HW-002"  Specific patches by ID
 
 Options for repair:
   --target <dir>                             Target directory
@@ -53,11 +60,33 @@ function run(cmd, args, opts = {}) {
   process.exit(result.status ?? 1);
 }
 
-const [, , subcommand, ...args] = process.argv;
+// ── Parse --include / --exclude from anywhere in argv ──
+
+function extractOpt(argv, name) {
+  const idx = argv.indexOf(name);
+  if (idx < 0 || idx + 1 >= argv.length) return null;
+  const val = argv[idx + 1];
+  argv.splice(idx, 2);
+  return val;
+}
+
+const rawArgs = process.argv.slice(2);
+const includeRe = extractOpt(rawArgs, '--include');
+const excludeRe = extractOpt(rawArgs, '--exclude');
+
+const [subcommand, ...args] = rawArgs;
+
+// Pass filter regexes to patch-all.sh / check-patches.sh via env
+function filterEnv() {
+  const env = { ...process.env };
+  if (includeRe) env.PATCH_INCLUDE = includeRe;
+  if (excludeRe) env.PATCH_EXCLUDE = excludeRe;
+  return env;
+}
 
 // No args → apply all patches (most common use case)
 if (!subcommand) {
-  run('bash', [resolve(rootDir, 'patch-all.sh')]);
+  run('bash', [resolve(rootDir, 'patch-all.sh')], { env: filterEnv() });
 }
 
 if (subcommand === '--help' || subcommand === '-h') {
@@ -89,4 +118,4 @@ if (!scriptName) {
   process.exit(1);
 }
 
-run('bash', [resolve(rootDir, scriptName), ...args]);
+run('bash', [resolve(rootDir, scriptName), ...args], { env: filterEnv() });

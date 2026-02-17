@@ -48,4 +48,10 @@ describe('CLI dispatch', () => {
     // check-patches.sh prints WARN when no npm cache found, exits 0
     assert.equal(r.status, 0);
   });
+
+  it('--help shows --include and --exclude options', () => {
+    const r = runCli('--help');
+    assert.ok(r.stdout.includes('--include'));
+    assert.ok(r.stdout.includes('--exclude'));
+  });
 });

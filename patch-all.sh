@@ -136,11 +136,21 @@ apply_patches() {
 
   # Dynamic discovery: concatenate common.py + all fix.py files sorted alphabetically.
   # Alphabetical order preserves dependencies (e.g. NS-001 < NS-002 < NS-003).
+  #
+  # PATCH_INCLUDE / PATCH_EXCLUDE env vars filter by directory name regex.
   python3 <(
     cat "$SCRIPT_DIR/lib/common.py"
 
     for fix in "$SCRIPT_DIR"/patch/*/fix.py; do
-      [ -f "$fix" ] && cat "$fix"
+      [ -f "$fix" ] || continue
+      dirname=$(basename "$(dirname "$fix")")
+      if [ -n "${PATCH_INCLUDE:-}" ] && ! echo "$dirname" | grep -qE "$PATCH_INCLUDE"; then
+        continue
+      fi
+      if [ -n "${PATCH_EXCLUDE:-}" ] && echo "$dirname" | grep -qE "$PATCH_EXCLUDE"; then
+        continue
+      fi
+      cat "$fix"
     done
 
     echo "print(f\"[$label] Done: {applied} applied, {skipped} already present\")"
@@ -148,7 +158,15 @@ apply_patches() {
 
   # Shell-based patches (e.g. EM-002: transformers cache permissions)
   for fix in "$SCRIPT_DIR"/patch/*/fix.sh; do
-    [ -f "$fix" ] && bash "$fix" 2>/dev/null || true
+    [ -f "$fix" ] || continue
+    dirname=$(basename "$(dirname "$fix")")
+    if [ -n "${PATCH_INCLUDE:-}" ] && ! echo "$dirname" | grep -qE "$PATCH_INCLUDE"; then
+      continue
+    fi
+    if [ -n "${PATCH_EXCLUDE:-}" ] && echo "$dirname" | grep -qE "$PATCH_EXCLUDE"; then
+      continue
+    fi
+    bash "$fix" 2>/dev/null || true
   done
 
   echo ""
