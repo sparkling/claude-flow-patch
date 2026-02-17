@@ -2,6 +2,12 @@
   "name": "claude-flow-patch",
   "version": "0.1.4",
   "description": "Patch toolkit for @claude-flow/cli init/runtime defects with verify and post-init repair commands",
+  "scripts": {
+    "package": "bash npm/package.sh",
+    "package:dry": "bash npm/package.sh --dry-run",
+    "publish:npm": "bash npm/publish.sh",
+    "publish:dry": "bash npm/publish.sh --dry-run"
+  },
   "private": false,
   "license": "MIT",
   "type": "module",

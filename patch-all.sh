@@ -188,6 +188,10 @@ apply_patches() {
     fix="$SCRIPT_DIR/patch/SG-001-init-settings/fix.py"
     [ -f "$fix" ] && cat "$fix"
 
+    # Helpers compat copies (init/executor.js)
+    fix="$SCRIPT_DIR/patch/SG-002-helpers-compat-copies/fix.py"
+    [ -f "$fix" ] && cat "$fix"
+
     # Memory Management
     fix="$SCRIPT_DIR/patch/MM-001-memory-persist-path/fix.py"
     [ -f "$fix" ] && cat "$fix"

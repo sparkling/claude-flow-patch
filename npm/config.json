@@ -1,0 +1,27 @@
+{
+  "package": {
+    "name": "claude-flow-patch",
+    "scope": "unscoped",
+    "access": "public"
+  },
+  "registry": "https://registry.npmjs.org",
+  "publish": {
+    "tag": "latest",
+    "dryRun": false,
+    "otp": false
+  },
+  "version": {
+    "current": "0.1.4",
+    "bumpStrategy": "patch",
+    "prerelease": false
+  },
+  "targets": {
+    "@claude-flow/cli": "3.1.0-alpha.41",
+    "ruv-swarm": "1.0.20",
+    "ruvector": "bundled"
+  },
+  "defects": {
+    "total": 29,
+    "categories": 13
+  }
+}

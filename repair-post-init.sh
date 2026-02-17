@@ -230,34 +230,16 @@ PY
 fi
 
 # .js/.cjs compatibility for helper modules referenced by different hook-handler variants.
-# Use shared helpers-compat module when available (DRY with guidance-implementation installer).
-COMPAT_MOD="$TARGET_DIR/node_modules/claude-flow-guidance-implementation/src/helpers-compat.mjs"
-if [ "$DRY_RUN" -eq 0 ] && [ -f "$COMPAT_MOD" ]; then
-  log "Using shared helpers-compat module"
-  compat_out=$(node --input-type=module -e "
-    import { ensureHelperCompat } from '$COMPAT_MOD';
-    const actions = ensureHelperCompat('$TARGET_HELPERS');
-    actions.forEach(a => console.log(a.module + ': ' + a.action));
-    console.log('COUNT:' + actions.length);
-  " 2>/dev/null || echo "COUNT:0")
-  compat_count=$(echo "$compat_out" | grep '^COUNT:' | cut -d: -f2)
-  copied=$((copied + compat_count))
-  echo "$compat_out" | grep -v '^COUNT:' | while read -r line; do
-    [ -n "$line" ] && log "Compat copy: $line"
-  done
-else
-  # Fallback: inline compat copy when shared module is not installed.
-  for m in router session memory statusline; do
-    if [ -f "$TARGET_HELPERS/$m.js" ] && [ ! -f "$TARGET_HELPERS/$m.cjs" ]; then
-      run_cmd cp -a "$TARGET_HELPERS/$m.js" "$TARGET_HELPERS/$m.cjs"
-      copied=$((copied + 1))
-    fi
-    if [ -f "$TARGET_HELPERS/$m.cjs" ] && [ ! -f "$TARGET_HELPERS/$m.js" ]; then
-      run_cmd cp -a "$TARGET_HELPERS/$m.cjs" "$TARGET_HELPERS/$m.js"
-      copied=$((copied + 1))
-    fi
-  done
-fi
+for m in router session memory statusline; do
+  if [ -f "$TARGET_HELPERS/$m.js" ] && [ ! -f "$TARGET_HELPERS/$m.cjs" ]; then
+    run_cmd cp -a "$TARGET_HELPERS/$m.js" "$TARGET_HELPERS/$m.cjs"
+    copied=$((copied + 1))
+  fi
+  if [ -f "$TARGET_HELPERS/$m.cjs" ] && [ ! -f "$TARGET_HELPERS/$m.js" ]; then
+    run_cmd cp -a "$TARGET_HELPERS/$m.cjs" "$TARGET_HELPERS/$m.js"
+    copied=$((copied + 1))
+  fi
+done
 
 if [ "$DRY_RUN" -eq 0 ] && [ -f "$TARGET_HELPERS/hook-handler.cjs" ]; then
   chmod +x "$TARGET_HELPERS/hook-handler.cjs" || true

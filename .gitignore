@@ -21,6 +21,10 @@ CLAUDE.local.md
 # Node
 node_modules/
 
+# npm packaging artifacts
+npm/dist/
+npm/.README.repo.bak
+
 # Python
 __pycache__/
 *.py[cod]
