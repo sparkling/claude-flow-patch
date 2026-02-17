@@ -3,6 +3,7 @@
   "version": "3.1.0-alpha.41",
   "description": "Patch toolkit for @claude-flow/cli init/runtime defects with verify and post-init repair commands",
   "scripts": {
+    "test": "node --test tests/*.test.mjs",
     "package": "bash npm/package.sh",
     "package:dry": "bash npm/package.sh --dry-run",
     "publish:npm": "bash npm/publish.sh",
