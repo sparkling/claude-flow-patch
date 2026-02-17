@@ -22,17 +22,14 @@ const args = process.argv.slice(2).filter(a => a !== '--diff');
 const showDiff = process.argv.includes('--diff');
 const count = parseInt(args[0], 10) || 10;
 
-// ── Baseline (installed) + latest from npm ──
+// ── Our baseline + latest from npm ──
 
-// Detect installed version from npx cache
 let baseline = null;
 try {
-  const pkgPath = run("find ~/.npm/_npx -path '*/@claude-flow/cli/package.json' -type f 2>/dev/null | head -1");
-  if (pkgPath) {
-    const installed = JSON.parse(readFileSync(pkgPath, 'utf-8'));
-    baseline = installed.version ?? null;
-  }
-} catch { /* not installed */ }
+  const readme = readFileSync(resolve(ROOT, 'README.md'), 'utf-8');
+  const match = readme.match(/@claude-flow\/cli.*?\*\*v?(3\.\d+\.\d+-alpha\.\d+)\*\*/);
+  baseline = match?.[1] ?? null;
+} catch { /* no README */ }
 
 const latest = run('npm view @claude-flow/cli@latest version').trim() || null;
 
@@ -66,23 +63,29 @@ const versions = allVersions.slice(0, count);
 
 // ── Fetch GitHub commits with timestamps ──
 
-const commits = []; // { time: Date, msg: string }
+const commits = []; // { time: Date, title: string, body: string }
 
 function fetchCommits() {
-  const raw = run(
-    'gh api repos/ruvnet/claude-flow/commits?per_page=100 ' +
-    "--jq '.[] | \"\\(.commit.author.date)\\t\\(.commit.message | split(\"\\n\")[0])\"'"
-  );
+  // Fetch as JSON to preserve full multi-line commit messages
+  const raw = run('gh api repos/ruvnet/claude-flow/commits?per_page=100');
   if (!raw) return;
-  for (const line of raw.split('\n')) {
-    const tab = line.indexOf('\t');
-    if (tab < 0) continue;
-    const time = new Date(line.slice(0, tab));
-    const msg = line.slice(tab + 1);
-    if (!isNaN(time.getTime()) && msg) {
-      commits.push({ time, msg });
+  try {
+    const data = JSON.parse(raw);
+    for (const item of data) {
+      const time = new Date(item.commit?.author?.date);
+      const fullMsg = item.commit?.message ?? '';
+      const lines = fullMsg.split('\n');
+      const title = lines[0] || '';
+      // Body is everything after the first blank line
+      const blankIdx = lines.findIndex((l, i) => i > 0 && l.trim() === '');
+      const body = blankIdx >= 0
+        ? lines.slice(blankIdx + 1).filter(l => l.trim()).join('\n').trim()
+        : '';
+      if (!isNaN(time.getTime()) && title) {
+        commits.push({ time, title, body });
+      }
     }
-  }
+  } catch { /* gh not available or parse error */ }
   // Sort oldest first for window matching
   commits.sort((a, b) => a.time - b.time);
 }
@@ -91,16 +94,15 @@ fetchCommits();
 
 /**
  * Find commits between prevTime (exclusive) and thisTime (inclusive).
- * Skip version-bump-only commits.
+ * Skip version-bump-only and checkpoint commits.
  */
 function commitsForWindow(thisTime, prevTime) {
   const start = prevTime ? new Date(prevTime) : new Date(0);
   const end = new Date(thisTime);
   return commits
     .filter(c => c.time > start && c.time <= end)
-    .filter(c => !/^Bump to 3\.\d/.test(c.msg))
-    .filter(c => !/^Checkpoint:/.test(c.msg))
-    .map(c => c.msg);
+    .filter(c => !/^Bump to 3\.\d/.test(c.title))
+    .filter(c => !/^Checkpoint:/.test(c.title));
 }
 
 // ── Dep diff helper ──
@@ -133,8 +135,18 @@ for (let i = 0; i < versions.length; i++) {
   const prevTime = versions[i + 1]?.[1] ?? allVersions[allVersions.indexOf(versions[i]) + 1]?.[1];
   const windowCommits = commitsForWindow(time, prevTime);
 
-  for (const msg of windowCommits.slice(0, 5)) {
-    console.log(`    - ${msg}`);
+  for (const c of windowCommits.slice(0, 5)) {
+    console.log(`    - ${c.title}`);
+    if (c.body) {
+      // Show first 3 non-empty body lines, indented
+      const bodyLines = c.body.split('\n')
+        .filter(l => l.trim())
+        .filter(l => !l.startsWith('Co-Authored-By'))
+        .slice(0, 3);
+      for (const bl of bodyLines) {
+        console.log(`      ${bl.trim()}`);
+      }
+    }
   }
   if (windowCommits.length > 5) {
     console.log(`    ... and ${windowCommits.length - 5} more`);
