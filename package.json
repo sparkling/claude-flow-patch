@@ -1,7 +1,7 @@
 {
   "name": "claude-flow-patch",
-  "version": "0.1.0",
-  "description": "Runtime patch toolkit for @claude-flow/cli with post-init helper repair",
+  "version": "0.1.1",
+  "description": "Patch toolkit for @claude-flow/cli init/runtime defects with verify and post-init repair commands",
   "private": false,
   "license": "MIT",
   "type": "module",
@@ -13,6 +13,12 @@
   "homepage": "https://github.com/sparkling/claude-flow-patch#readme",
   "bugs": {
     "url": "https://github.com/sparkling/claude-flow-patch/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "bin": {
     "claude-flow-patch": "bin/claude-flow-patch.mjs",
@@ -27,14 +33,22 @@
     "patch-all.sh",
     "check-patches.sh",
     "repair-post-init.sh",
-    "README.md"
+    "README.md",
+    "AGENTS.md",
+    "CLAUDE.md"
   ],
   "keywords": [
     "claude-flow",
+    "@claude-flow/cli",
     "patch",
-    "npx",
+    "hotfix",
+    "init",
+    "hook-handler",
+    "npm-cache",
     "hooks",
     "ruvector",
-    "ruv-swarm"
-  ]
+    "ruv-swarm",
+    "automation"
+  ],
+  "packageManager": "npm@10"
 }
