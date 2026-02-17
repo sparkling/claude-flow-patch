@@ -1,3 +1,4 @@
+# @sentinel: grep "HK-003" mcp-tools/hooks-tools.js
 # HK-003: hooks_metrics MCP handler returns hardcoded fake data
 # GitHub: #1158
 

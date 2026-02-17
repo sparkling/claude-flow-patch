@@ -1,4 +1,5 @@
 #!/bin/bash
+# @sentinel: none
 # EM-002: @xenova/transformers cache EACCES on global install
 # Global npm install creates root-owned dirs. Model cache write fails.
 

@@ -1,3 +1,5 @@
+# @sentinel: grep "Namespace is required" mcp-tools/memory-tools.js
+# @sentinel: grep "cannot be .all." mcp-tools/memory-tools.js
 # NS-002: Targeted ops (store/delete/retrieve) accept wrong namespace
 # GitHub: #581, #1137, #1135
 # Rule: Require explicit namespace, block 'all'

@@ -1,3 +1,4 @@
+# @sentinel: grep "getHNSWIndex" commands/neural.js
 # UI-002: neural status shows "Not loaded" for installed components
 # Absorbed from old patch-18. Applied manually to npx cache.
 

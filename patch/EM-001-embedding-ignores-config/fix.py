@@ -1,3 +1,4 @@
+# @sentinel: grep "embeddings.json" memory/memory-initializer.js
 # EM-001: Embedding system ignores project config (model + HNSW dims)
 # Merged from old patches 8 (config-driven model) + 9 (HNSW dimension fix)
 

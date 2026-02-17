@@ -1,3 +1,4 @@
+# @sentinel: grep "readYamlConfig" commands/config.js
 # CF-002: Config export shows hardcoded defaults instead of reading YAML
 # Absorbed from old patch-16. Applied manually to npx cache.
 # NOTE: This patch was originally applied via sed, not via patch().

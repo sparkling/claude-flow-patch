@@ -134,104 +134,22 @@ apply_patches() {
   export BASE="${base:-/dev/null}"
   export RUVECTOR_CLI="$ruvector_cli"
 
+  # Dynamic discovery: concatenate common.py + all fix.py files sorted alphabetically.
+  # Alphabetical order preserves dependencies (e.g. NS-001 < NS-002 < NS-003).
   python3 <(
     cat "$SCRIPT_DIR/lib/common.py"
 
-    # Daemon & Worker
-    for d in \
-        HW-001-stdin-hang \
-        HW-002-failures-swallowed \
-        HW-003-aggressive-intervals \
-        DM-001-daemon-log-zero \
-        DM-002-cpu-load-threshold \
-        DM-003-macos-freemem \
-        DM-004-preload-worker-stub \
-        DM-005-consolidation-worker-stub; do
-        fix="$SCRIPT_DIR/patch/$d/fix.py"
-        [ -f "$fix" ] && cat "$fix"
+    for fix in "$SCRIPT_DIR"/patch/*/fix.py; do
+      [ -f "$fix" ] && cat "$fix"
     done
-
-    # Config & Doctor
-    for d in \
-        CF-001-doctor-yaml \
-        CF-002-config-export-yaml; do
-        fix="$SCRIPT_DIR/patch/$d/fix.py"
-        [ -f "$fix" ] && cat "$fix"
-    done
-
-    # Embedding & HNSW (EM-002 is fix.sh, handled separately)
-    fix="$SCRIPT_DIR/patch/EM-001-embedding-ignores-config/fix.py"
-    [ -f "$fix" ] && cat "$fix"
-
-    # Display & Cosmetic
-    for d in \
-        UI-001-intelligence-stats-crash \
-        UI-002-neural-status-not-loaded; do
-        fix="$SCRIPT_DIR/patch/$d/fix.py"
-        [ -f "$fix" ] && cat "$fix"
-    done
-
-    # Memory Namespace (order matters: NS-001 before NS-002 before NS-003)
-    for d in \
-        NS-001-discovery-default-namespace \
-        NS-002-targeted-require-namespace \
-        NS-003-namespace-typo-pattern; do
-        fix="$SCRIPT_DIR/patch/$d/fix.py"
-        [ -f "$fix" ] && cat "$fix"
-    done
-
-    # Ghost Vector cleanup
-    fix="$SCRIPT_DIR/patch/GV-001-hnsw-ghost-vectors/fix.py"
-    [ -f "$fix" ] && cat "$fix"
-
-    # Settings Generator
-    fix="$SCRIPT_DIR/patch/SG-001-init-settings/fix.py"
-    [ -f "$fix" ] && cat "$fix"
-
-    # Helpers compat copies (init/executor.js)
-    fix="$SCRIPT_DIR/patch/SG-002-helpers-compat-copies/fix.py"
-    [ -f "$fix" ] && cat "$fix"
-
-    # Memory Management
-    fix="$SCRIPT_DIR/patch/MM-001-memory-persist-path/fix.py"
-    [ -f "$fix" ] && cat "$fix"
-
-    # Intelligence
-    fix="$SCRIPT_DIR/patch/IN-001-intelligence-stub/fix.py"
-    [ -f "$fix" ] && cat "$fix"
-
-    # Hooks
-    fix="$SCRIPT_DIR/patch/HK-001-post-edit-file-path/fix.py"
-    [ -f "$fix" ] && cat "$fix"
-
-    fix="$SCRIPT_DIR/patch/HK-002-hooks-tools-stub/fix.py"
-    [ -f "$fix" ] && cat "$fix"
-
-    # RuVector intelligence
-    fix="$SCRIPT_DIR/patch/RV-001-force-learn-tick/fix.py"
-    [ -f "$fix" ] && cat "$fix"
-
-    fix="$SCRIPT_DIR/patch/RV-002-trajectory-load/fix.py"
-    [ -f "$fix" ] && cat "$fix"
-
-    fix="$SCRIPT_DIR/patch/RV-003-trajectory-stats-sync/fix.py"
-    [ -f "$fix" ] && cat "$fix"
-
-    # Hooks (continued)
-    fix="$SCRIPT_DIR/patch/HK-003-metrics-hardcoded/fix.py"
-    [ -f "$fix" ] && cat "$fix"
-
-    # ruv-swarm (separate package)
-    fix="$SCRIPT_DIR/patch/RS-001-better-sqlite3-node24/fix.py"
-    [ -f "$fix" ] && cat "$fix"
 
     echo "print(f\"[$label] Done: {applied} applied, {skipped} already present\")"
   )
 
-  # EM-002: transformers cache permissions (shell-based, optional)
-  if [ -f "$SCRIPT_DIR/patch/EM-002-transformers-cache-eacces/fix.sh" ]; then
-    bash "$SCRIPT_DIR/patch/EM-002-transformers-cache-eacces/fix.sh" 2>/dev/null || true
-  fi
+  # Shell-based patches (e.g. EM-002: transformers cache permissions)
+  for fix in "$SCRIPT_DIR"/patch/*/fix.sh; do
+    [ -f "$fix" ] && bash "$fix" 2>/dev/null || true
+  done
 
   echo ""
 }

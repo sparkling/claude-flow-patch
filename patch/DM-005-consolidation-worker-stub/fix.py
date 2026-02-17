@@ -1,3 +1,4 @@
+# @sentinel: grep "applyTemporalDecay" services/worker-daemon.js
 # DM-005: Consolidation worker stub (no decay/rebuild)
 # Makes consolidate worker actually call pattern decay + HNSW rebuild
 patch("12: real consolidate worker",

@@ -1,3 +1,5 @@
+# @sentinel: grep "all namespaces" mcp-tools/memory-tools.js
+# @sentinel: grep "nsFilter" memory/memory-initializer.js
 # NS-001: Discovery ops (search + list) default to wrong namespace
 # GitHub: #1123
 # Rule: Default to 'all' (search across all namespaces)

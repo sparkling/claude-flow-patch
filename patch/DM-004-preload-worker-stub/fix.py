@@ -1,3 +1,4 @@
+# @sentinel: grep "loadEmbeddingModel" services/worker-daemon.js
 # DM-004: Preload worker stub + missing from defaults
 # Adds missing workers to DEFAULT_WORKERS and implements real preload
 patch("11: add missing workers to defaults",

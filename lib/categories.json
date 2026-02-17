@@ -1,0 +1,15 @@
+{
+  "HW": "Headless Worker",
+  "DM": "Daemon & Workers",
+  "CF": "Config & Doctor",
+  "EM": "Embeddings & HNSW",
+  "UI": "Display & Cosmetic",
+  "NS": "Memory Namespace",
+  "GV": "Ghost Vectors",
+  "IN": "Intelligence",
+  "SG": "Settings Generator",
+  "MM": "Memory Management",
+  "HK": "Hooks",
+  "RV": "RuVector Intelligence",
+  "RS": "ruv-swarm"
+}

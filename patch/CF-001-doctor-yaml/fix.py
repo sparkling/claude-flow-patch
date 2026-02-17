@@ -1,3 +1,4 @@
+# @sentinel: grep "config.yaml" commands/doctor.js
 # CF-001: Doctor ignores YAML config files
 patch("7: YAML config",
     DOC,

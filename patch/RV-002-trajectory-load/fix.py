@@ -1,3 +1,5 @@
+# @package: ruvector
+# @sentinel: grep "activeTrajectories: data.activeTrajectories" bin/cli.js
 # RV-002: activeTrajectories not loaded from saved file
 # The load() method doesn't include activeTrajectories in the return object
 

@@ -1,3 +1,4 @@
+# @sentinel: grep "learningTimeMs != null" commands/hooks.js
 # UI-001: intelligence stats crashes on .toFixed() of undefined
 # Absorbed from old patch-17. Applied via sed to npx cache.
 

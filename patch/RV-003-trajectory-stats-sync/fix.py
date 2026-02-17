@@ -1,3 +1,5 @@
+# @package: ruvector
+# @sentinel: grep "RV-003: sync stats" bin/cli.js
 # RV-003: trajectory-end does not update stats counters
 # GitHub: #186 (ruv-FANN)
 

@@ -1,6 +1,11 @@
 #!/bin/bash
-# Patch sentinel — checks if claude-flow patches are applied
-# On session start: detects wipe, auto-reapplies, warns user
+# check-patches.sh — Dynamic sentinel checker
+# Reads @sentinel lines from each patch/*/fix.py to verify patches are applied.
+# On session start: detects wipes, auto-reapplies, warns user.
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# ── Locate packages ──
 
 MEMORY=$(find ~/.npm/_npx -name "memory-initializer.js" -path "*/memory/*" 2>/dev/null | head -1)
 SERVICES=$(find ~/.npm/_npx -name "worker-daemon.js" -path "*/services/*" 2>/dev/null | head -1)
@@ -11,131 +16,87 @@ if [ -z "$MEMORY" ] || [ -z "$SERVICES" ]; then
 fi
 
 VERSION=$(grep -o '"version": *"[^"]*"' "$(dirname "$MEMORY")/../../../package.json" 2>/dev/null | head -1 | cut -d'"' -f4)
-HWE=$(dirname "$SERVICES")/headless-worker-executor.js
-COMMANDS_DIR=$(dirname "$SERVICES")/../commands
-MCP_TOOLS_DIR=$(dirname "$MEMORY")/../mcp-tools
-INIT_DIR=$(dirname "$MEMORY")/../init
-EXECUTOR="$INIT_DIR/executor.js"
 
-# Sentinel checks — one representative grep per patch.
-# If ANY check fails, the cache was probably wiped → re-apply all.
-#
-# HW-001: stdin→ignore in headless-worker-executor.js
-# HW-002: result.success check in headless-worker-executor.js
-# HW-003: 30-minute interval (ADR-020) in headless-worker-executor.js
-# DM-001: appendFileSync import in worker-daemon.js
-# DM-002: maxCpuLoad threshold in worker-daemon.js
-# DM-003: darwin platform check in worker-daemon.js
-# DM-004: loadEmbeddingModel stub in worker-daemon.js
-# DM-005: applyTemporalDecay stub in worker-daemon.js
-# CF-001: config.yaml support in doctor.js
-# CF-002: readYamlConfig function in config.js
-# EM-001: embeddings.json config in memory-initializer.js
-# EM-002: fix.sh (permissions only — no code sentinel, cannot grep)
-# UI-001: learningTimeMs null check in hooks.js
-# UI-002: getHNSWIndex in neural.js
-# NS-001: "all namespaces" + nsFilter in memory-tools/memory-initializer
-# NS-002: "Namespace is required" + "cannot be 'all'" in memory-tools
-# NS-003: || 'patterns' typo fix in hooks-tools.js
-# GV-001: hnswIndex.entries.delete in memory-initializer.js
-# SG-001: SubagentStop + TeammateIdle removed in settings-generator.js
-# IN-001: intelligenceContent in executor.js (replaces generateIntelligenceStub inline)
-# MM-001: persistPath removed from executor.js (absence check)
-# HK-001: stdinData stdin parsing in helpers-generator.js
-# HK-002: getRealStoreFunction persistence in hooks-tools.js
-# RS-001: better-sqlite3 ^12 in ruv-swarm (checked separately)
+# Base path: @claude-flow/cli/dist/src/
+BASE=$(cd "$(dirname "$MEMORY")/.." && pwd)
+
+# External packages (optional)
+RV_CLI=$(find ~/.npm/_npx -name "cli.js" -path "*/ruvector/bin/*" 2>/dev/null | head -1)
+RV_BASE=""
+if [ -n "$RV_CLI" ]; then
+  RV_BASE=$(cd "$(dirname "$RV_CLI")/.." && pwd)
+fi
+
+RS_PKG=$(find ~/.npm/_npx -path "*/ruv-swarm/package.json" 2>/dev/null | head -1)
+RS_BASE=""
+if [ -n "$RS_PKG" ]; then
+  RS_BASE=$(dirname "$RS_PKG")
+fi
+
+# ── Path resolver ──
+
+resolve_path() {
+  local pkg="$1"
+  local relpath="$2"
+  case "$pkg" in
+    ruvector)  echo "$RV_BASE/$relpath" ;;
+    ruv-swarm) echo "$RS_BASE/$relpath" ;;
+    *)         echo "$BASE/$relpath" ;;
+  esac
+}
+
+# ── Dynamic sentinel checks ──
+# Reads @sentinel and @package annotations from each fix.py/fix.sh header.
 
 all_ok=true
 
-check() {
-  if ! grep -q "$1" "$2" 2>/dev/null; then
-    all_ok=false
+for fix in "$SCRIPT_DIR"/patch/*/fix.py "$SCRIPT_DIR"/patch/*/fix.sh; do
+  [ -f "$fix" ] || continue
+
+  # Read @package (default: claude-flow)
+  pkg="claude-flow"
+  pkg_line=$(grep -m1 '^# @package:' "$fix" 2>/dev/null || true)
+  if [ -n "$pkg_line" ]; then
+    pkg="${pkg_line#\# @package: }"
+    pkg="${pkg%%[[:space:]]*}"  # trim trailing whitespace
   fi
-}
 
-# HW — Headless Worker
-check "'ignore', 'pipe', 'pipe'" "$HWE"              # HW-001
-check "result.success" "$HWE"                          # HW-002
-check "30 \* 60 \* 1000" "$HWE"                       # HW-003
+  # Skip if required package not installed
+  case "$pkg" in
+    ruvector)  [ -z "$RV_CLI" ] && continue ;;
+    ruv-swarm) [ -z "$RS_PKG" ] && continue ;;
+  esac
 
-# DM — Daemon & Workers
-check "appendFileSync" "$SERVICES"                     # DM-001
-check "maxCpuLoad" "$SERVICES"                         # DM-002
-check "darwin" "$SERVICES"                             # DM-003
-check "loadEmbeddingModel" "$SERVICES"                 # DM-004
-check "applyTemporalDecay" "$SERVICES"                 # DM-005
+  # Process each @sentinel line
+  while IFS= read -r line; do
+    sentinel="${line#\# @sentinel: }"
 
-# CF — Config & Doctor
-check "config.yaml" "$COMMANDS_DIR/doctor.js"          # CF-001
-check "readYamlConfig" "$COMMANDS_DIR/config.js"       # CF-002
+    if [[ "$sentinel" == "none" ]]; then
+      continue
 
-# EM — Embeddings
-check "embeddings.json" "$MEMORY"                      # EM-001
-# EM-002: fix.sh (permissions only — no code sentinel)
+    elif [[ "$sentinel" =~ ^absent\ \"(.+)\"\ (.+)$ ]]; then
+      pattern="${BASH_REMATCH[1]}"
+      filepath=$(resolve_path "$pkg" "${BASH_REMATCH[2]}")
+      if grep -q "$pattern" "$filepath" 2>/dev/null; then
+        all_ok=false
+      fi
 
-# UI — Display
-check "learningTimeMs != null" "$COMMANDS_DIR/hooks.js"  # UI-001
-check "getHNSWIndex" "$COMMANDS_DIR/neural.js"           # UI-002
-
-# NS — Memory Namespace (order-dependent: 001→002→003)
-check "all namespaces" "$MCP_TOOLS_DIR/memory-tools.js"        # NS-001
-check "nsFilter" "$MEMORY"                                      # NS-001
-check "Namespace is required" "$MCP_TOOLS_DIR/memory-tools.js"  # NS-002
-check "cannot be .all." "$MCP_TOOLS_DIR/memory-tools.js"        # NS-002
-check "|| 'patterns'" "$MCP_TOOLS_DIR/hooks-tools.js"           # NS-003
-
-# GV — Ghost Vectors
-check "hnswIndex.entries.delete" "$MEMORY"             # GV-001 (note: ?. in actual code)
-
-# SG — Settings Generator
-check "hooks.SubagentStop" "$INIT_DIR/settings-generator.js"    # SG-001a
-check "TeammateIdle removed" "$INIT_DIR/settings-generator.js"  # SG-001a
-check "CLAUDE_PROJECT_DIR" "$INIT_DIR/settings-generator.js"    # SG-001b/c
-
-# IN — Intelligence
-check "intelligenceContent" "$EXECUTOR"                    # IN-001
-
-# MM — Memory Management (absence check: persistPath removed from template)
-if grep -q "persistPath: .claude-flow/data" "$EXECUTOR" 2>/dev/null; then
-  all_ok=false  # MM-001 not applied — persistPath still in template
-fi
-
-# HK — Hooks
-check "stdinData" "$INIT_DIR/helpers-generator.js"     # HK-001
-check "HK-002a" "$MCP_TOOLS_DIR/hooks-tools.js"       # HK-002
-
-# GV-001 uses optional chaining so check more broadly
-if ! grep -q "hnswIndex" "$MEMORY" 2>/dev/null; then
-  # If even hnswIndex isn't there, something is very wrong
-  all_ok=false
-fi
-
-# RV — RuVector intelligence (separate package, may not be installed)
-RV_CLI=$(find ~/.npm/_npx -name "cli.js" -path "*/ruvector/bin/*" 2>/dev/null | head -1)
-if [ -n "$RV_CLI" ]; then
-  check "Need engine for tick" "$RV_CLI"                 # RV-001
-  check "activeTrajectories: data.activeTrajectories" "$RV_CLI"  # RV-002
-  check "RV-003: sync stats" "$RV_CLI"                  # RV-003
-fi
-
-# HK — Hooks (continued)
-check "HK-003" "$MCP_TOOLS_DIR/hooks-tools.js"          # HK-003
-
-# RS — ruv-swarm (separate package, may not be installed)
-RS_PKG=$(find ~/.npm/_npx -path "*/ruv-swarm/package.json" 2>/dev/null | head -1)
-if [ -n "$RS_PKG" ]; then
-  if ! grep -q '"better-sqlite3": "\^12' "$RS_PKG" 2>/dev/null; then
-    all_ok=false
-  fi
-fi
+    elif [[ "$sentinel" =~ ^grep\ \"(.+)\"\ (.+)$ ]]; then
+      pattern="${BASH_REMATCH[1]}"
+      filepath=$(resolve_path "$pkg" "${BASH_REMATCH[2]}")
+      if ! grep -q "$pattern" "$filepath" 2>/dev/null; then
+        all_ok=false
+      fi
+    fi
+  done < <(grep '^# @sentinel:' "$fix")
+done
 
 if $all_ok; then
   echo "[PATCHES] OK: All patches verified (v$VERSION)"
   exit 0
 fi
 
-# Patches wiped — auto-reapply and warn
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# ── Patches wiped — auto-reapply and warn ──
 
 echo ""
 echo "============================================"

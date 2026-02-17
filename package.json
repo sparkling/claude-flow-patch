@@ -7,7 +7,9 @@
     "package": "bash npm/package.sh",
     "package:dry": "bash npm/package.sh --dry-run",
     "publish:npm": "bash npm/publish.sh",
-    "publish:dry": "bash npm/publish.sh --dry-run"
+    "publish:dry": "bash npm/publish.sh --dry-run",
+    "update-docs": "node scripts/update-docs.mjs",
+    "update-docs:check": "node scripts/update-docs.mjs --check"
   },
   "private": false,
   "license": "MIT",

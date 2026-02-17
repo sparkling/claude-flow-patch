@@ -29,17 +29,19 @@ Runtime patches for `@claude-flow/cli` **v3.1.0-alpha.41**, `ruvector`, and `ruv
 ## Project Structure
 
 ```
-patch-all.sh            # Orchestrator -- applies all patches in order
-check-patches.sh        # Sentinel -- detects wipes, auto-reapplies
+patch-all.sh            # Orchestrator -- globs patch/*/fix.py (no hardcoded list)
+check-patches.sh        # Sentinel -- reads @sentinel from fix.py headers dynamically
 repair-post-init.sh     # Post-init helper repair for existing projects
-lib/common.py           # Shared helpers: patch(), patch_all(), path variables
-README.md               # Human-facing index with descriptions
-CLAUDE.md               # This file -- AI instructions (single source of truth)
-AGENTS.md               # Points here
+lib/
+  common.py             # Shared helpers: patch(), patch_all(), path variables
+  discover.mjs          # Dynamic discovery: scans patch/*/ → structured JSON
+  categories.json       # Prefix-to-label mapping (one line per category)
+scripts/
+  update-docs.mjs       # Regenerates doc tables from discovery (npm run update-docs)
 patch/
   {PREFIX}-{NNN}-{slug}/
     README.md           # Defect report: title, severity, root cause, fix
-    fix.py              # Idempotent patch script (uses patch()/patch_all())
+    fix.py              # @sentinel header + patch()/patch_all() calls
 ```
 
 ## Target Packages
@@ -110,55 +112,57 @@ Save the returned GitHub issue number for the defect README.md.
 
 ## Defect Categories
 
+<!-- GENERATED:defect-tables:begin -->
 | Prefix | Category | Count |
 |--------|----------|-------|
-| HW | Headless Worker Execution | 3 |
-| DM | Daemon & Workers | 5 |
 | CF | Config & Doctor | 2 |
-| EM | Embeddings & HNSW Init | 2 |
-| UI | Display & Cosmetic | 2 |
-| NS | Memory Namespace | 3 |
+| DM | Daemon & Workers | 5 |
+| EM | Embeddings & HNSW | 2 |
 | GV | Ghost Vectors | 1 |
-| IN | Intelligence | 1 |
-| SG | Settings Generator | 2 |
-| MM | Memory Management | 1 |
 | HK | Hooks | 3 |
-| RV | RuVector Intelligence | 3 |
+| HW | Headless Worker | 3 |
+| IN | Intelligence | 1 |
+| MM | Memory Management | 1 |
+| NS | Memory Namespace | 3 |
 | RS | ruv-swarm | 1 |
+| RV | RuVector Intelligence | 3 |
+| SG | Settings Generator | 2 |
+| UI | Display & Cosmetic | 2 |
 
 ## All 29 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
-| HW-001 | [#1111 Headless workers hang -- stdin pipe never closed](https://github.com/ruvnet/claude-flow/issues/1111) | Critical |
-| HW-002 | [#1112 Headless failures silently swallowed as success](https://github.com/ruvnet/claude-flow/issues/1112) | High |
-| HW-003 | [#1113 Worker scheduling intervals too aggressive](https://github.com/ruvnet/claude-flow/issues/1113) | High |
-| DM-001 | [#1116 daemon.log always 0 bytes](https://github.com/ruvnet/claude-flow/issues/1116) | Medium |
-| DM-002 | [#1138 maxCpuLoad=2.0 blocks all workers on multi-core](https://github.com/ruvnet/claude-flow/issues/1138) | Critical |
-| DM-003 | [#1077 macOS freemem() always ~0% -- workers blocked](https://github.com/ruvnet/claude-flow/issues/1077) | Critical |
-| DM-004 | [#1139 Preload worker stub + missing from defaults](https://github.com/ruvnet/claude-flow/issues/1139) | Enhancement |
-| DM-005 | [#1140 Consolidation worker stub (no decay/rebuild)](https://github.com/ruvnet/claude-flow/issues/1140) | Enhancement |
 | CF-001 | [#1141 Doctor ignores YAML config files](https://github.com/ruvnet/claude-flow/issues/1141) | Low |
 | CF-002 | [#1142 Config export shows hardcoded defaults](https://github.com/ruvnet/claude-flow/issues/1142) | Medium |
-| EM-001 | [#1143 Embedding system ignores project config](https://github.com/ruvnet/claude-flow/issues/1143) | High |
+| DM-001 | [#1116 daemon.log always 0 bytes](https://github.com/ruvnet/claude-flow/issues/1116) | Medium |
+| DM-002 | [#1138 maxCpuLoad=2.0 blocks all workers on multi-core](https://github.com/ruvnet/claude-flow/issues/1138) | Critical |
+| DM-003 | [#1077 macOS freemem() always ~0% — workers blocked](https://github.com/ruvnet/claude-flow/issues/1077) | Critical |
+| DM-004 | [#1139 Preload worker stub + missing from defaults](https://github.com/ruvnet/claude-flow/issues/1139) | Enhancement |
+| DM-005 | [#1140 Consolidation worker stub (no decay/rebuild)](https://github.com/ruvnet/claude-flow/issues/1140) | Enhancement |
+| EM-001 | [#1143 Embedding system ignores project config (model + HNSW dims)](https://github.com/ruvnet/claude-flow/issues/1143) | High |
 | EM-002 | [#1144 @xenova/transformers cache EACCES](https://github.com/ruvnet/claude-flow/issues/1144) | Medium |
-| UI-001 | [#1145 intelligence stats crashes on .toFixed()](https://github.com/ruvnet/claude-flow/issues/1145) | Critical |
-| UI-002 | [#1146 neural status shows "Not loaded"](https://github.com/ruvnet/claude-flow/issues/1146) | Low |
-| NS-001 | [#1123 Discovery ops default to wrong namespace](https://github.com/ruvnet/claude-flow/issues/1123) | Critical |
-| NS-002 | [#581 Store/delete/retrieve fall back to 'default' + accept 'all'](https://github.com/ruvnet/claude-flow/issues/581) | Critical |
-| NS-003 | [#1136 Namespace typo 'pattern' vs 'patterns'](https://github.com/ruvnet/claude-flow/issues/1136) | Medium |
 | GV-001 | [#1122 HNSW ghost vectors persist after memory delete](https://github.com/ruvnet/claude-flow/issues/1122) | Medium |
-| IN-001 | [#1154 intelligence.cjs generated as stub instead of full version](https://github.com/ruvnet/claude-flow/issues/1154) | High |
-| SG-001 | [#1150 Init generates invalid hooks and permissions](https://github.com/ruvnet/claude-flow/issues/1150) | High |
-| SG-002 | [#1153 Init doesn't create .js/.cjs compat copies for helper modules](https://github.com/ruvnet/claude-flow/issues/1153) | High |
-| MM-001 | [#1152 memory-initializer.js ignores persistPath](https://github.com/ruvnet/claude-flow/issues/1152) | Medium |
 | HK-001 | [#1155 post-edit hook records file_path as "unknown"](https://github.com/ruvnet/claude-flow/issues/1155) | Medium |
 | HK-002 | [#1058 MCP hook handlers are stubs that don't persist data](https://github.com/ruvnet/claude-flow/issues/1058) | High |
 | HK-003 | [#1158 hooks_metrics MCP handler returns hardcoded fake data](https://github.com/ruvnet/claude-flow/issues/1158) | High |
-| RV-001 | [#1156 force-learn crashes -- intel.tick() doesn't exist](https://github.com/ruvnet/claude-flow/issues/1156) | Medium |
-| RV-002 | [#1157 activeTrajectories not loaded from file](https://github.com/ruvnet/claude-flow/issues/1157) | High |
+| HW-001 | [#1111 Headless workers hang — stdin pipe never closed](https://github.com/ruvnet/claude-flow/issues/1111) | Critical |
+| HW-002 | [#1112 Headless failures silently swallowed as success](https://github.com/ruvnet/claude-flow/issues/1112) | High |
+| HW-003 | [#1113 Worker scheduling intervals too aggressive](https://github.com/ruvnet/claude-flow/issues/1113) | High |
+| IN-001 | [#1154 intelligence.cjs is a stub that doesn't actually learn](https://github.com/ruvnet/claude-flow/issues/1154) | Critical |
+| MM-001 | [#1152 Remove dead persistPath config option](https://github.com/ruvnet/claude-flow/issues/1152) | Low |
+| NS-001 | [#1123 Discovery ops default to wrong namespace](https://github.com/ruvnet/claude-flow/issues/1123) | Critical |
+| NS-002 | [#581 Store/delete/retrieve fall back to 'default' + accept 'all'](https://github.com/ruvnet/claude-flow/issues/581) | Critical |
+| NS-003 | [#1136 Namespace typo 'pattern' vs 'patterns'](https://github.com/ruvnet/claude-flow/issues/1136) | Medium |
+| RS-001 | [ruv-FANN#185 ruv-swarm MCP fails on Node 24 — better-sqlite3 missing native bindings](https://github.com/ruvnet/ruv-FANN/issues/185) | Critical |
+| RV-001 | [#1156 force-learn command calls intel.tick() which doesn't exist](https://github.com/ruvnet/claude-flow/issues/1156) | Medium |
+| RV-002 | [#1157 activeTrajectories not loaded from saved file](https://github.com/ruvnet/claude-flow/issues/1157) | High |
 | RV-003 | [ruv-FANN#186 trajectory-end does not update stats counters](https://github.com/ruvnet/ruv-FANN/issues/186) | Medium |
-| RS-001 | [ruv-FANN#185 ruv-swarm: better-sqlite3 lacks Node 24 binaries](https://github.com/ruvnet/ruv-FANN/issues/185) | Critical |
+| SG-001 | [#1150 Init generates invalid settings](https://github.com/ruvnet/claude-flow/issues/1150) | High |
+| SG-002 | [#1153 Init doesn't create .js/.cjs compat copies for helper modules](https://github.com/ruvnet/claude-flow/issues/1153) | High |
+| UI-001 | [#1145 intelligence stats crashes on .toFixed()](https://github.com/ruvnet/claude-flow/issues/1145) | Critical |
+| UI-002 | [#1146 neural status shows "Not loaded"](https://github.com/ruvnet/claude-flow/issues/1146) | Low |
+<!-- GENERATED:defect-tables:end -->
 
 ---
 
@@ -223,9 +227,10 @@ Create `patch/{PREFIX}-{NNN}-{slug}/README.md`:
 
 ### Step 5: Write fix.py
 
-Create `patch/{PREFIX}-{NNN}-{slug}/fix.py`:
+Create `patch/{PREFIX}-{NNN}-{slug}/fix.py` with `@sentinel` header and patch calls:
 
 ```python
+# @sentinel: grep "unique_string" path/to/target.js
 # {PREFIX}-{NNN}: Short title
 # GitHub: #{number}
 
@@ -235,7 +240,22 @@ patch("{PREFIX}-{NNN}a: description of first change",
     """new string""")  # Replacement string
 ```
 
-**API**:
+**`@sentinel` header** (required): tells `check-patches.sh` how to verify this patch.
+
+```python
+# @sentinel: grep "unique_string" path/to/target.js     # String must be present
+# @sentinel: absent "old_string" path/to/target.js       # String must be absent
+# @sentinel: none                                         # No code sentinel (e.g. permissions-only)
+# @package: ruvector                                      # Gate on optional package
+```
+
+Sentinel paths are relative to `@claude-flow/cli/dist/src/` (e.g. `services/worker-daemon.js`, `init/executor.js`). For external packages, add `# @package: ruvector` or `# @package: ruv-swarm` and use paths relative to that package root.
+
+The sentinel pattern must:
+- Only appear in the target file AFTER the patch is applied
+- Be specific enough not to match unrelated code
+
+**Patch API**:
 - `patch(label, filepath, old, new)` -- replace first occurrence only
 - `patch_all(label, filepath, old, new)` -- replace ALL occurrences
 
@@ -264,40 +284,12 @@ Both are idempotent: skip if `new` already present, warn if `old` not found.
 
 To target a new file, add a variable to `lib/common.py` following the existing pattern.
 
-### Step 6: Register in patch-all.sh
-
-Add the fix.py in the correct category section:
+### Step 6: Update docs and test
 
 ```bash
-fix="$SCRIPT_DIR/patch/{PREFIX}-{NNN}-{slug}/fix.py"
-[ -f "$fix" ] && cat "$fix"
-```
+# Regenerate all documentation from dynamic discovery
+npm run update-docs
 
-Order matters when patches depend on each other (e.g. NS-001 before NS-002).
-
-### Step 7: Add sentinel to check-patches.sh
-
-Add a `check` call with a string unique to the patched code:
-
-```bash
-check "unique_string_from_patched_code" "$TARGET_FILE"  # {PREFIX}-{NNN}
-```
-
-The string must:
-- Only appear in the file AFTER the patch is applied
-- Be specific enough not to match unrelated code
-- Not require regex escaping in `grep -q`
-
-### Step 8: Update listing files
-
-Every defect must appear in both:
-
-1. **`README.md`** -- add row to the category table, update totals
-2. **`CLAUDE.md`** (this file) -- add row to "All N Defects" table, update Defect Categories count, update total
-
-### Step 9: Test
-
-```bash
 # Apply -- should show "Applied: ..."
 bash patch-all.sh --scope global
 
@@ -306,19 +298,22 @@ bash patch-all.sh --scope global
 
 # Sentinel -- should show "OK: All patches verified"
 bash check-patches.sh
+
+# Tests
+npm test
 ```
+
+**No manual edits needed** to `patch-all.sh`, `check-patches.sh`, `README.md`, `CLAUDE.md`, `npm/README.md`, or `npm/config.json`. Dynamic discovery handles everything.
 
 ### Full Checklist
 
 - [ ] GitHub issue exists (searched first, created only if none found)
 - [ ] GitHub issue comment posted with patch details
 - [ ] `patch/{PREFIX}-{NNN}-{slug}/README.md` created with all required sections
-- [ ] `patch/{PREFIX}-{NNN}-{slug}/fix.py` created with `patch()`/`patch_all()` calls
+- [ ] `patch/{PREFIX}-{NNN}-{slug}/fix.py` created with `@sentinel` header + `patch()`/`patch_all()` calls
 - [ ] Path variable added to `lib/common.py` (if targeting a new file)
-- [ ] `patch-all.sh` updated with new fix.py entry
-- [ ] `check-patches.sh` updated with sentinel check
-- [ ] `README.md` updated (row + totals)
-- [ ] `CLAUDE.md` updated (row + category count + totals)
+- [ ] If new category prefix: add one line to `lib/categories.json`
+- [ ] `npm run update-docs` regenerates all doc tables
 - [ ] `bash patch-all.sh` applies successfully
 - [ ] `bash patch-all.sh` is idempotent (0 applied on re-run)
 - [ ] `bash check-patches.sh` shows OK
@@ -334,9 +329,7 @@ Before removing any defect:
 1. Confirm the bug is genuinely fixed upstream or the patch is truly unreachable.
 2. Do NOT remove a defect just because a local workaround exists -- the MCP-level patch may still be needed.
 3. If removing, retire the defect ID permanently. Never reassign a deleted ID to a different GitHub issue.
-4. Update both listing files (README.md, CLAUDE.md).
-5. Remove the sentinel from `check-patches.sh`.
-6. Remove the entry from `patch-all.sh`.
+4. Run `npm run update-docs` to regenerate all documentation.
 
 ---
 

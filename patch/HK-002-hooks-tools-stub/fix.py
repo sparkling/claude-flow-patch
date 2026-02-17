@@ -1,3 +1,4 @@
+# @sentinel: grep "HK-002a" mcp-tools/hooks-tools.js
 # HK-002: MCP hook handlers are stubs that don't persist data
 # GitHub: #1058
 # Restored from deleted HK-001 (commit 95a6a23)

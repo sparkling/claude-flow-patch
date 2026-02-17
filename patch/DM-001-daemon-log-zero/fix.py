@@ -1,3 +1,4 @@
+# @sentinel: grep "appendFileSync" services/worker-daemon.js
 # DM-001: daemon.log always 0 bytes (ESM require + path mismatch)
 # GitHub: #1116
 patch("4A: appendFileSync import",
