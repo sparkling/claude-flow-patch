@@ -322,6 +322,8 @@ bash check-patches.sh
 - [ ] `bash patch-all.sh` applies successfully
 - [ ] `bash patch-all.sh` is idempotent (0 applied on re-run)
 - [ ] `bash check-patches.sh` shows OK
+- [ ] Tests added to `03-patch-apply.test.mjs` and `04-idempotency.test.mjs`
+- [ ] `npm test` passes
 
 ---
 
@@ -335,6 +337,41 @@ Before removing any defect:
 4. Update both listing files (README.md, CLAUDE.md).
 5. Remove the sentinel from `check-patches.sh`.
 6. Remove the entry from `patch-all.sh`.
+
+---
+
+## Testing
+
+```bash
+npm test                                    # run all tests
+node --test tests/02-common-library.test.mjs  # run one suite
+```
+
+Uses `node:test` (built-in, zero dependencies). Tests live in `tests/`.
+
+| Suite | File | What it covers |
+|-------|------|----------------|
+| CLI dispatch | `01-cli-dispatch.test.mjs` | `--help`, unknown commands, `apply` valid/invalid IDs, `check` delegation |
+| common.py | `02-common-library.test.mjs` | `patch()` apply/skip/warn/idempotent, `patch_all()`, path resolution from `BASE` |
+| Patch apply | `03-patch-apply.test.mjs` | Individual patches (HW-001, DM-002, SG-002) applied against fixtures |
+| Idempotency | `04-idempotency.test.mjs` | Double-apply produces identical files, second run reports skipped |
+| Error handling | `05-error-handling.test.mjs` | Empty `BASE`, `/dev/null`, nonexistent dir, invalid `--scope` |
+
+### Fixtures
+
+`tests/fixtures/cli/dist/src/` mirrors the subset of `@claude-flow/cli` that patches target. Each file contains the exact `old` strings patches search for — just enough for `patch()` to match, not full upstream JS files.
+
+`tests/helpers/` provides:
+- `fixture-factory.mjs` — copies fixtures to a temp dir, returns `{ base, cleanup }`
+- `run-cli.mjs` — wraps `spawnSync('node', ['bin/claude-flow-patch.mjs', ...args])`
+- `run-python.mjs` — concatenates `common.py` + `fix.py` and pipes to `python3` with `BASE` set
+
+### Adding tests for a new defect
+
+1. Ensure `tests/fixtures/cli/dist/src/<target-file>.js` contains the `old` string from the new `fix.py`
+2. Add a row to the `TESTS` array in `03-patch-apply.test.mjs`
+3. Add a row to the `PATCHES` array in `04-idempotency.test.mjs`
+4. Run `npm test`
 
 ---
 
