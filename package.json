@@ -9,7 +9,8 @@
     "publish:npm": "bash npm/publish.sh",
     "publish:dry": "bash npm/publish.sh --dry-run",
     "update-docs": "node scripts/update-docs.mjs",
-    "update-docs:check": "node scripts/update-docs.mjs --check"
+    "update-docs:check": "node scripts/update-docs.mjs --check",
+    "upstream-log": "node scripts/upstream-log.mjs"
   },
   "private": false,
   "license": "MIT",

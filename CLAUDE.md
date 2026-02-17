@@ -38,6 +38,7 @@ lib/
   categories.json       # Prefix-to-label mapping (one line per category)
 scripts/
   update-docs.mjs       # Regenerates doc tables from discovery (npm run update-docs)
+  upstream-log.mjs      # Show recent upstream releases (npm run upstream-log [count])
 patch/
   {PREFIX}-{NNN}-{slug}/
     README.md           # Defect report: title, severity, root cause, fix
@@ -393,6 +394,11 @@ bash repair-post-init.sh --target /path/to/project
 
 # Check target version
 grep '"version"' ~/.npm/_npx/*/node_modules/@claude-flow/cli/package.json
+
+# Show recent upstream releases (requires npm; gh optional for commit messages)
+npm run upstream-log           # last 10 versions
+npm run upstream-log -- 20     # last 20 versions
+npm run upstream-log -- --diff # also show dependency changes vs baseline
 ```
 
 ### Scope Options
