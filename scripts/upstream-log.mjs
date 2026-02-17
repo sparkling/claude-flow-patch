@@ -5,6 +5,7 @@
 //   node scripts/upstream-log.mjs [count]    # default: 10
 //   node scripts/upstream-log.mjs 20         # last 20 releases
 //   node scripts/upstream-log.mjs --diff     # also diff deps against our baseline
+//   node scripts/upstream-log.mjs --full     # show complete GitHub issue bodies
 //
 // Requires: npm, gh (optional, for commit messages)
 
@@ -18,8 +19,10 @@ const ROOT = resolve(__dirname, '..');
 
 // ── Args ──
 
-const args = process.argv.slice(2).filter(a => a !== '--diff');
+const flags = ['--diff', '--full'];
+const args = process.argv.slice(2).filter(a => !flags.includes(a));
 const showDiff = process.argv.includes('--diff');
+const fullDetail = process.argv.includes('--full');
 const count = parseInt(args[0], 10) || 10;
 
 // ── Our baseline + latest from npm ──
@@ -115,15 +118,21 @@ function fetchIssue(num) {
   if (!raw) { issueCache.set(num, null); return null; }
   try {
     const data = JSON.parse(raw);
-    const body = (data.body ?? '').split('\n')
+    const rawBody = (data.body ?? '').trim();
+    const labels = (data.labels ?? []).map(l => l.name);
+
+    // Summary: filtered lines for compact view
+    const summary = rawBody.split('\n')
       .filter(l => l.trim())
-      .filter(l => !l.startsWith('##'))       // skip markdown headers
-      .filter(l => !l.startsWith('```'))       // skip code fences
-      .filter(l => !l.startsWith('Fixes #'))   // skip "Fixes #NNN"
+      .filter(l => !l.startsWith('##'))
+      .filter(l => !l.startsWith('```'))
+      .filter(l => !l.startsWith('Fixes #'))
       .filter(l => !l.startsWith('Co-Authored'))
-      .slice(0, 4)
+      .filter(l => !l.startsWith('🤖'))
+      .slice(0, 6)
       .map(l => l.trim());
-    const result = { title: data.title, state: data.state, body };
+
+    const result = { title: data.title, state: data.state, labels, summary, fullBody: rawBody };
     issueCache.set(num, result);
     return result;
   } catch { issueCache.set(num, null); return null; }
@@ -174,9 +183,8 @@ for (let i = 0; i < versions.length; i++) {
       const bodyLines = c.body.split('\n')
         .filter(l => l.trim())
         .filter(l => !l.startsWith('Co-Authored-By'))
-        .filter(l => !l.startsWith('Published:'))
-        .slice(0, 6);
-      for (const bl of bodyLines) {
+        .filter(l => !l.startsWith('Published:'));
+      for (const bl of (fullDetail ? bodyLines : bodyLines.slice(0, 6))) {
         console.log(`      ${bl.trim()}`);
       }
     }
@@ -185,9 +193,20 @@ for (let i = 0; i < versions.length; i++) {
       if (seenIssues.has(issueNum)) continue;
       seenIssues.add(issueNum);
       const issue = fetchIssue(issueNum);
-      if (issue && issue.body.length > 0) {
-        // Show issue body lines that aren't already in the commit body
-        const extra = issue.body.filter(l => !c.body?.includes(l));
+      if (!issue) continue;
+
+      if (fullDetail && issue.fullBody) {
+        // --full: show complete issue body
+        console.log(`      Issue #${issueNum}: ${issue.title} [${issue.state}]`);
+        if (issue.labels.length > 0) {
+          console.log(`      Labels: ${issue.labels.join(', ')}`);
+        }
+        for (const bl of issue.fullBody.split('\n')) {
+          console.log(`        ${bl}`);
+        }
+      } else if (issue.summary.length > 0) {
+        // Compact: show summary lines not already in the commit body
+        const extra = issue.summary.filter(l => !c.body?.includes(l));
         if (extra.length > 0) {
           console.log(`      Issue #${issueNum}: ${issue.title} [${issue.state}]`);
           for (const bl of extra.slice(0, 4)) {
