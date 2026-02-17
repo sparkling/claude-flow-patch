@@ -29,6 +29,16 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Ensure NPM_TOKEN is set
+if [ -z "${NPM_TOKEN:-}" ]; then
+  echo "[publish] ERROR: NPM_TOKEN environment variable is not set"
+  echo "[publish] Set it in ~/.bashrc or export it before running this script"
+  exit 1
+fi
+
+# Configure npm auth from env variable
+npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN" --location user
+
 # Read current version
 VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$CONFIG','utf-8')).version.current)")
 
