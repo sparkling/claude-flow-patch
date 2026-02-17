@@ -128,7 +128,7 @@ claude-flow-patch/
 
 ## Links
 
-- Homepage: https://sparklingideas.co.uk/patch
+- Homepage: https://sparklingideas.co.uk/patch/claude-flow
 - Package: https://www.npmjs.com/package/claude-flow-patch
 - GitHub: https://github.com/sparkling/claude-flow-patch
 - Issues: https://github.com/sparkling/claude-flow-patch/issues

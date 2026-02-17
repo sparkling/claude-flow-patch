@@ -1,6 +1,6 @@
 {
   "name": "claude-flow-patch",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Patch toolkit for @claude-flow/cli init/runtime defects with verify and post-init repair commands",
   "private": false,
   "license": "MIT",
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/sparkling/claude-flow-patch.git"
   },
-  "homepage": "https://sparklingideas.co.uk/patch",
+  "homepage": "https://sparklingideas.co.uk/patch/claude-flow",
   "bugs": {
     "url": "https://github.com/sparkling/claude-flow-patch/issues"
   },
