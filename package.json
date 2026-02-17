@@ -27,10 +27,7 @@
     "access": "public"
   },
   "bin": {
-    "claude-flow-patch": "bin/claude-flow-patch.mjs",
-    "claude-flow-patch-all": "patch-all.sh",
-    "claude-flow-patch-check": "check-patches.sh",
-    "claude-flow-patch-repair": "repair-post-init.sh"
+    "claude-flow-patch": "bin/claude-flow-patch.mjs"
   },
   "files": [
     "bin",

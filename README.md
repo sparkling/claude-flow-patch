@@ -10,7 +10,7 @@ These patches fix 29 defects across 13 categories. They are applied at runtime v
 
 ```bash
 # 1. Patch first -- fixes the init generators
-npx --yes claude-flow-patch patch --scope both
+npx --yes claude-flow-patch --scope both
 
 # 2. Then init (or re-init if already initialized)
 npx @claude-flow/cli@latest init            # fresh project
@@ -29,9 +29,9 @@ npx --yes claude-flow-patch repair --target /path/to/project
 ### Scope Options
 
 ```bash
-npx --yes claude-flow-patch patch                # both global + local (default)
-npx --yes claude-flow-patch patch --scope global # only ~/.npm/_npx/*/node_modules/
-npx --yes claude-flow-patch patch --scope local  # only ./node_modules/ and parents
+npx --yes claude-flow-patch                      # both global + local (default)
+npx --yes claude-flow-patch --scope global       # only ~/.npm/_npx/*/node_modules/
+npx --yes claude-flow-patch --scope local        # only ./node_modules/ and parents
 ```
 
 **Why both scopes?** `npx @claude-flow/cli` uses your local `node_modules` if present, otherwise the global npx cache. Patching both ensures fixes work regardless of how the CLI is invoked.
@@ -40,11 +40,10 @@ npx --yes claude-flow-patch patch --scope local  # only ./node_modules/ and pare
 
 | Command | Purpose |
 |---|---|
-| `claude-flow-patch patch [--scope global\|local\|both]` | Apply all registered patches |
+| `claude-flow-patch [--scope global\|local\|both]` | Apply all patches (default) |
+| `claude-flow-patch apply <ID>` | Apply a single patch by defect ID (e.g. `SG-002`) |
 | `claude-flow-patch check` | Verify patch sentinels and auto-detect drift |
 | `claude-flow-patch repair --target <dir> [--source auto\|local\|global] [--dry-run]` | Rehydrate `.claude/helpers` in projects initialized before patching |
-
-Aliases: `patch-all`, `check-patches`, `repair-post-init`
 
 ## How It Works
 
@@ -219,8 +218,9 @@ Five patches target the **init/generator scripts** (`executor.js`, `settings-gen
 **Option A: Run `repair`** (recommended)
 
 ```bash
-npx --yes claude-flow-patch patch --scope both
+npx --yes claude-flow-patch --scope both
 npx --yes claude-flow-patch repair --target .
+npx --yes claude-flow-patch apply SG-002       # apply a single patch
 ```
 
 This copies patched helper files into your project and creates any missing .js/.cjs compat copies.
@@ -228,7 +228,7 @@ This copies patched helper files into your project and creates any missing .js/.
 **Option B: Copy full helpers from the package manually**
 
 ```bash
-npx --yes claude-flow-patch patch --scope both
+npx --yes claude-flow-patch --scope both
 SRC=$(find ~/.npm/_npx -path '*/@claude-flow/cli/.claude/helpers' -type d 2>/dev/null | head -1)
 for f in intelligence.cjs hook-handler.cjs session.js learning-service.mjs metrics-db.mjs statusline.cjs; do
   [ -f "$SRC/$f" ] && cp "$SRC/$f" .claude/helpers/ && echo "Copied: $f"
@@ -238,7 +238,7 @@ done
 **Option C: Re-run init upgrade** (regenerates from patched scripts)
 
 ```bash
-npx --yes claude-flow-patch patch --scope both
+npx --yes claude-flow-patch --scope both
 npx @claude-flow/cli@latest init upgrade --force
 ```
 

@@ -20,7 +20,7 @@ Patch first, then initialize projects.
 
 ```bash
 # 1) apply patches (global npx cache + local node_modules)
-npx --yes claude-flow-patch patch --scope both
+npx --yes claude-flow-patch --scope both
 
 # 2) verify sentinels
 npx --yes claude-flow-patch check
@@ -41,11 +41,10 @@ npx --yes claude-flow-patch repair --target /path/to/project
 
 | Command | Purpose |
 |---|---|
-| `claude-flow-patch patch [--scope global\|local\|both]` | Apply all registered patches |
+| `claude-flow-patch [--scope global\|local\|both]` | Apply all patches (default) |
+| `claude-flow-patch apply <ID>` | Apply a single patch by defect ID (e.g. `SG-002`) |
 | `claude-flow-patch check` | Verify patch sentinels and auto-detect drift |
 | `claude-flow-patch repair --target <dir> [--source auto\|local\|global] [--dry-run]` | Rehydrate `.claude/helpers` in projects initialized before patching |
-
-Aliases: `patch-all`, `check-patches`, `repair-post-init`
 
 ## Scope Behavior
 
