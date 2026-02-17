@@ -1,0 +1,1 @@
+grep "stdinData" init/helpers-generator.js

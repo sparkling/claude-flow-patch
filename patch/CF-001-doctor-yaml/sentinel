@@ -1,0 +1,1 @@
+grep "config.yaml" commands/doctor.js

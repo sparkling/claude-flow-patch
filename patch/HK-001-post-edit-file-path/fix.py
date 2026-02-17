@@ -1,4 +1,3 @@
-# @sentinel: grep "stdinData" init/helpers-generator.js
 # HK-001: post-edit hook records file_path as "unknown"
 # Claude Code passes tool input via stdin JSON, not TOOL_INPUT_* env vars.
 # 3 ops: add stdin parsing, fix prompt fallback, fix post-edit file extraction.

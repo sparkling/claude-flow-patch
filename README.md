@@ -52,27 +52,27 @@ npx --yes claude-flow-patch --scope local        # only ./node_modules/ and pare
 3. Concatenates `lib/common.py` with each `fix.py` and runs as a single Python process
 4. Each patch is idempotent: skips if already applied, warns if source changed
 
-The `check-patches.sh` sentinel runs on session start to detect npx cache wipes and auto-reapply. It reads `@sentinel` annotations from each `fix.py` header to know what to verify — no hardcoded patch list.
+The `check-patches.sh` sentinel runs on session start to detect npx cache wipes and auto-reapply. It reads `sentinel` files from each patch directory — no hardcoded patch list.
 
-### `@sentinel` Annotations
+### Sentinel Files
 
-Each `fix.py` contains structured comments at the top that declare how to verify the patch:
+Each patch directory contains a `sentinel` file that declares how to verify the patch is applied:
 
-```python
-# @sentinel: grep "pattern to find" relative/path/to/file.js
-# @sentinel: absent "pattern that should NOT exist" relative/path.js
-# @sentinel: none
-# @package: ruvector
+```
+grep "pattern to find" relative/path/to/file.js
+absent "pattern that should NOT exist" relative/path.js
+none
+package: ruvector
 ```
 
-| Annotation | Meaning |
-|------------|---------|
+| Directive | Meaning |
+|-----------|---------|
 | `grep "..." file` | Pass if pattern is found in file (standard check) |
 | `absent "..." file` | Pass if pattern is **not** found (removal check) |
 | `none` | No sentinel — skip verification |
-| `@package: X` | Target package (default: `@claude-flow/cli`). Skipped if package not installed |
+| `package: X` | Target package (default: `@claude-flow/cli`). Skipped if package not installed |
 
-`check-patches.sh` and `lib/discover.mjs` both parse these headers dynamically. Adding a new patch requires no edits to any script — just the `@sentinel` lines in the new `fix.py`.
+`check-patches.sh` and `lib/discover.mjs` both read these files dynamically. Adding a new patch requires no edits to any script — just create the `sentinel` file in the new patch directory.
 
 ### Target Packages
 
@@ -100,7 +100,7 @@ All other patches are independent.
 - **Idempotent**: `patch()` checks if `new` string is already present before replacing.
 - **Non-destructive**: patches only modify the npx cache, never the npm registry package.
 - **Platform-aware**: DM-003 is macOS-only (auto-skipped on Linux).
-- **Sentinel-guarded**: `check-patches.sh` reads `@sentinel` headers from each `fix.py` to detect cache wipes and auto-reapply.
+- **Sentinel-guarded**: `check-patches.sh` reads `sentinel` files from each patch directory to detect cache wipes and auto-reapply.
 
 ### Repository Structure
 
@@ -110,7 +110,7 @@ claude-flow-patch/
   CLAUDE.md              # Claude Code instructions (defect workflow, policies)
   AGENTS.md              # Codex agent configuration
   patch-all.sh           # Apply all patches (globs patch/*/fix.py dynamically)
-  check-patches.sh       # Sentinel: reads @sentinel headers from each fix.py
+  check-patches.sh       # Sentinel: reads patch/*/sentinel files dynamically
   repair-post-init.sh    # Post-init helper repair
   lib/
     common.py            # Shared patch()/patch_all() helpers + path variables
@@ -121,8 +121,9 @@ claude-flow-patch/
   patch/
     {PREFIX}-{NNN}-{slug}/
       README.md          # Defect report: title, severity, root cause, fix
-      fix.py             # Idempotent patch script (with @sentinel header)
+      fix.py             # Idempotent patch script
       fix.sh             # Shell-based patch script (EM-002 only)
+      sentinel           # Verification directives for check-patches.sh
     (29 defect directories total)
 ```
 

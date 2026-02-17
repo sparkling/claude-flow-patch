@@ -1,5 +1,3 @@
-# @package: ruv-swarm
-# @sentinel: grep "better-sqlite3.*\^12" package.json
 # RS-001: ruv-swarm better-sqlite3 Node 24 compatibility
 # GitHub: ruvnet/ruv-FANN#185
 #

@@ -1,0 +1,2 @@
+package: ruv-swarm
+grep "better-sqlite3.*\^12" package.json

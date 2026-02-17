@@ -1,0 +1,1 @@
+grep "loadEmbeddingModel" services/worker-daemon.js

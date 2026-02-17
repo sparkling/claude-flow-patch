@@ -1,0 +1,1 @@
+grep "applyTemporalDecay" services/worker-daemon.js

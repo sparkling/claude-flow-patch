@@ -1,0 +1,1 @@
+grep "embeddings.json" memory/memory-initializer.js

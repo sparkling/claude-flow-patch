@@ -1,4 +1,3 @@
-# @sentinel: grep "30 * 60 * 1000" services/headless-worker-executor.js
 # HW-003: Worker scheduling intervals too aggressive
 # GitHub: #1113
 patch("3: audit 30m",

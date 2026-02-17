@@ -1,4 +1,3 @@
-# @sentinel: grep "hnswIndex.entries.delete" memory/memory-initializer.js
 # GV-001: Remove HNSW ghost vectors on memory delete
 # GitHub: #1122
 # After SQLite soft-delete, remove entry from persisted HNSW metadata file

@@ -1,0 +1,1 @@
+grep "HK-002a" mcp-tools/hooks-tools.js

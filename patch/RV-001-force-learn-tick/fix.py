@@ -1,5 +1,3 @@
-# @package: ruvector
-# @sentinel: grep "Need engine for tick" bin/cli.js
 # RV-001: force-learn calls intel.tick() which doesn't exist
 # The tick() method is on the engine, not the Intelligence class
 

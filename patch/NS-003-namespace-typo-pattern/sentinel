@@ -1,0 +1,1 @@
+grep "|| 'patterns'" mcp-tools/hooks-tools.js

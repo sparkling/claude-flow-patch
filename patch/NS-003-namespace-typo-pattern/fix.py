@@ -1,4 +1,3 @@
-# @sentinel: grep "|| 'patterns'" mcp-tools/hooks-tools.js
 # NS-003: Namespace typo 'pattern' vs 'patterns'
 # GitHub: #1136
 # 4 ops: 22a-d

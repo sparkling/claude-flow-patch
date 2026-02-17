@@ -1,0 +1,1 @@
+grep "readYamlConfig" commands/config.js

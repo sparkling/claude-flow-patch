@@ -1,0 +1,2 @@
+package: ruvector
+grep "RV-003: sync stats" bin/cli.js

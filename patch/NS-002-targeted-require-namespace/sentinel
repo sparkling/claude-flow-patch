@@ -1,0 +1,2 @@
+grep "Namespace is required" mcp-tools/memory-tools.js
+grep "cannot be .all." mcp-tools/memory-tools.js

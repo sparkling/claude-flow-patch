@@ -1,4 +1,3 @@
-# @sentinel: absent "persistPath: .claude-flow/data" init/executor.js
 # MM-001: Remove dead persistPath config from init command
 # The persistPath setting is generated but never consumed - all code uses hardcoded .swarm/
 # Rather than patching 15+ files to respect it, we remove the misleading config option.

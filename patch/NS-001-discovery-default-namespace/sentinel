@@ -1,0 +1,2 @@
+grep "all namespaces" mcp-tools/memory-tools.js
+grep "nsFilter" memory/memory-initializer.js

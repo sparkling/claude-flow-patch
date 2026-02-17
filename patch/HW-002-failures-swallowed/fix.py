@@ -1,4 +1,3 @@
-# @sentinel: grep "result.success" services/headless-worker-executor.js
 # HW-002: Headless failures silently swallowed as success
 # GitHub: #1112
 patch("2: honest failures",

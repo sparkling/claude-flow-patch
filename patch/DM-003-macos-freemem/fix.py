@@ -1,4 +1,3 @@
-# @sentinel: grep "darwin" services/worker-daemon.js
 # DM-003: macOS freemem() always ~0% — workers blocked
 # GitHub: #1077
 # SKIPPED on Linux (only affects macOS)

@@ -1,5 +1,3 @@
-# @sentinel: grep "hooks.SubagentStop" init/settings-generator.js
-# @sentinel: grep "CLAUDE_PROJECT_DIR" init/settings-generator.js
 # SG-001: Init generates invalid settings
 # GitHub: #1150
 #

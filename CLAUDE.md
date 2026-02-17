@@ -30,7 +30,7 @@ Runtime patches for `@claude-flow/cli` **v3.1.0-alpha.41**, `ruvector`, and `ruv
 
 ```
 patch-all.sh            # Orchestrator -- globs patch/*/fix.py (no hardcoded list)
-check-patches.sh        # Sentinel -- reads @sentinel from fix.py headers dynamically
+check-patches.sh        # Sentinel -- reads patch/*/sentinel files dynamically
 repair-post-init.sh     # Post-init helper repair for existing projects
 lib/
   common.py             # Shared helpers: patch(), patch_all(), path variables
@@ -41,7 +41,8 @@ scripts/
 patch/
   {PREFIX}-{NNN}-{slug}/
     README.md           # Defect report: title, severity, root cause, fix
-    fix.py              # @sentinel header + patch()/patch_all() calls
+    fix.py              # patch()/patch_all() calls
+    sentinel            # Verification directives for check-patches.sh
 ```
 
 ## Target Packages
@@ -225,12 +226,11 @@ Create `patch/{PREFIX}-{NNN}-{slug}/README.md`:
 <N> ops in fix.py
 ```
 
-### Step 5: Write fix.py
+### Step 5: Write fix.py and sentinel
 
-Create `patch/{PREFIX}-{NNN}-{slug}/fix.py` with `@sentinel` header and patch calls:
+Create `patch/{PREFIX}-{NNN}-{slug}/fix.py` with patch calls:
 
 ```python
-# @sentinel: grep "unique_string" path/to/target.js
 # {PREFIX}-{NNN}: Short title
 # GitHub: #{number}
 
@@ -240,16 +240,22 @@ patch("{PREFIX}-{NNN}a: description of first change",
     """new string""")  # Replacement string
 ```
 
-**`@sentinel` header** (required): tells `check-patches.sh` how to verify this patch.
+Create `patch/{PREFIX}-{NNN}-{slug}/sentinel` to declare how `check-patches.sh` verifies this patch:
 
-```python
-# @sentinel: grep "unique_string" path/to/target.js     # String must be present
-# @sentinel: absent "old_string" path/to/target.js       # String must be absent
-# @sentinel: none                                         # No code sentinel (e.g. permissions-only)
-# @package: ruvector                                      # Gate on optional package
+```
+grep "unique_string" path/to/target.js
 ```
 
-Sentinel paths are relative to `@claude-flow/cli/dist/src/` (e.g. `services/worker-daemon.js`, `init/executor.js`). For external packages, add `# @package: ruvector` or `# @package: ruv-swarm` and use paths relative to that package root.
+**Sentinel directives** (one per line):
+
+```
+grep "unique_string" path/to/target.js     # String must be present
+absent "old_string" path/to/target.js       # String must be absent
+none                                         # No sentinel (e.g. permissions-only)
+package: ruvector                            # Gate on optional package
+```
+
+Paths are relative to `@claude-flow/cli/dist/src/` (e.g. `services/worker-daemon.js`, `init/executor.js`). For external packages, add `package: ruvector` or `package: ruv-swarm` and use paths relative to that package root.
 
 The sentinel pattern must:
 - Only appear in the target file AFTER the patch is applied
@@ -310,7 +316,8 @@ npm test
 - [ ] GitHub issue exists (searched first, created only if none found)
 - [ ] GitHub issue comment posted with patch details
 - [ ] `patch/{PREFIX}-{NNN}-{slug}/README.md` created with all required sections
-- [ ] `patch/{PREFIX}-{NNN}-{slug}/fix.py` created with `@sentinel` header + `patch()`/`patch_all()` calls
+- [ ] `patch/{PREFIX}-{NNN}-{slug}/fix.py` created with `patch()`/`patch_all()` calls
+- [ ] `patch/{PREFIX}-{NNN}-{slug}/sentinel` created with verification directives
 - [ ] Path variable added to `lib/common.py` (if targeting a new file)
 - [ ] If new category prefix: add one line to `lib/categories.json`
 - [ ] `npm run update-docs` regenerates all doc tables

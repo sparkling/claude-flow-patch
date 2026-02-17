@@ -1,6 +1,6 @@
 #!/bin/bash
 # check-patches.sh — Dynamic sentinel checker
-# Reads @sentinel lines from each patch/*/fix.py to verify patches are applied.
+# Reads patch/*/sentinel files to verify patches are still applied.
 # On session start: detects wipes, auto-reapplies, warns user.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -46,19 +46,20 @@ resolve_path() {
 }
 
 # ── Dynamic sentinel checks ──
-# Reads @sentinel and @package annotations from each fix.py/fix.sh header.
+# Reads each patch/*/sentinel file for verification directives.
 
 all_ok=true
 
-for fix in "$SCRIPT_DIR"/patch/*/fix.py "$SCRIPT_DIR"/patch/*/fix.sh; do
-  [ -f "$fix" ] || continue
+for sentinel_file in "$SCRIPT_DIR"/patch/*/sentinel; do
+  [ -f "$sentinel_file" ] || continue
 
-  # Read @package (default: claude-flow)
+  # Read package line (default: claude-flow)
   pkg="claude-flow"
-  pkg_line=$(grep -m1 '^# @package:' "$fix" 2>/dev/null || true)
+  pkg_line=$(grep -m1 '^package:' "$sentinel_file" 2>/dev/null || true)
   if [ -n "$pkg_line" ]; then
-    pkg="${pkg_line#\# @package: }"
-    pkg="${pkg%%[[:space:]]*}"  # trim trailing whitespace
+    pkg="${pkg_line#package:}"
+    pkg="${pkg#"${pkg%%[![:space:]]*}"}"  # trim leading whitespace
+    pkg="${pkg%%[[:space:]]*}"            # trim trailing whitespace
   fi
 
   # Skip if required package not installed
@@ -67,28 +68,30 @@ for fix in "$SCRIPT_DIR"/patch/*/fix.py "$SCRIPT_DIR"/patch/*/fix.sh; do
     ruv-swarm) [ -z "$RS_PKG" ] && continue ;;
   esac
 
-  # Process each @sentinel line
+  # Process each line
   while IFS= read -r line; do
-    sentinel="${line#\# @sentinel: }"
+    line="${line#"${line%%[![:space:]]*}"}"  # trim leading whitespace
+    [[ -z "$line" ]] && continue
+    [[ "$line" == package:* ]] && continue
 
-    if [[ "$sentinel" == "none" ]]; then
+    if [[ "$line" == "none" ]]; then
       continue
 
-    elif [[ "$sentinel" =~ ^absent\ \"(.+)\"\ (.+)$ ]]; then
+    elif [[ "$line" =~ ^absent\ \"(.+)\"\ (.+)$ ]]; then
       pattern="${BASH_REMATCH[1]}"
       filepath=$(resolve_path "$pkg" "${BASH_REMATCH[2]}")
       if grep -q "$pattern" "$filepath" 2>/dev/null; then
         all_ok=false
       fi
 
-    elif [[ "$sentinel" =~ ^grep\ \"(.+)\"\ (.+)$ ]]; then
+    elif [[ "$line" =~ ^grep\ \"(.+)\"\ (.+)$ ]]; then
       pattern="${BASH_REMATCH[1]}"
       filepath=$(resolve_path "$pkg" "${BASH_REMATCH[2]}")
       if ! grep -q "$pattern" "$filepath" 2>/dev/null; then
         all_ok=false
       fi
     fi
-  done < <(grep '^# @sentinel:' "$fix")
+  done < "$sentinel_file"
 done
 
 if $all_ok; then

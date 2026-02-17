@@ -1,0 +1,1 @@
+grep "'ignore', 'pipe', 'pipe'" services/headless-worker-executor.js

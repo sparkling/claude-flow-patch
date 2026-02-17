@@ -1,4 +1,3 @@
-# @sentinel: grep "'ignore', 'pipe', 'pipe'" services/headless-worker-executor.js
 # HW-001: Headless workers hang — stdin pipe never closed
 # GitHub: #1111
 patch("1: stdin pipe",

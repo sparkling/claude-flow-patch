@@ -1,4 +1,3 @@
-# @sentinel: grep "intelligenceContent" init/executor.js
 # IN-001: intelligence.cjs generated as stub instead of full version
 # GitHub: #1154
 #

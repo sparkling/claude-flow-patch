@@ -1,6 +1,6 @@
 {
   "name": "claude-flow-patch",
-  "version": "3.1.0-alpha.41",
+  "version": "3.1.0-alpha.44.patch.1",
   "description": "Patch toolkit for @claude-flow/cli init/runtime defects with verify and post-init repair commands",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
@@ -36,6 +36,7 @@
     "bin",
     "lib",
     "patch",
+    "scripts",
     "patch-all.sh",
     "check-patches.sh",
     "repair-post-init.sh",

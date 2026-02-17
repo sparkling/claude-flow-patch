@@ -1,4 +1,3 @@
-# @sentinel: grep "SG-002" init/executor.js
 # SG-002: init doesn't create .js/.cjs compat copies for helper modules
 # GitHub: #1153
 #
