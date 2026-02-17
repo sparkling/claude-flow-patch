@@ -22,6 +22,20 @@ const args = process.argv.slice(2).filter(a => a !== '--diff');
 const showDiff = process.argv.includes('--diff');
 const count = parseInt(args[0], 10) || 10;
 
+// ── Baseline (installed) + latest from npm ──
+
+// Detect installed version from npx cache
+let baseline = null;
+try {
+  const pkgPath = run("find ~/.npm/_npx -path '*/@claude-flow/cli/package.json' -type f 2>/dev/null | head -1");
+  if (pkgPath) {
+    const installed = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+    baseline = installed.version ?? null;
+  }
+} catch { /* not installed */ }
+
+const latest = run('npm view @claude-flow/cli@latest version').trim() || null;
+
 // ── Helpers ──
 
 function run(cmd) {
@@ -31,17 +45,6 @@ function run(cmd) {
     return '';
   }
 }
-
-// ── Our baseline + latest from npm ──
-
-let baseline = null;
-try {
-  const readme = readFileSync(resolve(ROOT, 'README.md'), 'utf-8');
-  const match = readme.match(/@claude-flow\/cli.*?\*\*v?(3\.\d+\.\d+-alpha\.\d+)\*\*/);
-  baseline = match?.[1] ?? null;
-} catch { /* no README */ }
-
-const latest = run('npm view @claude-flow/cli@latest version') || null;
 
 // ── Fetch npm version timeline ──
 
@@ -55,43 +58,32 @@ const times = JSON.parse(timeJson);
 delete times.created;
 delete times.modified;
 
-// Sort by publish date descending
+// Sort by publish date descending, take last N (+1 for window boundary)
 const allVersions = Object.entries(times)
   .sort((a, b) => new Date(b[1]) - new Date(a[1]));
 
 const versions = allVersions.slice(0, count);
 
-// ── Fetch GitHub commits with full messages ──
-// Uses NUL byte as record separator to handle multi-line messages.
+// ── Fetch GitHub commits with timestamps ──
 
-const commits = []; // { time: Date, subject: string, body: string[] }
+const commits = []; // { time: Date, msg: string }
 
 function fetchCommits() {
-  // Fetch full message with NUL-delimited records
   const raw = run(
-    "gh api repos/ruvnet/claude-flow/commits?per_page=100 " +
-    "--jq '.[] | \"\\(.commit.author.date)\\u0000\\(.commit.message)\\u0000\"'"
+    'gh api repos/ruvnet/claude-flow/commits?per_page=100 ' +
+    "--jq '.[] | \"\\(.commit.author.date)\\t\\(.commit.message | split(\"\\n\")[0])\"'"
   );
   if (!raw) return;
-
-  // Split on NUL pairs (each record is: date NUL message NUL)
-  const records = raw.split('\0');
-  for (let i = 0; i < records.length - 1; i += 2) {
-    const dateStr = records[i].replace(/\n$/, '').replace(/^\n/, '');
-    const message = records[i + 1] || '';
-    const time = new Date(dateStr);
-    if (isNaN(time.getTime())) continue;
-
-    const lines = message.split('\n');
-    const subject = lines[0] || '';
-    // Body: skip empty line after subject, collect non-empty lines
-    const body = lines.slice(1)
-      .map(l => l.trim())
-      .filter(l => l && !l.startsWith('Co-Authored-By:'));
-
-    commits.push({ time, subject, body });
+  for (const line of raw.split('\n')) {
+    const tab = line.indexOf('\t');
+    if (tab < 0) continue;
+    const time = new Date(line.slice(0, tab));
+    const msg = line.slice(tab + 1);
+    if (!isNaN(time.getTime()) && msg) {
+      commits.push({ time, msg });
+    }
   }
-
+  // Sort oldest first for window matching
   commits.sort((a, b) => a.time - b.time);
 }
 
@@ -99,21 +91,16 @@ fetchCommits();
 
 /**
  * Find commits between prevTime (exclusive) and thisTime (inclusive).
- * Skip version bumps and checkpoint commits.
+ * Skip version-bump-only commits.
  */
 function commitsForWindow(thisTime, prevTime) {
   const start = prevTime ? new Date(prevTime) : new Date(0);
   const end = new Date(thisTime);
   return commits
     .filter(c => c.time > start && c.time <= end)
-    .filter(c => !/^Bump to 3\.\d/.test(c.subject))
-    .filter(c => !/^Checkpoint:/.test(c.subject));
-}
-
-/** Shorten "3.1.0-alpha.42" to "alpha.42" */
-function shortVersion(v) {
-  const m = v.match(/alpha\.(\d+)$/);
-  return m ? `alpha.${m[1]}` : v;
+    .filter(c => !/^Bump to 3\.\d/.test(c.msg))
+    .filter(c => !/^Checkpoint:/.test(c.msg))
+    .map(c => c.msg);
 }
 
 // ── Dep diff helper ──
@@ -129,86 +116,45 @@ console.log(`Last ${versions.length} releases of @claude-flow/cli`);
 if (latest) console.log(`Latest on npm: ${latest}`);
 if (baseline) console.log(`Patch baseline: ${baseline}`);
 if (latest && baseline && latest !== baseline) {
-  const latestIdx = allVersions.findIndex(([v]) => v === latest);
-  const baseIdx = allVersions.findIndex(([v]) => v === baseline);
-  const ahead = baseIdx - latestIdx;
+  const ahead = allVersions.findIndex(([v]) => v === baseline) - allVersions.findIndex(([v]) => v === latest);
   if (ahead > 0) console.log(`Upstream is ${ahead} version${ahead > 1 ? 's' : ''} ahead of baseline`);
 }
 console.log('');
 
 for (let i = 0; i < versions.length; i++) {
   const [version, time] = versions[i];
+  const date = time.slice(0, 10);
   const isBaseline = version === baseline;
   const marker = isBaseline ? '  <-- patch baseline' : '';
 
+  console.log(`  ${version}  ${date}${marker}`);
+
   // Previous version's time is the window boundary
-  const prevIdx = allVersions.findIndex(([v]) => v === version) + 1;
-  const prevTime = versions[i + 1]?.[1] ?? allVersions[prevIdx]?.[1];
+  const prevTime = versions[i + 1]?.[1] ?? allVersions[allVersions.indexOf(versions[i]) + 1]?.[1];
   const windowCommits = commitsForWindow(time, prevTime);
 
-  if (windowCommits.length === 0) {
-    // Single-line entry for version-bump-only releases
-    console.log(`  ${shortVersion(version)} — (version bump only)${marker}`);
-    console.log('');
-    continue;
+  for (const msg of windowCommits.slice(0, 5)) {
+    console.log(`    - ${msg}`);
   }
-
-  // Use first commit's subject as the version title
-  const primary = windowCommits[windowCommits.length - 1]; // earliest commit is the main one
-  console.log(`  ${shortVersion(version)} — ${primary.subject}${marker}`);
-  console.log('');
-
-  // Collect body paragraphs from all commits in this window
-  for (const commit of windowCommits.reverse()) {
-    if (commit.body.length === 0) continue;
-
-    // Join lines into paragraphs. Blank lines and lines starting with
-    // "- " mark paragraph boundaries (preserving commit bullet lists).
-    const paragraphs = [];
-    let current = [];
-    for (const line of commit.body) {
-      if (line === '') {
-        if (current.length) paragraphs.push(current.join(' '));
-        current = [];
-      } else if (line.startsWith('- ')) {
-        // Flush any running paragraph, then start a new one for this bullet
-        if (current.length) paragraphs.push(current.join(' '));
-        current = [line.slice(2)]; // strip leading "- "
-      } else {
-        current.push(line);
-      }
-    }
-    if (current.length) paragraphs.push(current.join(' '));
-
-    for (const para of paragraphs) {
-      // Skip lines that duplicate the subject
-      if (para === commit.subject) continue;
-      // Skip metadata lines
-      if (/^(Fixes|Closes|Caution):?\s/i.test(para)) continue;
-      if (/^Co-Authored-By:/i.test(para)) continue;
-      if (/Published( packages)?:/i.test(para)) continue;
-      // Strip trailing "Fixes #NNN" / "Closes #NNN"
-      let clean = para
-        .replace(/^- /, '')
-        .replace(/\s*(Fixes|Closes)\s+#\d+\.?$/i, '');
-      if (!clean) continue;
-      console.log(`  - ${clean}`);
-    }
+  if (windowCommits.length > 5) {
+    console.log(`    ... and ${windowCommits.length - 5} more`);
   }
-
-  console.log('');
+  if (windowCommits.length === 0 && commits.length > 0) {
+    console.log('    (version bump only)');
+  }
 }
 
 // ── Dep diff against baseline ──
 
 if (showDiff && baseline) {
-  const latestV = versions[0]?.[0];
-  if (latestV && latestV !== baseline) {
-    console.log(`Dependency diff: ${baseline} -> ${latestV}`);
+  const latest = versions[0]?.[0];
+  if (latest && latest !== baseline) {
+    console.log('');
+    console.log(`Dependency diff: ${baseline} -> ${latest}`);
     console.log('');
 
     const oldDeps = getDeps(baseline);
-    const newDeps = getDeps(latestV);
+    const newDeps = getDeps(latest);
 
     const allKeys = new Set([...Object.keys(oldDeps), ...Object.keys(newDeps)]);
     let anyChange = false;
@@ -225,6 +171,7 @@ if (showDiff && baseline) {
     }
 
     if (!anyChange) console.log('  (no dependency changes)');
-    console.log('');
   }
 }
+
+console.log('');
