@@ -31,6 +31,30 @@ bash repair-post-init.sh --target /path/to/project
 
 See [Init-Script Patches](#init-script-patches-local-project-action-required) for details.
 
+## NPM Package
+
+You can run this toolkit directly from npm:
+
+```bash
+# patch cache + local installs
+npx --yes claude-flow-patch patch --scope both
+
+# verify patch sentinels
+npx --yes claude-flow-patch check
+
+# repair an already-initialized project
+npx --yes claude-flow-patch repair --target /path/to/project
+```
+
+Or install globally:
+
+```bash
+npm i -g claude-flow-patch
+claude-flow-patch patch --scope both
+claude-flow-patch check
+claude-flow-patch repair --target /path/to/project
+```
+
 ### Scope Options
 
 ```bash
