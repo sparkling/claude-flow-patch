@@ -12,7 +12,43 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruvector`
 - `ruv-swarm`
 
-Current catalog includes 31 tracked defects across 13 categories: headless workers, daemon, config, embeddings, display, memory namespace, ghost vectors, intelligence, settings generator, memory management, hooks, RuVector, and ruv-swarm.
+<!-- GENERATED:npm-defects:begin -->
+31 tracked defects across 13 categories.
+
+| Defect | Description | GitHub Issue |
+|--------|-------------|-------------|
+| [CF-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/010-CF-001-doctor-yaml) | Doctor ignores YAML config files | [#1141](https://github.com/ruvnet/claude-flow/issues/1141) |
+| [CF-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/020-CF-002-config-export-yaml) | Config export shows hardcoded defaults | [#1142](https://github.com/ruvnet/claude-flow/issues/1142) |
+| [DM-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/030-DM-001-daemon-log-zero) | daemon.log always 0 bytes | [#1116](https://github.com/ruvnet/claude-flow/issues/1116) |
+| [DM-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/040-DM-002-cpu-load-threshold) | maxCpuLoad=2.0 blocks all workers on multi-core | [#1138](https://github.com/ruvnet/claude-flow/issues/1138) |
+| [DM-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/050-DM-003-macos-freemem) | macOS freemem() always ~0% — workers blocked | [#1077](https://github.com/ruvnet/claude-flow/issues/1077) |
+| [DM-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/060-DM-004-preload-worker-stub) | Preload worker stub + missing from defaults | [#1139](https://github.com/ruvnet/claude-flow/issues/1139) |
+| [DM-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/070-DM-005-consolidation-worker-stub) | Consolidation worker stub (no decay/rebuild) | [#1140](https://github.com/ruvnet/claude-flow/issues/1140) |
+| [DM-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/300-DM-006-log-rotation) | No log rotation — headless execution logs grow unbounded | [#1114](https://github.com/ruvnet/claude-flow/issues/1114) |
+| [EM-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/080-EM-001-embedding-ignores-config) | Embedding system ignores project config (model + HNSW dims) | [#1143](https://github.com/ruvnet/claude-flow/issues/1143) |
+| [EM-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/090-EM-002-transformers-cache-eacces) | @xenova/transformers cache EACCES | [#1144](https://github.com/ruvnet/claude-flow/issues/1144) |
+| [GV-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/100-GV-001-hnsw-ghost-vectors) | HNSW ghost vectors persist after memory delete | [#1122](https://github.com/ruvnet/claude-flow/issues/1122) |
+| [HK-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/110-HK-001-post-edit-file-path) | post-edit hook records file_path as "unknown" | [#1155](https://github.com/ruvnet/claude-flow/issues/1155) |
+| [HK-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/120-HK-002-hooks-tools-stub) | MCP hook handlers are stubs that don't persist data | [#1058](https://github.com/ruvnet/claude-flow/issues/1058) |
+| [HK-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/130-HK-003-metrics-hardcoded) | hooks_metrics MCP handler returns hardcoded fake data | [#1158](https://github.com/ruvnet/claude-flow/issues/1158) |
+| [HW-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/140-HW-001-stdin-hang) | Headless workers hang — stdin pipe never closed | [#1111](https://github.com/ruvnet/claude-flow/issues/1111) |
+| [HW-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/150-HW-002-failures-swallowed) | Headless failures silently swallowed as success | [#1112](https://github.com/ruvnet/claude-flow/issues/1112) |
+| [HW-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/160-HW-003-aggressive-intervals) | Worker scheduling intervals too aggressive | [#1113](https://github.com/ruvnet/claude-flow/issues/1113) |
+| [HW-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/310-HW-004-runwithtimeout-orphan) | runWithTimeout rejects but does not kill child process | [#1117](https://github.com/ruvnet/claude-flow/issues/1117) |
+| [IN-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/170-IN-001-intelligence-stub) | intelligence.cjs is a stub that doesn't actually learn | [#1154](https://github.com/ruvnet/claude-flow/issues/1154) |
+| [MM-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/180-MM-001-memory-persist-path) | Remove dead persistPath config option | [#1152](https://github.com/ruvnet/claude-flow/issues/1152) |
+| [NS-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/190-NS-001-discovery-default-namespace) | Discovery ops default to wrong namespace | [#1123](https://github.com/ruvnet/claude-flow/issues/1123) |
+| [NS-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/200-NS-002-targeted-require-namespace) | Store/delete/retrieve fall back to 'default' + accept 'all' | [#581](https://github.com/ruvnet/claude-flow/issues/581) |
+| [NS-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/210-NS-003-namespace-typo-pattern) | Namespace typo 'pattern' vs 'patterns' | [#1136](https://github.com/ruvnet/claude-flow/issues/1136) |
+| [RS-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/220-RS-001-better-sqlite3-node24) | ruv-swarm MCP fails on Node 24 — better-sqlite3 missing native bindings | [ruv-FANN#185](https://github.com/ruvnet/ruv-FANN/issues/185) |
+| [RV-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/230-RV-001-force-learn-tick) | force-learn command calls intel.tick() which doesn't exist | [#1156](https://github.com/ruvnet/claude-flow/issues/1156) |
+| [RV-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/240-RV-002-trajectory-load) | activeTrajectories not loaded from saved file | [#1157](https://github.com/ruvnet/claude-flow/issues/1157) |
+| [RV-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/250-RV-003-trajectory-stats-sync) | trajectory-end does not update stats counters | [ruv-FANN#186](https://github.com/ruvnet/ruv-FANN/issues/186) |
+| [SG-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/260-SG-001-init-settings) | Init generates invalid settings | [#1150](https://github.com/ruvnet/claude-flow/issues/1150) |
+| [SG-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/270-SG-003-init-helpers-all-paths) | Init missing helpers for --dual, --minimal, hooks, and upgrade paths | [#1169](https://github.com/ruvnet/claude-flow/issues/1169) |
+| [UI-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/280-UI-001-intelligence-stats-crash) | intelligence stats crashes on .toFixed() | [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
+| [UI-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/290-UI-002-neural-status-not-loaded) | neural status shows "Not loaded" | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
+<!-- GENERATED:npm-defects:end -->
 
 ## Quick Start
 

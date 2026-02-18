@@ -110,21 +110,36 @@ function generateClaudeTables() {
   return lines.join('\n');
 }
 
-// ── Update npm/README.md counts ──
+// ── Generate npm/README.md defect list ──
+
+const REPO_URL = 'https://github.com/sparkling/claude-flow-patch';
+
+function generateNpmDefectList() {
+  const groups = groupByPrefix(patches);
+  const lines = [
+    `${stats.total} tracked defects across ${stats.categories} categories.`,
+    '',
+    '| Defect | Description | GitHub Issue |',
+    '|--------|-------------|-------------|',
+  ];
+
+  for (const [, items] of groups) {
+    for (const p of items) {
+      const defectLink = `[${p.id}](${REPO_URL}/tree/master/patch/${p.dir})`;
+      const ghLink = p.githubUrl ? `[${p.github}](${p.githubUrl})` : p.github;
+      lines.push(`| ${defectLink} | ${p.title} | ${ghLink} |`);
+    }
+  }
+
+  return lines.join('\n');
+}
 
 function updateNpmReadme() {
-  const filePath = resolve(ROOT, 'npm', 'README.md');
-  const text = readFileSync(filePath, 'utf-8');
-
-  // Replace "N tracked defects across M categories" pattern
-  const updated = text.replace(
-    /\d+ tracked defects across \d+ categories/g,
-    `${stats.total} tracked defects across ${stats.categories} categories`
+  return replaceMarkerSection(
+    resolve(ROOT, 'npm', 'README.md'),
+    'npm-defects',
+    generateNpmDefectList()
   );
-
-  if (updated === text) return false;
-  if (!checkOnly) writeFileSync(filePath, updated);
-  return true;
 }
 
 // ── Update npm/config.json counts ──
