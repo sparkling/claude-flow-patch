@@ -26,10 +26,34 @@ describe('individual patch application', () => {
       absent: 'maxCpuLoad: 2.0',
     },
     {
-      id: 'SG-002',
+      id: 'SG-003',
+      file: 'commands/init.js',
+      sentinel: 'SG-003',
+      absent: null,
+    },
+    {
+      id: 'SG-003',
       file: 'init/executor.js',
-      sentinel: 'SG-002: Create .js/.cjs compat copies',
-      absent: null, // old string is still partially present (it's a superset replacement)
+      sentinel: 'SG-003',
+      absent: null,
+    },
+    {
+      id: 'SG-003',
+      file: 'init/helpers-generator.js',
+      sentinel: "router.cjs",
+      absent: "router.js",
+    },
+    {
+      id: 'SG-001',
+      file: 'init/settings-generator.js',
+      sentinel: 'components.statusline && options.statusline.enabled',
+      absent: null,
+    },
+    {
+      id: 'SG-001',
+      file: 'init/types.js',
+      sentinel: 'SG-001',
+      absent: null,
     },
   ];
 

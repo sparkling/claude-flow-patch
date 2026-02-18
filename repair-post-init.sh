@@ -7,7 +7,6 @@
 # 2) Backs up target .claude/helpers (default)
 # 3) Rehydrates helper files into target project
 # 4) Preserves/installs a guidance-aware hook-handler when available
-# 5) Adds .js/.cjs compatibility copies for router/session/memory modules
 
 set -euo pipefail
 
@@ -228,18 +227,6 @@ function resolveGuidanceScriptPath(scriptName) {
     path.write_text(text)
 PY
 fi
-
-# .js/.cjs compatibility for helper modules referenced by different hook-handler variants.
-for m in router session memory statusline; do
-  if [ -f "$TARGET_HELPERS/$m.js" ] && [ ! -f "$TARGET_HELPERS/$m.cjs" ]; then
-    run_cmd cp -a "$TARGET_HELPERS/$m.js" "$TARGET_HELPERS/$m.cjs"
-    copied=$((copied + 1))
-  fi
-  if [ -f "$TARGET_HELPERS/$m.cjs" ] && [ ! -f "$TARGET_HELPERS/$m.js" ]; then
-    run_cmd cp -a "$TARGET_HELPERS/$m.cjs" "$TARGET_HELPERS/$m.js"
-    copied=$((copied + 1))
-  fi
-done
 
 if [ "$DRY_RUN" -eq 0 ] && [ -f "$TARGET_HELPERS/hook-handler.cjs" ]; then
   chmod +x "$TARGET_HELPERS/hook-handler.cjs" || true

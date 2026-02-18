@@ -1,5 +1,5 @@
 # NS-002: Targeted ops (store/delete/retrieve) accept wrong namespace
-# GitHub: #581, #1137, #1135
+# GitHub: #581
 # Rule: Require explicit namespace, block 'all'
 # 14 ops: 20a-i (store/delete) + 21a,b,e,f,h (retrieve)
 

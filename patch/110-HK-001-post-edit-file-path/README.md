@@ -41,4 +41,4 @@ The `prompt` fallback for the `route` handler is also updated to prefer
 
 ## Ops
 
-3 ops in fix.py
+2 ops in fix.py

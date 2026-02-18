@@ -14,7 +14,11 @@ describe('patch idempotency', () => {
   const PATCHES = [
     { id: 'HW-001', file: 'services/headless-worker-executor.js' },
     { id: 'DM-002', file: 'services/worker-daemon.js' },
-    { id: 'SG-002', file: 'init/executor.js' },
+    { id: 'SG-003', file: 'commands/init.js' },
+    { id: 'SG-003', file: 'init/executor.js' },
+    { id: 'SG-003', file: 'init/helpers-generator.js' },
+    { id: 'SG-001', file: 'init/settings-generator.js' },
+    { id: 'SG-001', file: 'init/types.js' },
   ];
 
   for (const { id, file } of PATCHES) {

@@ -1,1 +1,1 @@
-grep "30 * 60 * 1000" services/headless-worker-executor.js
+grep "30 * 60 * 1000" services/worker-daemon.js

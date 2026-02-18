@@ -81,6 +81,12 @@ init = base + "/init" if base else ""
 SETTINGS_GEN = init + "/settings-generator.js" if init else ""
 HELPERS_GEN = init + "/helpers-generator.js" if init else ""
 EXECUTOR = init + "/executor.js" if init else ""
+TYPES = init + "/types.js" if init else ""
+INIT_CMD = commands + "/init.js" if commands else ""
+
+# Source helpers (shipped with package, copied by writeHelpers when source dir found)
+_pkg_root = os.path.dirname(os.path.dirname(base)) if base else ""
+SRC_HOOK_HANDLER = os.path.join(_pkg_root, ".claude", "helpers", "hook-handler.cjs") if _pkg_root else ""
 
 # RuVector (separate package, path set by patch-all.sh)
 ruvector_cli = os.environ.get("RUVECTOR_CLI", "")

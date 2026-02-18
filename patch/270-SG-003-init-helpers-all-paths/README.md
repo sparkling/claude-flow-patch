@@ -55,3 +55,6 @@ Depends on IN-001 (170) — SG-003's `old_string` contains code introduced by IN
 ## Ops
 
 7 ops (11 patch calls) in fix.py
+
+Note: .js copies of .cjs helpers are not needed. All require() paths use .cjs
+exclusively after ops d-i. The former SG-002 compat copy approach was retired.

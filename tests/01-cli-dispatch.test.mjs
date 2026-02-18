@@ -32,15 +32,15 @@ describe('CLI dispatch', () => {
     assert.equal(r.status, 1);
     assert.ok(r.stderr.includes('no patch found'));
     assert.ok(r.stderr.includes('HW-001'));
-    assert.ok(r.stderr.includes('SG-002'));
+    assert.ok(r.stderr.includes('SG-003'));
   });
 
   it('apply with valid ID finds the patch file (python may fail without common.py)', () => {
-    // SG-002 exists. The CLI dispatches to python3 fix.py directly,
+    // SG-003 exists. The CLI dispatches to python3 fix.py directly,
     // which fails because fix.py needs common.py prepended. But the dispatch itself works —
     // we verify it does NOT show "no patch found" (it found the file, python just errored).
-    const r = runCli('apply', 'SG-002');
-    assert.ok(!r.stderr.includes('no patch found'), 'dispatch should find SG-002');
+    const r = runCli('apply', 'SG-003');
+    assert.ok(!r.stderr.includes('no patch found'), 'dispatch should find SG-003');
   });
 
   it('check delegates to check-patches.sh', () => {

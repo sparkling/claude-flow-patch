@@ -135,3 +135,28 @@ npx @claude-flow/cli memory search \
 
 - Documentation: https://github.com/ruvnet/claude-flow
 - Issues: https://github.com/ruvnet/claude-flow/issues
+
+## Guidance Lifecycle Wiring (Codex)
+
+Codex does not expose Claude Code-style event-command hook maps in `config.toml`.
+This project uses an explicit bridge script:
+
+- `scripts/guidance-codex-bridge.js` -> dispatches lifecycle events to:
+  - `.claude/helpers/hook-handler.cjs` (enforcement path)
+  - optional `npx @claude-flow/cli@latest hooks ...` telemetry calls
+
+Primary commands:
+
+```bash
+npm run guidance:codex:session-start
+npm run guidance:codex:pre-task -- --description "Implement feature X"
+npm run guidance:codex:pre-command -- --command "git status"
+npm run guidance:codex:pre-edit -- --file src/example.ts
+npm run guidance:codex:post-edit -- --file src/example.ts
+npm run guidance:codex:post-task -- --task-id task-123 --status completed
+npm run guidance:codex:session-end
+```
+
+Control flags:
+- `--skip-cf-hooks` skips secondary `@claude-flow/cli` hook invocations
+- `GUIDANCE_CODEX_SKIP_CF_HOOKS=1` disables secondary invocations globally

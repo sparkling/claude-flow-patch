@@ -61,7 +61,18 @@ RS-001 locates its own target via `find`.
 
 ## GitHub Issue Policy
 
-Every defect MUST link to a GitHub issue. No exceptions.
+Every defect MUST link to exactly one GitHub issue. No exceptions. One defect = one GitHub issue.
+
+### Where the fix description goes
+
+The `## Fix` section MUST always be present. Where it lives depends on who created the GitHub issue:
+
+| Who created the issue? | Where does `## Fix` go? |
+|------------------------|------------------------|
+| **sparkling** (us) | In the **issue body** — edit the issue to include `## Fix` |
+| **Someone else** | In a **single comment** on the issue — do NOT edit their body |
+
+This rule is absolute. Every linked GitHub issue must have a `## Fix` section visible — either in the body (if we created it) or in exactly one comment (if someone else created it).
 
 ### Before creating a new defect, always search first:
 
@@ -69,9 +80,9 @@ Every defect MUST link to a GitHub issue. No exceptions.
 gh issue list --repo ruvnet/claude-flow --search "<keywords>" --limit 10
 ```
 
-### If an open GitHub issue exists:
+### If an open GitHub issue exists (created by someone else):
 
-Post a single comment with the patch details. Do NOT post multiple comments, closing remarks, or history. One clean comment per defect:
+Post a single comment with the patch details. Do NOT edit the issue body. Do NOT post multiple comments, closing remarks, or history. One clean comment per defect:
 
 ```bash
 gh issue comment <NUMBER> --repo ruvnet/claude-flow --body "$(cat <<'EOF'
@@ -84,7 +95,9 @@ EOF
 )"
 ```
 
-### If no GitHub issue exists:
+### If no GitHub issue exists (we create it):
+
+The `## Fix` section goes directly in the issue body. This is mandatory — sparkling-created issues MUST contain the fix in the body, not in a follow-up comment.
 
 ```bash
 gh issue create --repo ruvnet/claude-flow \
@@ -97,7 +110,7 @@ gh issue create --repo ruvnet/claude-flow \
 <what's wrong and why>
 
 ## Fix
-<what the patch does>
+<what the patch does — be specific, include a table if multiple ops>
 
 ## Files Affected
 - <dist/src/path/to/file.js>

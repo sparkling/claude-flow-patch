@@ -296,3 +296,23 @@ interval = 600
 enabled = true
 priority = "low"
 interval = 1800
+
+# =============================================================================
+# Guidance Codex Bridge
+# =============================================================================
+
+[guidance_codex]
+enabled = true
+script = "scripts/guidance-codex-bridge.js"
+hook_handler = ".claude/helpers/hook-handler.cjs"
+run_claude_flow_cli_hooks = true
+
+[guidance_codex.commands]
+status = "npm run guidance:codex:status"
+pre_command = "npm run guidance:codex:pre-command -- --command \"<bash command>\""
+pre_edit = "npm run guidance:codex:pre-edit -- --file <path>"
+pre_task = "npm run guidance:codex:pre-task -- --description \"<task description>\""
+post_edit = "npm run guidance:codex:post-edit -- --file <path>"
+post_task = "npm run guidance:codex:post-task -- --task-id <id> --status completed"
+session_start = "npm run guidance:codex:session-start"
+session_end = "npm run guidance:codex:session-end"
