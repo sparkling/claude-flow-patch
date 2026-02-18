@@ -12,7 +12,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruvector`
 - `ruv-swarm`
 
-Current catalog includes 29 tracked defects across 13 categories: headless workers, daemon, config, embeddings, display, memory namespace, ghost vectors, intelligence, settings generator, memory management, hooks, RuVector, and ruv-swarm.
+Current catalog includes 31 tracked defects across 13 categories: headless workers, daemon, config, embeddings, display, memory namespace, ghost vectors, intelligence, settings generator, memory management, hooks, RuVector, and ruv-swarm.
 
 ## Quick Start
 

@@ -19,6 +19,8 @@ describe('patch idempotency', () => {
     { id: 'SG-003', file: 'init/helpers-generator.js' },
     { id: 'SG-001', file: 'init/settings-generator.js' },
     { id: 'SG-001', file: 'init/types.js' },
+    { id: 'DM-006', file: 'services/headless-worker-executor.js' },
+    { id: 'HW-004', file: 'services/worker-daemon.js' },
   ];
 
   for (const { id, file } of PATCHES) {

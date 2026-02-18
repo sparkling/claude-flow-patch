@@ -1,4 +1,4 @@
-// Minimal fixture for DM-002, DM-003, HW-002, HW-003 testing
+// Minimal fixture for DM-002, DM-003, HW-002, HW-003, HW-004 testing
 const config = {
   resourceThresholds: {
     maxCpuLoad: 2.0,
@@ -15,3 +15,6 @@ const workers = [
   { type: 'optimize', intervalMs: 15 * 60 * 1000 },
   { type: 'testgaps', intervalMs: 20 * 60 * 1000 },
 ];
+
+// Worker timeout (5 minutes max per worker)
+const DEFAULT_WORKER_TIMEOUT_MS = 5 * 60 * 1000;

@@ -137,101 +137,103 @@ claude-flow-patch/
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-29 defects across 13 categories.
+31 defects across 13 categories.
 
 ### CF -- Config & Doctor
 
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
-| [CF&#8209;001](patch/CF-001-doctor-yaml/) | Doctor ignores YAML config files | Low | [#1141](https://github.com/ruvnet/claude-flow/issues/1141) |
-| [CF&#8209;002](patch/CF-002-config-export-yaml/) | Config export shows hardcoded defaults | Medium | [#1142](https://github.com/ruvnet/claude-flow/issues/1142) |
+| [CF&#8209;001](patch/010-CF-001-doctor-yaml/) | Doctor ignores YAML config files | Low | [#1141](https://github.com/ruvnet/claude-flow/issues/1141) |
+| [CF&#8209;002](patch/020-CF-002-config-export-yaml/) | Config export shows hardcoded defaults | Medium | [#1142](https://github.com/ruvnet/claude-flow/issues/1142) |
 
 ### DM -- Daemon & Workers
 
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
-| [DM&#8209;001](patch/DM-001-daemon-log-zero/) | daemon.log always 0 bytes | Medium | [#1116](https://github.com/ruvnet/claude-flow/issues/1116) |
-| [DM&#8209;002](patch/DM-002-cpu-load-threshold/) | maxCpuLoad=2.0 blocks all workers on multi-core | Critical | [#1138](https://github.com/ruvnet/claude-flow/issues/1138) |
-| [DM&#8209;003](patch/DM-003-macos-freemem/) | macOS freemem() always ~0% — workers blocked | Critical | [#1077](https://github.com/ruvnet/claude-flow/issues/1077) |
-| [DM&#8209;004](patch/DM-004-preload-worker-stub/) | Preload worker stub + missing from defaults | Enhancement | [#1139](https://github.com/ruvnet/claude-flow/issues/1139) |
-| [DM&#8209;005](patch/DM-005-consolidation-worker-stub/) | Consolidation worker stub (no decay/rebuild) | Enhancement | [#1140](https://github.com/ruvnet/claude-flow/issues/1140) |
+| [DM&#8209;001](patch/030-DM-001-daemon-log-zero/) | daemon.log always 0 bytes | Medium | [#1116](https://github.com/ruvnet/claude-flow/issues/1116) |
+| [DM&#8209;002](patch/040-DM-002-cpu-load-threshold/) | maxCpuLoad=2.0 blocks all workers on multi-core | Critical | [#1138](https://github.com/ruvnet/claude-flow/issues/1138) |
+| [DM&#8209;003](patch/050-DM-003-macos-freemem/) | macOS freemem() always ~0% — workers blocked | Critical | [#1077](https://github.com/ruvnet/claude-flow/issues/1077) |
+| [DM&#8209;004](patch/060-DM-004-preload-worker-stub/) | Preload worker stub + missing from defaults | Enhancement | [#1139](https://github.com/ruvnet/claude-flow/issues/1139) |
+| [DM&#8209;005](patch/070-DM-005-consolidation-worker-stub/) | Consolidation worker stub (no decay/rebuild) | Enhancement | [#1140](https://github.com/ruvnet/claude-flow/issues/1140) |
+| [DM&#8209;006](patch/300-DM-006-log-rotation/) | No log rotation — headless execution logs grow unbounded | Medium | [#1114](https://github.com/ruvnet/claude-flow/issues/1114) |
 
 ### EM -- Embeddings & HNSW
 
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
-| [EM&#8209;001](patch/EM-001-embedding-ignores-config/) | Embedding system ignores project config (model + HNSW dims) | High | [#1143](https://github.com/ruvnet/claude-flow/issues/1143) |
-| [EM&#8209;002](patch/EM-002-transformers-cache-eacces/) | @xenova/transformers cache EACCES | Medium | [#1144](https://github.com/ruvnet/claude-flow/issues/1144) |
+| [EM&#8209;001](patch/080-EM-001-embedding-ignores-config/) | Embedding system ignores project config (model + HNSW dims) | High | [#1143](https://github.com/ruvnet/claude-flow/issues/1143) |
+| [EM&#8209;002](patch/090-EM-002-transformers-cache-eacces/) | @xenova/transformers cache EACCES | Medium | [#1144](https://github.com/ruvnet/claude-flow/issues/1144) |
 
 ### GV -- Ghost Vectors
 
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
-| [GV&#8209;001](patch/GV-001-hnsw-ghost-vectors/) | HNSW ghost vectors persist after memory delete | Medium | [#1122](https://github.com/ruvnet/claude-flow/issues/1122) |
+| [GV&#8209;001](patch/100-GV-001-hnsw-ghost-vectors/) | HNSW ghost vectors persist after memory delete | Medium | [#1122](https://github.com/ruvnet/claude-flow/issues/1122) |
 
 ### HK -- Hooks
 
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
-| [HK&#8209;001](patch/HK-001-post-edit-file-path/) | post-edit hook records file_path as "unknown" | Medium | [#1155](https://github.com/ruvnet/claude-flow/issues/1155) |
-| [HK&#8209;002](patch/HK-002-hooks-tools-stub/) | MCP hook handlers are stubs that don't persist data | High | [#1058](https://github.com/ruvnet/claude-flow/issues/1058) |
-| [HK&#8209;003](patch/HK-003-metrics-hardcoded/) | hooks_metrics MCP handler returns hardcoded fake data | High | [#1158](https://github.com/ruvnet/claude-flow/issues/1158) |
+| [HK&#8209;001](patch/110-HK-001-post-edit-file-path/) | post-edit hook records file_path as "unknown" | Medium | [#1155](https://github.com/ruvnet/claude-flow/issues/1155) |
+| [HK&#8209;002](patch/120-HK-002-hooks-tools-stub/) | MCP hook handlers are stubs that don't persist data | High | [#1058](https://github.com/ruvnet/claude-flow/issues/1058) |
+| [HK&#8209;003](patch/130-HK-003-metrics-hardcoded/) | hooks_metrics MCP handler returns hardcoded fake data | High | [#1158](https://github.com/ruvnet/claude-flow/issues/1158) |
 
 ### HW -- Headless Worker
 
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
-| [HW&#8209;001](patch/HW-001-stdin-hang/) | Headless workers hang — stdin pipe never closed | Critical | [#1111](https://github.com/ruvnet/claude-flow/issues/1111) |
-| [HW&#8209;002](patch/HW-002-failures-swallowed/) | Headless failures silently swallowed as success | High | [#1112](https://github.com/ruvnet/claude-flow/issues/1112) |
-| [HW&#8209;003](patch/HW-003-aggressive-intervals/) | Worker scheduling intervals too aggressive | High | [#1113](https://github.com/ruvnet/claude-flow/issues/1113) |
+| [HW&#8209;001](patch/140-HW-001-stdin-hang/) | Headless workers hang — stdin pipe never closed | Critical | [#1111](https://github.com/ruvnet/claude-flow/issues/1111) |
+| [HW&#8209;002](patch/150-HW-002-failures-swallowed/) | Headless failures silently swallowed as success | High | [#1112](https://github.com/ruvnet/claude-flow/issues/1112) |
+| [HW&#8209;003](patch/160-HW-003-aggressive-intervals/) | Worker scheduling intervals too aggressive | High | [#1113](https://github.com/ruvnet/claude-flow/issues/1113) |
+| [HW&#8209;004](patch/310-HW-004-runwithtimeout-orphan/) | runWithTimeout rejects but does not kill child process | Medium | [#1117](https://github.com/ruvnet/claude-flow/issues/1117) |
 
 ### IN -- Intelligence
 
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
-| [IN&#8209;001](patch/IN-001-intelligence-stub/) | intelligence.cjs is a stub that doesn't actually learn | Critical | [#1154](https://github.com/ruvnet/claude-flow/issues/1154) |
+| [IN&#8209;001](patch/170-IN-001-intelligence-stub/) | intelligence.cjs is a stub that doesn't actually learn | Critical | [#1154](https://github.com/ruvnet/claude-flow/issues/1154) |
 
 ### MM -- Memory Management
 
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
-| [MM&#8209;001](patch/MM-001-memory-persist-path/) | Remove dead persistPath config option | Low | [#1152](https://github.com/ruvnet/claude-flow/issues/1152) |
+| [MM&#8209;001](patch/180-MM-001-memory-persist-path/) | Remove dead persistPath config option | Low | [#1152](https://github.com/ruvnet/claude-flow/issues/1152) |
 
 ### NS -- Memory Namespace
 
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
-| [NS&#8209;001](patch/NS-001-discovery-default-namespace/) | Discovery ops default to wrong namespace | Critical | [#1123](https://github.com/ruvnet/claude-flow/issues/1123) |
-| [NS&#8209;002](patch/NS-002-targeted-require-namespace/) | Store/delete/retrieve fall back to 'default' + accept 'all' | Critical | [#581](https://github.com/ruvnet/claude-flow/issues/581) |
-| [NS&#8209;003](patch/NS-003-namespace-typo-pattern/) | Namespace typo 'pattern' vs 'patterns' | Medium | [#1136](https://github.com/ruvnet/claude-flow/issues/1136) |
+| [NS&#8209;001](patch/190-NS-001-discovery-default-namespace/) | Discovery ops default to wrong namespace | Critical | [#1123](https://github.com/ruvnet/claude-flow/issues/1123) |
+| [NS&#8209;002](patch/200-NS-002-targeted-require-namespace/) | Store/delete/retrieve fall back to 'default' + accept 'all' | Critical | [#581](https://github.com/ruvnet/claude-flow/issues/581) |
+| [NS&#8209;003](patch/210-NS-003-namespace-typo-pattern/) | Namespace typo 'pattern' vs 'patterns' | Medium | [#1136](https://github.com/ruvnet/claude-flow/issues/1136) |
 
 ### RS -- ruv-swarm
 
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
-| [RS&#8209;001](patch/RS-001-better-sqlite3-node24/) | ruv-swarm MCP fails on Node 24 — better-sqlite3 missing native bindings | Critical | [ruv-FANN#185](https://github.com/ruvnet/ruv-FANN/issues/185) |
+| [RS&#8209;001](patch/220-RS-001-better-sqlite3-node24/) | ruv-swarm MCP fails on Node 24 — better-sqlite3 missing native bindings | Critical | [ruv-FANN#185](https://github.com/ruvnet/ruv-FANN/issues/185) |
 
 ### RV -- RuVector Intelligence
 
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
-| [RV&#8209;001](patch/RV-001-force-learn-tick/) | force-learn command calls intel.tick() which doesn't exist | Medium | [#1156](https://github.com/ruvnet/claude-flow/issues/1156) |
-| [RV&#8209;002](patch/RV-002-trajectory-load/) | activeTrajectories not loaded from saved file | High | [#1157](https://github.com/ruvnet/claude-flow/issues/1157) |
-| [RV&#8209;003](patch/RV-003-trajectory-stats-sync/) | trajectory-end does not update stats counters | Medium | [ruv-FANN#186](https://github.com/ruvnet/ruv-FANN/issues/186) |
+| [RV&#8209;001](patch/230-RV-001-force-learn-tick/) | force-learn command calls intel.tick() which doesn't exist | Medium | [#1156](https://github.com/ruvnet/claude-flow/issues/1156) |
+| [RV&#8209;002](patch/240-RV-002-trajectory-load/) | activeTrajectories not loaded from saved file | High | [#1157](https://github.com/ruvnet/claude-flow/issues/1157) |
+| [RV&#8209;003](patch/250-RV-003-trajectory-stats-sync/) | trajectory-end does not update stats counters | Medium | [ruv-FANN#186](https://github.com/ruvnet/ruv-FANN/issues/186) |
 
 ### SG -- Settings Generator
 
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
-| [SG&#8209;001](patch/SG-001-init-settings/) | Init generates invalid settings | High | [#1150](https://github.com/ruvnet/claude-flow/issues/1150) |
-| [SG&#8209;003](patch/SG-003-init-helpers-all-paths/) | Init missing helpers for --dual, --minimal, hooks, and upgrade paths | Critical | [#1169](https://github.com/ruvnet/claude-flow/issues/1169) |
+| [SG&#8209;001](patch/260-SG-001-init-settings/) | Init generates invalid settings | High | [#1150](https://github.com/ruvnet/claude-flow/issues/1150) |
+| [SG&#8209;003](patch/270-SG-003-init-helpers-all-paths/) | Init missing helpers for --dual, --minimal, hooks, and upgrade paths | Critical | [#1169](https://github.com/ruvnet/claude-flow/issues/1169) |
 
 ### UI -- Display & Cosmetic
 
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
-| [UI&#8209;001](patch/UI-001-intelligence-stats-crash/) | intelligence stats crashes on .toFixed() | Critical | [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
-| [UI&#8209;002](patch/UI-002-neural-status-not-loaded/) | neural status shows "Not loaded" | Low | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
+| [UI&#8209;001](patch/280-UI-001-intelligence-stats-crash/) | intelligence stats crashes on .toFixed() | Critical | [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
+| [UI&#8209;002](patch/290-UI-002-neural-status-not-loaded/) | neural status shows "Not loaded" | Low | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
 <!-- GENERATED:defect-index:end -->
 
 ## Init-Script Patches (Local Project Action Required)

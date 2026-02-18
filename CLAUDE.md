@@ -132,11 +132,11 @@ Save the returned GitHub issue number for the defect README.md.
 | Prefix | Category | Count |
 |--------|----------|-------|
 | CF | Config & Doctor | 2 |
-| DM | Daemon & Workers | 5 |
+| DM | Daemon & Workers | 6 |
 | EM | Embeddings & HNSW | 2 |
 | GV | Ghost Vectors | 1 |
 | HK | Hooks | 3 |
-| HW | Headless Worker | 3 |
+| HW | Headless Worker | 4 |
 | IN | Intelligence | 1 |
 | MM | Memory Management | 1 |
 | NS | Memory Namespace | 3 |
@@ -145,7 +145,7 @@ Save the returned GitHub issue number for the defect README.md.
 | SG | Settings Generator | 2 |
 | UI | Display & Cosmetic | 2 |
 
-## All 29 Defects
+## All 31 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -178,6 +178,8 @@ Save the returned GitHub issue number for the defect README.md.
 | SG-003 | [#1169 Init missing helpers for --dual, --minimal, hooks, and upgrade paths](https://github.com/ruvnet/claude-flow/issues/1169) | Critical |
 | UI-001 | [#1145 intelligence stats crashes on .toFixed()](https://github.com/ruvnet/claude-flow/issues/1145) | Critical |
 | UI-002 | [#1146 neural status shows "Not loaded"](https://github.com/ruvnet/claude-flow/issues/1146) | Low |
+| DM-006 | [#1114 No log rotation — headless execution logs grow unbounded](https://github.com/ruvnet/claude-flow/issues/1114) | Medium |
+| HW-004 | [#1117 runWithTimeout rejects but does not kill child process](https://github.com/ruvnet/claude-flow/issues/1117) | Medium |
 <!-- GENERATED:defect-tables:end -->
 
 ---

@@ -55,6 +55,18 @@ describe('individual patch application', () => {
       sentinel: 'SG-001',
       absent: null,
     },
+    {
+      id: 'DM-006',
+      file: 'services/headless-worker-executor.js',
+      sentinel: 'cleanupOldLogs',
+      absent: null,
+    },
+    {
+      id: 'HW-004',
+      file: 'services/worker-daemon.js',
+      sentinel: '16 * 60 * 1000',
+      absent: 'DEFAULT_WORKER_TIMEOUT_MS = 5 * 60 * 1000',
+    },
   ];
 
   for (const { id, file, sentinel, absent } of TESTS) {
