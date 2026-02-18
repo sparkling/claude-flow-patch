@@ -1,0 +1,3 @@
+grep "SG-003" commands/init.js
+grep "SG-003" init/executor.js
+grep "router.cjs" init/helpers-generator.js

@@ -105,3 +105,39 @@ patch_all("SG-001c: use CLAUDE_PROJECT_DIR for all hook paths",
     SETTINGS_GEN,
     "command: 'node .claude/helpers/",
     'command: \'node "$CLAUDE_PROJECT_DIR"/.claude/helpers/')
+
+# SG-001d: statusLine config emitted even when statusline component is off
+# MINIMAL_INIT_OPTIONS has components.statusline=false but statusline.enabled=true.
+# Settings-generator checks statusline.enabled, emitting statusLine config for a
+# file that won't exist. Gate on components.statusline too.
+patch("SG-001d: only emit statusLine when statusline component is generated",
+    SETTINGS_GEN,
+    """    if (options.statusline.enabled) {""",
+    """    // SG-001: Only emit statusLine config if the component will actually be generated
+    if (options.components.statusline && options.statusline.enabled) {""")
+
+# SG-001e: MINIMAL_INIT_OPTIONS inherits statusline.enabled=true from DEFAULT
+# but sets components.statusline=false. Override to prevent inconsistency.
+# (SG-001d guards at the consumer; this fixes the producer for MINIMAL)
+patch("SG-001e: MINIMAL statusline.enabled matches components.statusline",
+    TYPES,
+    """    hooks: {
+        ...DEFAULT_INIT_OPTIONS.hooks,
+        userPromptSubmit: false,
+        stop: false,
+        notification: false,
+    },
+    skills: {""",
+    """    hooks: {
+        ...DEFAULT_INIT_OPTIONS.hooks,
+        userPromptSubmit: false,
+        stop: false,
+        notification: false,
+    },
+    // SG-001: statusline file not generated (components.statusline: false)
+    // so disable the feature flag to prevent dangling settings.json references
+    statusline: {
+        ...DEFAULT_INIT_OPTIONS.statusline,
+        enabled: false,
+    },
+    skills: {""")

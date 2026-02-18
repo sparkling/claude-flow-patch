@@ -16,7 +16,9 @@ const COMMAND_MAP = new Map([
 function findPatch(id) {
   try {
     const dirs = readdirSync(patchDir, { withFileTypes: true });
-    const match = dirs.find(d => d.isDirectory() && d.name.startsWith(`${id}-`));
+    const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(`^(\\d+-)?${escaped}-`);
+    const match = dirs.find(d => d.isDirectory() && re.test(d.name));
     return match ? resolve(patchDir, match.name, 'fix.py') : null;
   } catch { return null; }
 }
@@ -25,7 +27,11 @@ function listPatchIds() {
   try {
     return readdirSync(patchDir, { withFileTypes: true })
       .filter(d => d.isDirectory())
-      .map(d => { const i = d.name.indexOf('-', d.name.indexOf('-') + 1); return i > 0 ? d.name.slice(0, i) : d.name; })
+      .map(d => {
+        const name = d.name.replace(/^\d+-/, '');
+        const i = name.indexOf('-', name.indexOf('-') + 1);
+        return i > 0 ? name.slice(0, i) : name;
+      })
       .sort();
   } catch { return []; }
 }

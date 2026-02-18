@@ -15,7 +15,9 @@ const PATCH_DIR = resolve(ROOT, 'patch');
  */
 export function runPatch(patchId, base, opts = {}) {
   const dirs = readdirSync(PATCH_DIR, { withFileTypes: true });
-  const match = dirs.find(d => d.isDirectory() && d.name.startsWith(`${patchId}-`));
+  const escaped = patchId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp(`^(\\d+-)?${escaped}-`);
+  const match = dirs.find(d => d.isDirectory() && re.test(d.name));
   if (!match) throw new Error(`No patch directory for ${patchId}`);
 
   const fixPath = resolve(PATCH_DIR, match.name, 'fix.py');

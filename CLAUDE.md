@@ -10,6 +10,7 @@ Runtime patches for `@claude-flow/cli` **v3.1.0-alpha.41**, `ruvector`, and `ruv
 | **Patch** | The code change that addresses a defect. Implemented as `fix.py` (or `fix.sh`) using `patch()`/`patch_all()` calls. We patch because we can't fix upstream. | "fix.py contains 3 patch ops" |
 | **GitHub issue** | The upstream issue on github.com/ruvnet/claude-flow. Always say "GitHub issue", never just "issue". | "GitHub issue #1111" |
 | **Defect ID** | The unique identifier for a defect: `{PREFIX}-{NNN}`. | HW-001, NS-003, RS-001 |
+| **Execution order number** | 3-digit numeric prefix on the directory name that controls patch application order. Spaced by 10 to allow insertions. | `010-`, `170-`, `270-` |
 
 - Use **defect** for the tracked problem (the folder, the ID, the concept).
 - Use **patch** for the code change applied to the library (`fix.py`, `patch()`, `patch-all.sh`).
@@ -24,7 +25,7 @@ Runtime patches for `@claude-flow/cli` **v3.1.0-alpha.41**, `ruvector`, and `ruv
 - ONE defect directory and ONE fix.py per GitHub issue -- do not combine multiple GitHub issues into one defect or split one GitHub issue across multiple defects
 - ALWAYS verify with `bash check-patches.sh` after applying
 - ALWAYS update ALL listing files when adding/removing a defect (see checklist)
-- Patch order matters: NS-001 before NS-002 before NS-003
+- Execution order is determined by the numeric prefix on each defect directory name. Dependencies between defects are expressed by assigning lower numbers to prerequisites.
 
 ## Project Structure
 
@@ -40,7 +41,7 @@ scripts/
   update-docs.mjs       # Regenerates doc tables from discovery (npm run update-docs)
   upstream-log.mjs      # Show recent upstream releases (npm run upstream-log [count])
 patch/
-  {PREFIX}-{NNN}-{slug}/
+  {NNN}-{PREFIX}-{NNN}-{slug}/    # NNN = 3-digit execution order
     README.md           # Defect report: title, severity, root cause, fix
     fix.py              # patch()/patch_all() calls
     sentinel            # Verification directives for check-patches.sh
@@ -161,7 +162,7 @@ Save the returned GitHub issue number for the defect README.md.
 | RV-002 | [#1157 activeTrajectories not loaded from saved file](https://github.com/ruvnet/claude-flow/issues/1157) | High |
 | RV-003 | [ruv-FANN#186 trajectory-end does not update stats counters](https://github.com/ruvnet/ruv-FANN/issues/186) | Medium |
 | SG-001 | [#1150 Init generates invalid settings](https://github.com/ruvnet/claude-flow/issues/1150) | High |
-| SG-002 | [#1153 Init doesn't create .js/.cjs compat copies for helper modules](https://github.com/ruvnet/claude-flow/issues/1153) | High |
+| SG-003 | [#1169 Init missing helpers for --dual, --minimal, hooks, and upgrade paths](https://github.com/ruvnet/claude-flow/issues/1169) | Critical |
 | UI-001 | [#1145 intelligence stats crashes on .toFixed()](https://github.com/ruvnet/claude-flow/issues/1145) | Critical |
 | UI-002 | [#1146 neural status shows "Not loaded"](https://github.com/ruvnet/claude-flow/issues/1146) | Low |
 <!-- GENERATED:defect-tables:end -->
@@ -195,8 +196,10 @@ Format: `{PREFIX}-{NNN}`
 ### Step 3: Create the defect directory
 
 ```bash
-mkdir -p patch/{PREFIX}-{NNN}-{slug}/
+mkdir -p patch/{ORDER}-{PREFIX}-{NNN}-{slug}/
 ```
+
+`ORDER`: 3-digit execution order number in 10-increments (e.g. `300`). Choose the next available number. If this defect depends on another, its number must be higher than the dependency's.
 
 `slug`: lowercase-kebab-case summary (e.g. `post-edit-file-path`).
 
@@ -413,9 +416,16 @@ npm run upstream-log -- --diff # also show dependency changes vs baseline
 
 ## Dependency Order
 
-These patches must be applied in sequence (enforced by `patch-all.sh`):
+Execution order is controlled by the 3-digit numeric prefix on each directory name.
+`patch-all.sh` globs `patch/*/fix.py` which sorts lexicographically, so numeric prefixes
+execute in the correct order automatically.
 
-1. NS-001 (discovery defaults) -> NS-002 (namespace enforcement) -> NS-003 (typo fix)
+Two dependency chains exist:
+
+| Chain | Directories | Reason |
+|-------|-------------|--------|
+| IN-001 -> SG-003 | `170-IN-001-*` before `270-SG-003-*` | SG-003's `old_string` contains code introduced by IN-001 |
+| NS-001 -> NS-002 -> NS-003 | `190-NS-001-*` before `200-NS-002-*` before `210-NS-003-*` | Sequential namespace fixes |
 
 All other patches are independent.
 

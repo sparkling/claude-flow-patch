@@ -11,5 +11,9 @@ Remove fallback. Add 'namespace' to MCP schema required fields. Add runtime thro
 - mcp-tools/memory-tools.js (store, delete, retrieve)
 - commands/memory.js (store, delete, retrieve)
 - memory/memory-initializer.js (storeEntry, deleteEntry, getEntry)
+## Dependencies
+
+Depends on NS-001 (190) — NS-002 builds on the namespace discovery changes from NS-001.
+
 ## Ops
 14 ops in fix.py (20a-i + 21a,b,e,f,h)

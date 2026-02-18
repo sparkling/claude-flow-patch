@@ -55,10 +55,11 @@ for sentinel_file in "$SCRIPT_DIR"/patch/*/sentinel; do
 
   # PATCH_INCLUDE / PATCH_EXCLUDE env vars filter by directory name regex
   dirname=$(basename "$(dirname "$sentinel_file")")
-  if [ -n "${PATCH_INCLUDE:-}" ] && ! echo "$dirname" | grep -qE "$PATCH_INCLUDE"; then
+  matchname="${dirname#[0-9][0-9][0-9]-}"   # strip NNN- prefix for pattern matching
+  if [ -n "${PATCH_INCLUDE:-}" ] && ! echo "$matchname" | grep -qE "$PATCH_INCLUDE"; then
     continue
   fi
-  if [ -n "${PATCH_EXCLUDE:-}" ] && echo "$dirname" | grep -qE "$PATCH_EXCLUDE"; then
+  if [ -n "${PATCH_EXCLUDE:-}" ] && echo "$matchname" | grep -qE "$PATCH_EXCLUDE"; then
     continue
   fi
 

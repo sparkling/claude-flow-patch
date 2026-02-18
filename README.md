@@ -48,7 +48,7 @@ npx --yes claude-flow-patch --scope local        # only ./node_modules/ and pare
 ## How It Works
 
 1. `patch-all.sh` locates the `@claude-flow/cli` dist files in the npm/npx cache
-2. Globs `patch/*/fix.py` (alphabetical order preserves dependencies like NS-001→002→003)
+2. Globs `patch/*/fix.py` (numeric prefixes on directories ensure correct execution order)
 3. Concatenates `lib/common.py` with each `fix.py` and runs as a single Python process
 4. Each patch is idempotent: skips if already applied, warns if source changed
 
@@ -88,9 +88,16 @@ RS-001 locates its own target via `find`.
 
 ### Dependency Order
 
-These patches must be applied in sequence (enforced by `patch-all.sh`):
+Execution order is controlled by 3-digit numeric prefixes on directory names (e.g. `010-CF-001-*`,
+`170-IN-001-*`). `patch-all.sh` globs `patch/*/fix.py`, which sorts lexicographically — numeric
+prefixes guarantee correct order.
 
-1. NS-001 (discovery defaults) -> NS-002 (namespace enforcement) -> NS-003 (typo fix)
+Two dependency chains exist:
+
+| Chain | Directories | Reason |
+|-------|-------------|--------|
+| IN-001 -> SG-003 | `170-IN-001-*` before `270-SG-003-*` | SG-003's patch targets code introduced by IN-001 |
+| NS-001 -> NS-002 -> NS-003 | `190-NS-001-*` before `200-NS-002-*` before `210-NS-003-*` | Sequential namespace fixes |
 
 All other patches are independent.
 
@@ -119,7 +126,7 @@ claude-flow-patch/
   scripts/
     update-docs.mjs      # Regenerate doc tables from discover() output
   patch/
-    {PREFIX}-{NNN}-{slug}/
+    {NNN}-{PREFIX}-{NNN}-{slug}/    # NNN = 3-digit execution order
       README.md          # Defect report: title, severity, root cause, fix
       fix.py             # Idempotent patch script
       fix.sh             # Shell-based patch script (EM-002 only)
@@ -217,7 +224,7 @@ claude-flow-patch/
 | ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
 |----|-------------|----------|--------------|
 | [SG&#8209;001](patch/SG-001-init-settings/) | Init generates invalid settings | High | [#1150](https://github.com/ruvnet/claude-flow/issues/1150) |
-| [SG&#8209;002](patch/SG-002-helpers-compat-copies/) | Init doesn't create .js/.cjs compat copies for helper modules | High | [#1153](https://github.com/ruvnet/claude-flow/issues/1153) |
+| [SG&#8209;003](patch/SG-003-init-helpers-all-paths/) | Init missing helpers for --dual, --minimal, hooks, and upgrade paths | Critical | [#1169](https://github.com/ruvnet/claude-flow/issues/1169) |
 
 ### UI -- Display & Cosmetic
 

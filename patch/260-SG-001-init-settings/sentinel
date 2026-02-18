@@ -1,0 +1,4 @@
+grep "hooks.SubagentStop" init/settings-generator.js
+grep "CLAUDE_PROJECT_DIR" init/settings-generator.js
+grep "components.statusline && options.statusline.enabled" init/settings-generator.js
+grep "SG-001" init/types.js
