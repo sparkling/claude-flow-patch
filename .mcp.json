@@ -3,6 +3,7 @@
     "claude-flow": {
       "command": "npx",
       "args": [
+        "-y",
         "@claude-flow/cli@latest",
         "mcp",
         "start"
@@ -20,7 +21,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "ruv-swarm",
+        "ruv-swarm@latest",
         "mcp",
         "start",
         "--stability"
@@ -31,8 +32,9 @@
       "command": "npx",
       "args": [
         "-y",
-        "ruvector",
-        "mcp"
+        "ruvector@latest",
+        "mcp",
+        "start"
       ],
       "autoStart": false
     }
