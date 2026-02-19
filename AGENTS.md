@@ -95,7 +95,7 @@ Use `$skill-name` syntax to invoke:
 
 [optional body]
 
-Co-Authored-By: claude-flow <ruv@ruv.net>
+Sparkling Ideas <henrik@sparklingideas.co.uk>
 ```
 
 Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
