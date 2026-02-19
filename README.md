@@ -1,8 +1,27 @@
-# claude-flow-patch
+# @sparkleideas/claude-flow-patch
+
+## Contents
+
+- [Quick Start](#quick-start)
+- [CLI Commands](#cli-commands)
+- [How It Works](#how-it-works)
+  - [Sentinel Files](#sentinel-files)
+  - [Target Packages](#target-packages)
+  - [Dependency Order](#dependency-order)
+  - [Key Design Decisions](#key-design-decisions)
+  - [Repository Structure](#repository-structure)
+- [Defect Index](#defect-index)
+- [Init-Script Patches](#init-script-patches)
+- [Compatibility](#compatibility)
+- [Links](#links)
+
+---
 
 Community patches for [`@claude-flow/cli`](https://www.npmjs.com/package/@claude-flow/cli) **v3.1.0-alpha.41**, [`ruvector`](https://www.npmjs.com/package/ruvector), and [`ruv-swarm`](https://www.npmjs.com/package/ruv-swarm) **v1.0.20**.
 
 These patches fix 29 defects across 13 categories. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached source files.
+
+<a id="quick-start"></a>
 
 ## Quick Start
 
@@ -10,40 +29,45 @@ These patches fix 29 defects across 13 categories. They are applied at runtime v
 
 ```bash
 # 1. Patch first -- fixes the init generators
-npx --yes claude-flow-patch --scope both
+npx --yes @sparkleideas/claude-flow-patch --global
 
 # 2. Then init (or re-init if already initialized)
 npx @claude-flow/cli@latest init            # fresh project
 npx @claude-flow/cli@latest init upgrade    # existing project
 
 # 3. Verify
-npx --yes claude-flow-patch check
+npx --yes @sparkleideas/claude-flow-patch check
 ```
 
 If you already initialized before patching:
 
 ```bash
-npx --yes claude-flow-patch repair --target /path/to/project
+npx --yes @sparkleideas/claude-flow-patch repair --target /path/to/project
 ```
 
-### Scope Options
+### Target Options
 
 ```bash
-npx --yes claude-flow-patch                      # both global + local (default)
-npx --yes claude-flow-patch --scope global       # only ~/.npm/_npx/*/node_modules/
-npx --yes claude-flow-patch --scope local        # only ./node_modules/ and parents
+npx --yes @sparkleideas/claude-flow-patch                                  # global npx cache (default)
+npx --yes @sparkleideas/claude-flow-patch --global                         # explicit global
+npx --yes @sparkleideas/claude-flow-patch --target ~/my-project            # project's node_modules
+npx --yes @sparkleideas/claude-flow-patch --global --target ~/my-project   # both
 ```
 
-**Why both scopes?** `npx @claude-flow/cli` uses your local `node_modules` if present, otherwise the global npx cache. Patching both ensures fixes work regardless of how the CLI is invoked.
+`npx @claude-flow/cli` uses local `node_modules` if present, otherwise the global npx cache. Use `--target` to patch a project's local install.
+
+<a id="cli-commands"></a>
 
 ## CLI Commands
 
 | Command | Purpose |
 |---|---|
-| `claude-flow-patch [--scope global\|local\|both]` | Apply all patches (default) |
+| `claude-flow-patch [--global] [--target <dir>]` | Apply all patches (default: `--global`) |
 | `claude-flow-patch apply <ID>` | Apply a single patch by defect ID (e.g. `SG-002`) |
 | `claude-flow-patch check` | Verify patch sentinels and auto-detect drift |
 | `claude-flow-patch repair --target <dir> [--source auto\|local\|global] [--dry-run]` | Rehydrate `.claude/helpers` in projects initialized before patching |
+
+<a id="how-it-works"></a>
 
 ## How It Works
 
@@ -53,6 +77,8 @@ npx --yes claude-flow-patch --scope local        # only ./node_modules/ and pare
 4. Each patch is idempotent: skips if already applied, warns if source changed
 
 The `check-patches.sh` sentinel runs on session start to detect npx cache wipes and auto-reapply. It reads `sentinel` files from each patch directory — no hardcoded patch list.
+
+<a id="sentinel-files"></a>
 
 ### Sentinel Files
 
@@ -74,6 +100,8 @@ package: ruvector
 
 `check-patches.sh` and `lib/discover.mjs` both read these files dynamically. Adding a new patch requires no edits to any script — just create the `sentinel` file in the new patch directory.
 
+<a id="target-packages"></a>
+
 ### Target Packages
 
 | Package | Version | Location | Env var |
@@ -85,6 +113,8 @@ package: ruvector
 `BASE` is set by `patch-all.sh`. All path variables in `lib/common.py` derive from it.
 `RUVECTOR_CLI` is set by `patch-all.sh` to the ruvector CLI entry point.
 RS-001 locates its own target via `find`.
+
+<a id="dependency-order"></a>
 
 ### Dependency Order
 
@@ -101,6 +131,8 @@ Two dependency chains exist:
 
 All other patches are independent.
 
+<a id="key-design-decisions"></a>
+
 ### Key Design Decisions
 
 - **Zero-maintenance discovery**: `patch-all.sh`, `check-patches.sh`, and doc generation all discover patches dynamically — no hardcoded lists.
@@ -108,6 +140,8 @@ All other patches are independent.
 - **Non-destructive**: patches only modify the npx cache, never the npm registry package.
 - **Platform-aware**: DM-003 is macOS-only (auto-skipped on Linux).
 - **Sentinel-guarded**: `check-patches.sh` reads `sentinel` files from each patch directory to detect cache wipes and auto-reapply.
+
+<a id="repository-structure"></a>
 
 ### Repository Structure
 
@@ -133,6 +167,8 @@ claude-flow-patch/
       sentinel           # Verification directives for check-patches.sh
     (29 defect directories total)
 ```
+
+<a id="defect-index"></a>
 
 ## Defect Index
 
@@ -236,6 +272,8 @@ claude-flow-patch/
 | [UI&#8209;002](patch/290-UI-002-neural-status-not-loaded/) | neural status shows "Not loaded" | Low | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
 <!-- GENERATED:defect-index:end -->
 
+<a id="init-script-patches"></a>
+
 ## Init-Script Patches (Local Project Action Required)
 
 Five patches target the **init/generator scripts** (`executor.js`, `settings-generator.js`, `helpers-generator.js`). These fix the code that *generates* your `.claude/` project files -- but applying patches does **not** update files already generated in your project. You must take one additional step.
@@ -255,9 +293,9 @@ Five patches target the **init/generator scripts** (`executor.js`, `settings-gen
 **Option A: Run `repair`** (recommended)
 
 ```bash
-npx --yes claude-flow-patch --scope both
-npx --yes claude-flow-patch repair --target .
-npx --yes claude-flow-patch apply SG-002       # apply a single patch
+npx --yes @sparkleideas/claude-flow-patch --global
+npx --yes @sparkleideas/claude-flow-patch repair --target .
+npx --yes @sparkleideas/claude-flow-patch apply SG-002       # apply a single patch
 ```
 
 This copies patched helper files into your project and creates any missing .js/.cjs compat copies.
@@ -265,7 +303,7 @@ This copies patched helper files into your project and creates any missing .js/.
 **Option B: Copy full helpers from the package manually**
 
 ```bash
-npx --yes claude-flow-patch --scope both
+npx --yes @sparkleideas/claude-flow-patch --global
 SRC=$(find ~/.npm/_npx -path '*/@claude-flow/cli/.claude/helpers' -type d 2>/dev/null | head -1)
 for f in intelligence.cjs hook-handler.cjs session.js learning-service.mjs metrics-db.mjs statusline.cjs; do
   [ -f "$SRC/$f" ] && cp "$SRC/$f" .claude/helpers/ && echo "Copied: $f"
@@ -275,7 +313,7 @@ done
 **Option C: Re-run init upgrade** (regenerates from patched scripts)
 
 ```bash
-npx --yes claude-flow-patch --scope both
+npx --yes @sparkleideas/claude-flow-patch --global
 npx @claude-flow/cli@latest init upgrade --force
 ```
 
@@ -287,16 +325,20 @@ These patches fix the **generator functions** inside the npm package (e.g., `gen
 
 Additionally, `init upgrade` only force-overwrites 3 "critical" helpers (`auto-memory-hook.mjs`, `hook-handler.cjs`, `intelligence.cjs`). The other 30+ helper files (shell scripts for daemon management, health monitoring, security scanning, swarm hooks, etc.) are only copied on fresh `init`, not on upgrade. If these are missing, use Option A above.
 
+<a id="compatibility"></a>
+
 ## Compatibility
 
 - Tested against `@claude-flow/cli@3.1.0-alpha.41` and `ruv-swarm@1.0.20`
 - Requires Python 3.6+ and Bash
 - Works on Linux and macOS (DM-003 is macOS-only, auto-skipped on Linux)
 
+<a id="links"></a>
+
 ## Links
 
 - Homepage: https://sparklingideas.co.uk/claude-flow/patch
-- Package: https://www.npmjs.com/package/claude-flow-patch
+- Package: https://www.npmjs.com/package/@sparkleideas/claude-flow-patch
 - GitHub: https://github.com/sparkling/claude-flow-patch
 - Issues: https://github.com/sparkling/claude-flow-patch/issues
 

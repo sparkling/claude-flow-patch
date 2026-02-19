@@ -38,20 +38,24 @@ function listPatchIds() {
 
 function usage() {
   console.log(`Usage:
-  claude-flow-patch                          Apply all patches (default)
+  claude-flow-patch                          Apply all patches (default: --global)
   claude-flow-patch apply <ID>               Apply a single patch by defect ID (e.g. SG-002)
   claude-flow-patch check                    Verify patch sentinels are present
   claude-flow-patch repair [options]         Post-init repair
 
 Options for default (all patches) and check:
+  --global                                   Patch the npx cache (~/.npm/_npx/*)
+  --target <dir>                             Patch node_modules inside <dir>
   --include <regex>                          Only patches matching regex (against dir name)
   --exclude <regex>                          Skip patches matching regex (against dir name)
-  --scope global|local|both                  Target scope (default: both)
+
+  If neither --global nor --target is given, --global is assumed.
 
   Examples:
-    claude-flow-patch --include "^DM-"       Only daemon patches
-    claude-flow-patch --exclude "^RV-"       Skip ruvector patches
-    claude-flow-patch --include "DM-001|HW-002"  Specific patches by ID
+    claude-flow-patch --global --target ~/my-project   Patch both locations
+    claude-flow-patch --target ~/my-project            Patch only project node_modules
+    claude-flow-patch --include "^DM-"                 Only daemon patches
+    claude-flow-patch --exclude "^RV-"                 Skip ruvector patches
 
 Options for repair:
   --target <dir>                             Target directory
@@ -66,7 +70,7 @@ function run(cmd, args, opts = {}) {
   process.exit(result.status ?? 1);
 }
 
-// ── Parse --include / --exclude from anywhere in argv ──
+// ── Parse options from anywhere in argv ──
 
 function extractOpt(argv, name) {
   const idx = argv.indexOf(name);
@@ -76,9 +80,18 @@ function extractOpt(argv, name) {
   return val;
 }
 
+function extractFlag(argv, name) {
+  const idx = argv.indexOf(name);
+  if (idx < 0) return false;
+  argv.splice(idx, 1);
+  return true;
+}
+
 const rawArgs = process.argv.slice(2);
 const includeRe = extractOpt(rawArgs, '--include');
 const excludeRe = extractOpt(rawArgs, '--exclude');
+const globalFlag = extractFlag(rawArgs, '--global');
+const targetDir = extractOpt(rawArgs, '--target');
 
 const [subcommand, ...args] = rawArgs;
 
@@ -90,9 +103,17 @@ function filterEnv() {
   return env;
 }
 
+// Build --global / --target args to pass to shell scripts
+function scopeArgs() {
+  const a = [];
+  if (globalFlag) a.push('--global');
+  if (targetDir) a.push('--target', targetDir);
+  return a;
+}
+
 // No args → apply all patches (most common use case)
 if (!subcommand) {
-  run('bash', [resolve(rootDir, 'patch-all.sh')], { env: filterEnv() });
+  run('bash', [resolve(rootDir, 'patch-all.sh'), ...scopeArgs()], { env: filterEnv() });
 }
 
 if (subcommand === '--help' || subcommand === '-h') {
@@ -124,4 +145,4 @@ if (!scriptName) {
   process.exit(1);
 }
 
-run('bash', [resolve(rootDir, scriptName), ...args], { env: filterEnv() });
+run('bash', [resolve(rootDir, scriptName), ...scopeArgs(), ...args], { env: filterEnv() });

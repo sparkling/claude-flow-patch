@@ -42,7 +42,7 @@ npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN" --location user
 # Read current version
 VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$CONFIG','utf-8')).version.current)")
 
-echo "[publish] claude-flow-patch v$VERSION"
+echo "[publish] @sparkleideas/claude-flow-patch v$VERSION"
 
 # Bump version if requested
 if [ -n "$BUMP" ]; then
@@ -67,7 +67,7 @@ echo "[publish] Pre-flight checks..."
 
 # 1. Verify patches apply cleanly
 echo "[publish]   Verifying patches..."
-bash "$ROOT_DIR/patch-all.sh" --scope global 2>&1 | tail -3
+bash "$ROOT_DIR/patch-all.sh" --global 2>&1 | tail -3
 
 # 2. Verify sentinels
 echo "[publish]   Verifying sentinels..."
@@ -82,7 +82,7 @@ else
 fi
 
 # Find tarball
-TARBALL=$(ls -t "$DIST_DIR"/claude-flow-patch-*.tgz 2>/dev/null | head -1)
+TARBALL=$(ls -t "$DIST_DIR"/sparkleideas-claude-flow-patch-*.tgz 2>/dev/null | head -1)
 if [ -z "$TARBALL" ] && [ "$DRY_RUN" -eq 0 ]; then
   echo "[publish] ERROR: No tarball found in $DIST_DIR"
   exit 1
@@ -94,7 +94,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
   echo "[publish] DRY RUN — would run: npm publish $TARBALL --tag $TAG"
 else
   npm publish "$TARBALL" --tag "$TAG" --access public
-  echo "[publish] Published claude-flow-patch@$VERSION (tag: $TAG)"
+  echo "[publish] Published @sparkleideas/claude-flow-patch@$VERSION (tag: $TAG)"
 fi
 
 echo "[publish] Done"

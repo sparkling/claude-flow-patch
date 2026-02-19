@@ -28,7 +28,7 @@ else
   VERSION=$(grep -o '"current": "[^"]*"' "$CONFIG" | cut -d'"' -f4)
 fi
 
-echo "[package] claude-flow-patch v$VERSION"
+echo "[package] @sparkleideas/claude-flow-patch v$VERSION"
 echo "[package] Root: $ROOT_DIR"
 
 # Verify package.json version matches config

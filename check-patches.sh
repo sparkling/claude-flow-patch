@@ -2,32 +2,73 @@
 # check-patches.sh — Dynamic sentinel checker
 # Reads patch/*/sentinel files to verify patches are still applied.
 # On session start: detects wipes, auto-reapplies, warns user.
+#
+# Usage:
+#   bash check-patches.sh [--global] [--target <dir>]
+#
+# If neither flag is given, --global is assumed.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# ── Parse arguments ──
+DO_GLOBAL=0
+TARGET_DIR=""
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --global) DO_GLOBAL=1; shift ;;
+    --target) TARGET_DIR="${2:-}"; shift 2 ;;
+    *) shift ;;  # ignore unknown (e.g. filter env handled by caller)
+  esac
+done
+
+if [[ $DO_GLOBAL -eq 0 && -z "$TARGET_DIR" ]]; then
+  DO_GLOBAL=1
+fi
+
 # ── Locate packages ──
 
-MEMORY=$(find ~/.npm/_npx -name "memory-initializer.js" -path "*/memory/*" 2>/dev/null | head -1)
-SERVICES=$(find ~/.npm/_npx -name "worker-daemon.js" -path "*/services/*" 2>/dev/null | head -1)
+find_base_in_global() {
+  local mem=$(find ~/.npm/_npx -name "memory-initializer.js" -path "*/memory/*" 2>/dev/null | head -1)
+  if [ -n "$mem" ]; then
+    echo "$(cd "$(dirname "$mem")/.." && pwd)"
+  fi
+}
 
-if [ -z "$MEMORY" ] || [ -z "$SERVICES" ]; then
+find_base_in_target() {
+  local dir="$1"
+  local cf="$dir/node_modules/@claude-flow/cli/dist/src"
+  if [ -d "$cf" ]; then
+    echo "$(cd "$cf" && pwd)"
+  fi
+}
+
+BASE=""
+VERSION=""
+if [[ $DO_GLOBAL -eq 1 ]]; then
+  BASE=$(find_base_in_global)
+fi
+if [[ -z "$BASE" && -n "$TARGET_DIR" ]]; then
+  BASE=$(find_base_in_target "$TARGET_DIR")
+fi
+
+if [ -z "$BASE" ]; then
   echo "[PATCHES] WARN: Cannot find claude-flow CLI files"
   exit 0
 fi
 
-VERSION=$(grep -o '"version": *"[^"]*"' "$(dirname "$MEMORY")/../../../package.json" 2>/dev/null | head -1 | cut -d'"' -f4)
+VERSION=$(grep -o '"version": *"[^"]*"' "$BASE/../../package.json" 2>/dev/null | head -1 | cut -d'"' -f4)
 
-# Base path: @claude-flow/cli/dist/src/
-BASE=$(cd "$(dirname "$MEMORY")/.." && pwd)
+# External packages (optional) — search same tree as BASE
+PKG_ROOT=$(cd "$BASE/../.." && pwd)
+SEARCH_ROOT=$(dirname "$PKG_ROOT")
 
-# External packages (optional)
-RV_CLI=$(find ~/.npm/_npx -name "cli.js" -path "*/ruvector/bin/*" 2>/dev/null | head -1)
+RV_CLI=$(find "$SEARCH_ROOT" -name "cli.js" -path "*/ruvector/bin/*" 2>/dev/null | head -1)
 RV_BASE=""
 if [ -n "$RV_CLI" ]; then
   RV_BASE=$(cd "$(dirname "$RV_CLI")/.." && pwd)
 fi
 
-RS_PKG=$(find ~/.npm/_npx -path "*/ruv-swarm/package.json" 2>/dev/null | head -1)
+RS_PKG=$(find "$SEARCH_ROOT" -path "*/ruv-swarm/package.json" 2>/dev/null | head -1)
 RS_BASE=""
 if [ -n "$RS_PKG" ]; then
   RS_BASE=$(dirname "$RS_PKG")
@@ -119,7 +160,10 @@ echo "============================================"
 echo ""
 
 if [ -x "$SCRIPT_DIR/patch-all.sh" ]; then
-  bash "$SCRIPT_DIR/patch-all.sh"
+  REAPPLY_ARGS=()
+  if [[ $DO_GLOBAL -eq 1 ]]; then REAPPLY_ARGS+=(--global); fi
+  if [[ -n "$TARGET_DIR" ]]; then REAPPLY_ARGS+=(--target "$TARGET_DIR"); fi
+  bash "$SCRIPT_DIR/patch-all.sh" "${REAPPLY_ARGS[@]}"
   echo ""
   echo "[PATCHES] Auto-reapplied. Restarting daemon..."
   npx @claude-flow/cli@latest daemon stop 2>/dev/null

@@ -98,7 +98,7 @@ if [ "$RUN_CHECK" -eq 1 ]; then
     log "Running preflight patch check..."
     bash "$SCRIPT_DIR/check-patches.sh" >/dev/null || {
       log "Patch check failed; applying patches..."
-      bash "$SCRIPT_DIR/patch-all.sh" --scope global >/dev/null
+      bash "$SCRIPT_DIR/patch-all.sh" --global >/dev/null
       bash "$SCRIPT_DIR/check-patches.sh" >/dev/null || fail "Patch verification failed"
     }
   else

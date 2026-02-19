@@ -3,30 +3,41 @@
 # Safe to run multiple times. Each fix.py is idempotent via patch()/patch_all().
 #
 # Usage:
-#   bash patch-all.sh [--scope global|local|both]
+#   bash patch-all.sh [--global] [--target <dir>]
 #
 # Options:
-#   --scope global   Patch only the npx cache (~/.npm/_npx/*)
-#   --scope local    Patch only local node_modules in current/parent directories
-#   --scope both     Patch both global and local (default)
+#   --global             Patch the npx cache (~/.npm/_npx/*)
+#   --target <dir>       Patch node_modules inside <dir>
+#
+# If neither flag is given, --global is assumed.
 
 set -euo pipefail
 
 # Parse arguments
-SCOPE="both"
+DO_GLOBAL=0
+TARGET_DIR=""
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --scope)
-      SCOPE="$2"
+    --global)
+      DO_GLOBAL=1
+      shift
+      ;;
+    --target)
+      TARGET_DIR="${2:-}"
+      if [[ -z "$TARGET_DIR" ]]; then
+        echo "Error: --target requires a directory argument"
+        exit 1
+      fi
       shift 2
       ;;
     -h|--help)
-      echo "Usage: patch-all.sh [--scope global|local|both]"
+      echo "Usage: patch-all.sh [--global] [--target <dir>]"
       echo ""
       echo "Options:"
-      echo "  --scope global   Patch only npx cache (~/.npm/_npx/*)"
-      echo "  --scope local    Patch only local node_modules"
-      echo "  --scope both     Patch both global and local (default)"
+      echo "  --global           Patch the npx cache (~/.npm/_npx/*)"
+      echo "  --target <dir>     Patch node_modules inside <dir>"
+      echo ""
+      echo "If neither flag is given, --global is assumed."
       exit 0
       ;;
     *)
@@ -36,9 +47,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ ! "$SCOPE" =~ ^(global|local|both)$ ]]; then
-  echo "Invalid scope: $SCOPE (must be global, local, or both)"
-  exit 1
+# Default: --global when nothing specified
+if [[ $DO_GLOBAL -eq 0 && -z "$TARGET_DIR" ]]; then
+  DO_GLOBAL=1
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -50,41 +61,46 @@ GLOBAL_CF_BASE=""
 GLOBAL_CF_VERSION=""
 GLOBAL_RV_CLI=""
 
-GLOBAL_MEMORY=$(ls -t ~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src/memory/memory-initializer.js 2>/dev/null | head -1 || true)
-if [ -n "$GLOBAL_MEMORY" ]; then
-  GLOBAL_CF_BASE=$(echo "$GLOBAL_MEMORY" | sed 's|/memory/memory-initializer.js||')
-  GLOBAL_CF_VERSION=$(grep -o '"version": "[^"]*"' "$GLOBAL_CF_BASE/../../package.json" 2>/dev/null | head -1 | cut -d'"' -f4 || echo "unknown")
+if [[ $DO_GLOBAL -eq 1 ]]; then
+  GLOBAL_MEMORY=$(ls -t ~/.npm/_npx/*/node_modules/@claude-flow/cli/dist/src/memory/memory-initializer.js 2>/dev/null | head -1 || true)
+  if [ -n "$GLOBAL_MEMORY" ]; then
+    GLOBAL_CF_BASE=$(echo "$GLOBAL_MEMORY" | sed 's|/memory/memory-initializer.js||')
+    GLOBAL_CF_VERSION=$(grep -o '"version": "[^"]*"' "$GLOBAL_CF_BASE/../../package.json" 2>/dev/null | head -1 | cut -d'"' -f4 || echo "unknown")
+  fi
+  GLOBAL_RV_CLI=$(ls -t ~/.npm/_npx/*/node_modules/ruvector/bin/cli.js 2>/dev/null | head -1 || true)
 fi
-GLOBAL_RV_CLI=$(ls -t ~/.npm/_npx/*/node_modules/ruvector/bin/cli.js 2>/dev/null | head -1 || true)
 
-# Local: node_modules in current or parent directories
-LOCAL_CF_BASE=""
-LOCAL_CF_VERSION=""
-LOCAL_RV_CLI=""
+# Target: node_modules in specified directory
+TARGET_CF_BASE=""
+TARGET_CF_VERSION=""
+TARGET_RV_CLI=""
 
-for dir in . .. ../.. ../../..; do
-  cf_path="$dir/node_modules/@claude-flow/cli/dist/src"
+if [[ -n "$TARGET_DIR" ]]; then
+  if [[ ! -d "$TARGET_DIR" ]]; then
+    echo "Error: target directory does not exist: $TARGET_DIR"
+    exit 1
+  fi
+  TARGET_DIR="$(cd "$TARGET_DIR" && pwd)"
+  cf_path="$TARGET_DIR/node_modules/@claude-flow/cli/dist/src"
   if [ -d "$cf_path" ]; then
-    LOCAL_CF_BASE=$(cd "$cf_path" && pwd)
-    LOCAL_CF_VERSION=$(grep -o '"version": "[^"]*"' "$LOCAL_CF_BASE/../../package.json" 2>/dev/null | head -1 | cut -d'"' -f4 || echo "unknown")
-    break
+    TARGET_CF_BASE="$cf_path"
+    TARGET_CF_VERSION=$(grep -o '"version": "[^"]*"' "$TARGET_CF_BASE/../../package.json" 2>/dev/null | head -1 | cut -d'"' -f4 || echo "unknown")
   fi
-done
-
-for dir in . .. ../.. ../../..; do
-  rv_path="$dir/node_modules/ruvector/bin/cli.js"
+  rv_path="$TARGET_DIR/node_modules/ruvector/bin/cli.js"
   if [ -f "$rv_path" ]; then
-    LOCAL_RV_CLI=$(cd "$(dirname "$rv_path")" && pwd)/cli.js
-    break
+    TARGET_RV_CLI="$(cd "$(dirname "$rv_path")" && pwd)/cli.js"
   fi
-done
+fi
 
 # ── Report what we found ──
 
-echo "[PATCHES] Scope: $SCOPE"
+TARGETS=()
+if [[ $DO_GLOBAL -eq 1 ]]; then TARGETS+=(global); fi
+if [[ -n "$TARGET_DIR" ]]; then TARGETS+=("$TARGET_DIR"); fi
+echo "[PATCHES] Targets: ${TARGETS[*]}"
 echo ""
 
-if [[ "$SCOPE" == "global" || "$SCOPE" == "both" ]]; then
+if [[ $DO_GLOBAL -eq 1 ]]; then
   if [ -n "$GLOBAL_CF_BASE" ]; then
     echo "  Global @claude-flow/cli: v$GLOBAL_CF_VERSION"
   else
@@ -97,16 +113,16 @@ if [[ "$SCOPE" == "global" || "$SCOPE" == "both" ]]; then
   fi
 fi
 
-if [[ "$SCOPE" == "local" || "$SCOPE" == "both" ]]; then
-  if [ -n "$LOCAL_CF_BASE" ]; then
-    echo "  Local @claude-flow/cli: v$LOCAL_CF_VERSION at $LOCAL_CF_BASE"
+if [[ -n "$TARGET_DIR" ]]; then
+  if [ -n "$TARGET_CF_BASE" ]; then
+    echo "  Target @claude-flow/cli: v$TARGET_CF_VERSION at $TARGET_CF_BASE"
   else
-    echo "  Local @claude-flow/cli: not found"
+    echo "  Target @claude-flow/cli: not found in $TARGET_DIR"
   fi
-  if [ -n "$LOCAL_RV_CLI" ]; then
-    echo "  Local ruvector: found at $LOCAL_RV_CLI"
+  if [ -n "$TARGET_RV_CLI" ]; then
+    echo "  Target ruvector: found at $TARGET_RV_CLI"
   else
-    echo "  Local ruvector: not found"
+    echo "  Target ruvector: not found in $TARGET_DIR"
   fi
 fi
 
@@ -174,14 +190,14 @@ apply_patches() {
   echo ""
 }
 
-# ── Apply based on scope ──
+# ── Apply based on flags ──
 
-if [[ "$SCOPE" == "global" || "$SCOPE" == "both" ]]; then
+if [[ $DO_GLOBAL -eq 1 ]]; then
   apply_patches "$GLOBAL_CF_BASE" "$GLOBAL_RV_CLI" "GLOBAL"
 fi
 
-if [[ "$SCOPE" == "local" || "$SCOPE" == "both" ]]; then
-  apply_patches "$LOCAL_CF_BASE" "$LOCAL_RV_CLI" "LOCAL"
+if [[ -n "$TARGET_DIR" ]]; then
+  apply_patches "$TARGET_CF_BASE" "$TARGET_RV_CLI" "TARGET"
 fi
 
 echo "[PATCHES] Complete"

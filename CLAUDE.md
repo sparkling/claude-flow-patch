@@ -1,4 +1,4 @@
-# claude-flow-patch
+# @sparkleideas/claude-flow-patch
 
 Runtime patches for `@claude-flow/cli` **v3.1.0-alpha.41**, `ruvector`, and `ruv-swarm` **v1.0.20**.
 
@@ -316,10 +316,10 @@ To target a new file, add a variable to `lib/common.py` following the existing p
 npm run update-docs
 
 # Apply -- should show "Applied: ..."
-bash patch-all.sh --scope global
+bash patch-all.sh --global
 
 # Idempotency -- should show "0 applied, N already present"
-bash patch-all.sh --scope global
+bash patch-all.sh --global
 
 # Sentinel -- should show "OK: All patches verified"
 bash check-patches.sh
@@ -374,7 +374,7 @@ Uses `node:test` (built-in, zero dependencies). Tests live in `tests/`.
 | common.py | `02-common-library.test.mjs` | `patch()` apply/skip/warn/idempotent, `patch_all()`, path resolution from `BASE` |
 | Patch apply | `03-patch-apply.test.mjs` | Individual patches (HW-001, DM-002, SG-002) applied against fixtures |
 | Idempotency | `04-idempotency.test.mjs` | Double-apply produces identical files, second run reports skipped |
-| Error handling | `05-error-handling.test.mjs` | Empty `BASE`, `/dev/null`, nonexistent dir, invalid `--scope` |
+| Error handling | `05-error-handling.test.mjs` | Empty `BASE`, `/dev/null`, nonexistent dir, unknown options |
 
 ### Fixtures
 
@@ -397,12 +397,17 @@ Uses `node:test` (built-in, zero dependencies). Tests live in `tests/`.
 ## Commands
 
 ```bash
-# Apply all patches (default: both global + local)
+# Apply all patches (default: --global)
 bash patch-all.sh
 
-# Apply to specific scope
-bash patch-all.sh --scope global
-bash patch-all.sh --scope local
+# Patch only the npx cache
+bash patch-all.sh --global
+
+# Patch a specific project's node_modules
+bash patch-all.sh --target /path/to/project
+
+# Patch both
+bash patch-all.sh --global --target /path/to/project
 
 # Verify patches
 bash check-patches.sh
@@ -419,15 +424,16 @@ npm run upstream-log -- 20     # last 20 versions
 npm run upstream-log -- --diff # also show dependency changes vs baseline
 ```
 
-### Scope Options
+### Target Options
 
-| Scope | Target | When to use |
-|-------|--------|-------------|
-| `both` | Global npx cache + local `node_modules` (default) | Normal usage -- covers both invocation paths |
-| `global` | `~/.npm/_npx/*/node_modules/` only | CI or when no local install exists |
-| `local` | `./node_modules/` and parent directories only | Monorepo or project-local installs |
+| Flag | Target | When to use |
+|------|--------|-------------|
+| (none) | Global npx cache (default) | Most common — patches the npx cache |
+| `--global` | `~/.npm/_npx/*/node_modules/` | Explicit global-only |
+| `--target <dir>` | `<dir>/node_modules/` | Project with a local install |
+| `--global --target <dir>` | Both locations | Covers both invocation paths |
 
-`npx @claude-flow/cli` uses local `node_modules` if present, otherwise the global npx cache. Patching `both` ensures fixes apply regardless of invocation method.
+`npx @claude-flow/cli` uses local `node_modules` if present, otherwise the global npx cache.
 
 ## Dependency Order
 

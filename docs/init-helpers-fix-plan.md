@@ -379,8 +379,8 @@ SRC_HOOK_HANDLER = os.path.join(_pkg_root, ".claude", "helpers", "hook-handler.c
 | Check | Result |
 |-------|--------|
 | `npm test` | 54/54 pass |
-| `bash patch-all.sh --scope global` (fresh) | 93 applied, 1 pre-existing WARN (IN-001a) |
-| `bash patch-all.sh --scope global` (repeat) | 0 applied, 93 already present |
+| `bash patch-all.sh --global` (fresh) | 93 applied, 1 pre-existing WARN (IN-001a) |
+| `bash patch-all.sh --global` (repeat) | 0 applied, 93 already present |
 | `bash check-patches.sh` | All sentinels OK |
 | `npm run update-docs` | Docs up to date |
 | `npx @claude-flow/cli init --dual --force` | All helpers generated, routing works |

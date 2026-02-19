@@ -32,12 +32,84 @@ print(f"applied={applied} skipped={skipped}")
     assert.ok(!r.stderr.includes('Traceback'));
   });
 
-  it('patch-all.sh rejects invalid scope', () => {
-    const r = spawnSync('bash', [resolve(ROOT, 'patch-all.sh'), '--scope', 'invalid'], {
+  it('patch-all.sh rejects unknown options', () => {
+    const r = spawnSync('bash', [resolve(ROOT, 'patch-all.sh'), '--bogus'], {
       encoding: 'utf-8', timeout: 10_000,
     });
     assert.equal(r.status, 1);
-    assert.ok(r.stderr.includes('Invalid scope') || r.stdout.includes('Invalid scope'));
+    assert.ok(r.stderr.includes('Unknown option') || r.stdout.includes('Unknown option'));
+  });
+});
+
+describe('--global and --target flags', () => {
+  const PATCH_ALL = resolve(ROOT, 'patch-all.sh');
+  let tmp;
+
+  function run(...args) {
+    return spawnSync('bash', [PATCH_ALL, ...args], {
+      encoding: 'utf-8', timeout: 30_000,
+    });
+  }
+
+  it('setup: create temp dir', () => {
+    tmp = mkdtempSync(join(tmpdir(), 'cfp-target-test-'));
+  });
+
+  it('no flags defaults to --global (exits 0)', () => {
+    const r = run();
+    assert.equal(r.status, 0);
+    const out = r.stdout + r.stderr;
+    assert.ok(out.includes('Targets: global'), 'should report global target');
+  });
+
+  it('--global exits 0 and reports global target', () => {
+    const r = run('--global');
+    assert.equal(r.status, 0);
+    const out = r.stdout + r.stderr;
+    assert.ok(out.includes('Targets: global'), 'should report global target');
+  });
+
+  it('--target with valid empty dir exits 0 and reports not found', () => {
+    const r = run('--target', tmp);
+    assert.equal(r.status, 0);
+    const out = r.stdout + r.stderr;
+    assert.ok(out.includes(tmp), 'should show target dir');
+    assert.ok(out.includes('not found'), 'should report package not found in target');
+    // should NOT include "Targets: global"
+    assert.ok(!out.includes('Targets: global'), 'should not include global');
+  });
+
+  it('--global --target together exits 0 and reports both', () => {
+    const r = run('--global', '--target', tmp);
+    assert.equal(r.status, 0);
+    const out = r.stdout + r.stderr;
+    assert.ok(out.includes('global'), 'should report global');
+    assert.ok(out.includes(tmp), 'should report target dir');
+  });
+
+  it('--target with nonexistent dir exits 1', () => {
+    const r = run('--target', '/tmp/nonexistent-cfp-target-test');
+    assert.equal(r.status, 1);
+    const out = r.stdout + r.stderr;
+    assert.ok(out.includes('does not exist'), 'should report dir does not exist');
+  });
+
+  it('--target without argument exits 1', () => {
+    const r = run('--target');
+    assert.equal(r.status, 1);
+    const out = r.stdout + r.stderr;
+    assert.ok(out.includes('requires a directory'), 'should report missing argument');
+  });
+
+  it('--help shows --global and --target', () => {
+    const r = run('--help');
+    assert.equal(r.status, 0);
+    assert.ok(r.stdout.includes('--global'));
+    assert.ok(r.stdout.includes('--target'));
+  });
+
+  it('cleanup: remove temp dir', () => {
+    rmSync(tmp, { recursive: true });
   });
 });
 

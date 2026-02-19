@@ -1,4 +1,4 @@
-# claude-flow-patch
+# @sparkleideas/claude-flow-patch
 
 > Runtime patches for `@claude-flow/cli` v3.1.0-alpha.40, `ruvector`, and `ruv-swarm` v1.0.20
 

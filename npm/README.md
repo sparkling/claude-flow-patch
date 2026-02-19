@@ -1,4 +1,4 @@
-# claude-flow-patch
+# @sparkleideas/claude-flow-patch
 
 Patch toolkit for `@claude-flow/cli` runtime and init-script defects.
 
@@ -55,11 +55,11 @@ This package applies verified, idempotent patches to your local CLI source in th
 Patch first, then initialize projects.
 
 ```bash
-# 1) apply patches (global npx cache + local node_modules)
-npx --yes claude-flow-patch --scope both
+# 1) apply patches (global npx cache)
+npx --yes @sparkleideas/claude-flow-patch --global
 
 # 2) verify sentinels
-npx --yes claude-flow-patch check
+npx --yes @sparkleideas/claude-flow-patch check
 
 # 3) now initialize or upgrade project
 npx @claude-flow/cli@latest init
@@ -70,27 +70,28 @@ npx @claude-flow/cli@latest init upgrade
 If you already initialized before patching:
 
 ```bash
-npx --yes claude-flow-patch repair --target /path/to/project
+npx --yes @sparkleideas/claude-flow-patch repair --target /path/to/project
 ```
 
 ## CLI Commands
 
 | Command | Purpose |
 |---|---|
-| `claude-flow-patch [--scope global\|local\|both]` | Apply all patches (default) |
+| `claude-flow-patch [--global] [--target <dir>]` | Apply all patches (default: `--global`) |
 | `claude-flow-patch apply <ID>` | Apply a single patch by defect ID (e.g. `SG-002`) |
 | `claude-flow-patch check` | Verify patch sentinels and auto-detect drift |
 | `claude-flow-patch repair --target <dir> [--source auto\|local\|global] [--dry-run]` | Rehydrate `.claude/helpers` in projects initialized before patching |
 
-## Scope Behavior
+## Target Behavior
 
-| Scope | Patched location |
+| Flag | Patched location |
 |---|---|
-| `global` | `~/.npm/_npx/*/node_modules/...` |
-| `local` | nearest `node_modules/...` in project path |
-| `both` | global + local (default) |
+| (none) | Global npx cache (default) |
+| `--global` | `~/.npm/_npx/*/node_modules/...` |
+| `--target <dir>` | `<dir>/node_modules/...` |
+| `--global --target <dir>` | Both locations |
 
-Use `both` unless you know exactly which install path your CLI invocation is using.
+Use `--target` when your project has a local `@claude-flow/cli` install.
 
 ## Why `repair` Exists
 
