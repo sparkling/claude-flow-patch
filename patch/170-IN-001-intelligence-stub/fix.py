@@ -10,15 +10,12 @@
 # 2 ops: upgrade path (line ~398) + writeHelpers path (line ~943)
 
 # Op 1: Upgrade path — when findSourceHelpersDir() returns null
+# old/new strings stop BEFORE generatedCritical to avoid overlap with SG-003j
 patch("IN-001a: upgrade fallback reads real intelligence.cjs",
     EXECUTOR,
     """        else {
             // Source not found (npx with broken paths) — use generated fallbacks
-            const generatedCritical = {
-                'hook-handler.cjs': generateHookHandler(),
-                'intelligence.cjs': generateIntelligenceStub(),
-                'auto-memory-hook.mjs': generateAutoMemoryHook(),
-            };""",
+            const generatedCritical = {""",
     """        else {
             // Source not found (npx with broken paths) — use generated fallbacks
             // IN-001: Try reading real intelligence.cjs from package before using stub
@@ -29,11 +26,7 @@ patch("IN-001a: upgrade fallback reads real intelligence.cjs",
                     intelligenceContent = fs.readFileSync(realPath, 'utf-8');
                 }
             } catch { /* use stub */ }
-            const generatedCritical = {
-                'hook-handler.cjs': generateHookHandler(),
-                'intelligence.cjs': intelligenceContent,
-                'auto-memory-hook.mjs': generateAutoMemoryHook(),
-            };""")
+            const generatedCritical = {""")
 
 # Op 2: writeHelpers path — fresh init when source dir not found
 patch("IN-001b: writeHelpers fallback reads real intelligence.cjs",

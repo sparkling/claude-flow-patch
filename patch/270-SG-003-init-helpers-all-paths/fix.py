@@ -122,11 +122,12 @@ patch_all("SG-003i: source hook-handler requires memory.cjs",
 
 # Op 6: Fix executeUpgrade() fallback — generatedCritical missing router/session/memory
 # When source helpers aren't found, only 3 files were generated but hook-handler.cjs needs 6
+# Also replaces generateIntelligenceStub() → intelligenceContent (set by IN-001a above)
 patch("SG-003j: upgrade fallback generates router/session/memory",
     EXECUTOR,
     """            const generatedCritical = {
                 'hook-handler.cjs': generateHookHandler(),
-                'intelligence.cjs': intelligenceContent,
+                'intelligence.cjs': generateIntelligenceStub(),
                 'auto-memory-hook.mjs': generateAutoMemoryHook(),
             };""",
     """            const generatedCritical = {
