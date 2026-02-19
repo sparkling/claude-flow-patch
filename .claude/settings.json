@@ -160,20 +160,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "entire hooks claude-code post-task"
-          },
-          {
-            "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/helpers/hook-handler.cjs post-task"
-          }
-        ]
-      },
-      {
-        "matcher": "TodoWrite",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "entire hooks claude-code post-todo"
           }
         ]
       }
@@ -227,10 +214,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "entire hooks claude-code pre-task"
-          },
-          {
-            "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/helpers/hook-handler.cjs pre-task"
           }
         ]
@@ -255,10 +238,6 @@
           },
           {
             "type": "command",
-            "command": "entire hooks claude-code session-end"
-          },
-          {
-            "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/helpers/hook-handler.cjs session-end"
           }
         ]
@@ -278,10 +257,6 @@
           },
           {
             "type": "command",
-            "command": "entire hooks claude-code session-start"
-          },
-          {
-            "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/helpers/hook-handler.cjs session-restore"
           }
         ]
@@ -294,10 +269,6 @@
           {
             "type": "command",
             "command": "node .claude/helpers/auto-memory-hook.mjs sync"
-          },
-          {
-            "type": "command",
-            "command": "entire hooks claude-code stop"
           }
         ]
       }
@@ -342,10 +313,6 @@
           {
             "type": "command",
             "command": "node .claude/helpers/hook-handler.cjs route"
-          },
-          {
-            "type": "command",
-            "command": "entire hooks claude-code user-prompt-submit"
           }
         ]
       }
@@ -360,8 +327,7 @@
     ],
     "deny": [
       "Read(./.env)",
-      "Read(./.env.*)",
-      "Read(./.entire/metadata/**)"
+      "Read(./.env.*)"
     ]
   },
   "statusLine": {
