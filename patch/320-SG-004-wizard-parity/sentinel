@@ -1,1 +1,3 @@
 grep "SG-004" commands/init.js
+grep "export const wizardCommand" commands/init.js
+grep "wizardCommand" commands/index.js

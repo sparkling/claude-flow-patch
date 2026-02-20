@@ -325,6 +325,7 @@ Both are idempotent: skip if `new` already present, warn if `old` not found.
 | `EXECUTOR` | `init/executor.js` | @claude-flow/cli |
 | `INIT_CMD` | `commands/init.js` | @claude-flow/cli |
 | `START_CMD` | `commands/start.js` | @claude-flow/cli |
+| `CMDS_INDEX` | `commands/index.js` | @claude-flow/cli |
 | `ruvector_cli` | `bin/cli.js` | ruvector |
 
 To target a new file, add a variable to `lib/common.py` following the existing pattern.

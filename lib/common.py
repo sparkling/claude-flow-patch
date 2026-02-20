@@ -84,6 +84,7 @@ EXECUTOR = init + "/executor.js" if init else ""
 TYPES = init + "/types.js" if init else ""
 INIT_CMD = commands + "/init.js" if commands else ""
 START_CMD = commands + "/start.js" if commands else ""
+CMDS_INDEX = commands + "/index.js" if commands else ""
 
 # Source helpers (shipped with package, copied by writeHelpers when source dir found)
 _pkg_root = os.path.dirname(os.path.dirname(base)) if base else ""

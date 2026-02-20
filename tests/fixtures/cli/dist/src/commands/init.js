@@ -11,9 +11,10 @@ const initAction = async (ctx) => {
     }
 };
 
-// Wizard subcommand (SG-004 fixture)
+// Wizard subcommand for interactive setup
 const wizardCommand = {
     name: 'wizard',
+    description: 'Interactive setup wizard for comprehensive configuration',
     action: async (ctx) => {
         output.writeln();
         output.writeln(output.bold('Claude Flow V3 Setup Wizard'));

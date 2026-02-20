@@ -3,10 +3,14 @@
 #
 # The wizard was implemented as a standalone code path that ignores
 # --force, --start-all, --start-daemon, --codex, --dual, and skips
-# the already-initialized guard and "Next steps" hints.
+# the already-initialized guard and "Next steps" hints. It is also only
+# reachable as a subcommand of `init` with no options array, so the parser
+# cannot validate flags for the wizard context.
 #
-# 4 ops: init-guard + force (a), codex/dual (b), start-all + next-steps (c),
-#         catch-block error handling (d)
+# 10 ops: init-guard + force (a), codex/dual (b), start-all + next-steps (c),
+#          catch-block error handling (d), export + options (e),
+#          import in registry (f), loaders (g), cache (h),
+#          commands array (i), category (j)
 
 # Op 1: Add already-initialized guard + pass --force to executeInit options
 patch("SG-004a: wizard init-guard + --force",
@@ -131,3 +135,74 @@ patch("SG-004d: wizard catch block handles errors cleanly",
             }
             output.printError(`Failed to initialize: ${error instanceof Error ? error.message : String(error)}`);
             return { success: false, exitCode: 1 };""")
+
+# ── Promote wizard to top-level command ──
+# Ops e–j: export wizardCommand with options, register in command registry
+
+# Op 5: Export wizardCommand + add options/examples arrays
+patch("SG-004e: export wizardCommand with options",
+    INIT_CMD,
+    """// Wizard subcommand for interactive setup
+const wizardCommand = {
+    name: 'wizard',
+    description: 'Interactive setup wizard for comprehensive configuration',
+    action: async (ctx) => {""",
+    """// Wizard — top-level command + init subcommand — SG-004
+export const wizardCommand = {
+    name: 'wizard',
+    aliases: ['wiz'],
+    description: 'Interactive setup wizard for comprehensive configuration',
+    options: [
+        { name: 'force', short: 'f', description: 'Overwrite existing configuration', type: 'boolean', default: false },
+        { name: 'start-all', description: 'Auto-start daemon, memory, and swarm after init', type: 'boolean', default: false },
+        { name: 'start-daemon', description: 'Auto-start daemon after init', type: 'boolean', default: false },
+        { name: 'codex', description: 'Initialize for OpenAI Codex CLI', type: 'boolean', default: false },
+        { name: 'dual', description: 'Initialize for both Claude Code and Codex', type: 'boolean', default: false },
+        { name: 'with-embeddings', description: 'Initialize ONNX embedding subsystem', type: 'boolean', default: false },
+        { name: 'embedding-model', description: 'ONNX embedding model', type: 'string', default: 'all-MiniLM-L6-v2', choices: ['all-MiniLM-L6-v2', 'all-mpnet-base-v2'] },
+    ],
+    examples: [
+        { command: 'claude-flow wizard', description: 'Run interactive setup wizard' },
+        { command: 'claude-flow wizard --start-all', description: 'Wizard then start all services' },
+        { command: 'claude-flow wizard --force', description: 'Reinitialize with wizard' },
+        { command: 'claude-flow wizard --codex', description: 'Wizard with Codex integration' },
+    ],
+    action: async (ctx) => {""")
+
+# Op 6: Import wizardCommand in command registry
+patch("SG-004f: import wizardCommand in command registry",
+    CMDS_INDEX,
+    """import { initCommand } from './init.js';""",
+    """import { initCommand, wizardCommand } from './init.js';""")
+
+# Op 7: Add wizard to commandLoaders for lazy loading
+patch("SG-004g: add wizard to commandLoaders",
+    CMDS_INDEX,
+    """    init: () => import('./init.js'),""",
+    """    init: () => import('./init.js'),
+    wizard: () => import('./init.js'),""")
+
+# Op 8: Pre-populate wizard in loadedCommands cache
+patch("SG-004h: cache wizard command",
+    CMDS_INDEX,
+    """loadedCommands.set('init', initCommand);""",
+    """loadedCommands.set('init', initCommand);
+loadedCommands.set('wizard', wizardCommand);""")
+
+# Op 9: Add wizardCommand to commands array (triggers parser registration)
+patch("SG-004i: register wizard in commands array",
+    CMDS_INDEX,
+    """    initCommand,
+    startCommand,""",
+    """    initCommand,
+    wizardCommand,
+    startCommand,""")
+
+# Op 10: Add wizardCommand to commandsByCategory.primary for help display
+patch("SG-004j: add wizard to primary category",
+    CMDS_INDEX,
+    """    primary: [
+        initCommand,""",
+    """    primary: [
+        initCommand,
+        wizardCommand,""")

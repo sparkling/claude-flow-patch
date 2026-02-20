@@ -70,6 +70,12 @@ Claude-Flow is the ultimate multi-terminal orchestration platform that revolutio
 npx -y claude-flow@latest init --sparc
 ```
 
+### Interactive setup wizard:
+```bash
+claude-flow wizard                # Interactive configuration
+claude-flow wizard --start-all    # Wizard + auto-start services
+```
+
 ### Start a development swarm:
 ```bash
 ./claude-flow swarm "Build REST API" --strategy development --monitor --review
