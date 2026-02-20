@@ -117,6 +117,49 @@ Design guarantees:
 - **Ordered**: dependent patches applied in sequence (e.g. NS-001 -> NS-002 -> NS-003)
 - **Platform-aware**: macOS-specific patches auto-skip on Linux
 
+## Auto-Reapply on Update
+
+When `npx` fetches a new version of `@claude-flow/cli`, `ruvector`, or `ruv-swarm`, it replaces the cached files and wipes all patches. Set up a sentinel to detect this and auto-reapply.
+
+### Claude Code Hook (Recommended for AI Agents)
+
+Add a `session_start` hook to `.claude/settings.json` so patches are checked every time Claude starts:
+
+```jsonc
+// .claude/settings.json
+{
+  "hooks": {
+    "session_start": [
+      {
+        "command": "npx --yes @sparkleideas/claude-flow-patch check",
+        "timeout": 30000
+      }
+    ]
+  }
+}
+```
+
+The `check` command verifies all sentinels. If any patch is missing, it reapplies automatically. The check is fast (~2s) and idempotent.
+
+### Cron
+
+```bash
+*/5 * * * * npx --yes @sparkleideas/claude-flow-patch check >> /tmp/patch-sentinel.log 2>&1
+```
+
+### npm postinstall
+
+If `@claude-flow/cli` is a project dependency:
+
+```jsonc
+// package.json
+{
+  "scripts": {
+    "postinstall": "npx --yes @sparkleideas/claude-flow-patch --target ."
+  }
+}
+```
+
 ## Compatibility
 
 - Tested with `@claude-flow/cli@3.1.0-alpha.41`

@@ -498,6 +498,49 @@ Then `git add -u` to stage the regenerated files.
 
 Manual edits to generated sections (`<!-- GENERATED:*:begin/end -->`) will be overwritten.
 
+## Auto-Reapply on Update (Sentinel Watch)
+
+When `npx` fetches a new version of `@claude-flow/cli`, `ruvector`, or `ruv-swarm`, it replaces cached files and wipes all patches. Projects using these patches need a sentinel to detect and auto-reapply.
+
+### Claude Code Hook (recommended for AI agents)
+
+Add to the project's `.claude/settings.json`:
+
+```jsonc
+{
+  "hooks": {
+    "session_start": [
+      {
+        "command": "bash /absolute/path/to/claude-flow-patch/check-patches.sh --global",
+        "timeout": 30000
+      }
+    ]
+  }
+}
+```
+
+For projects with a local install, use `--global --target .` instead.
+
+### Cron (headless environments)
+
+```bash
+*/5 * * * * bash /path/to/claude-flow-patch/check-patches.sh --global >> /tmp/patch-sentinel.log 2>&1
+```
+
+### npm postinstall (project dependency)
+
+```jsonc
+{
+  "scripts": {
+    "postinstall": "npx --yes @sparkleideas/claude-flow-patch --target ."
+  }
+}
+```
+
+### How it works
+
+`check-patches.sh` reads each `patch/*/sentinel` file and verifies the patched strings exist in the target files. If any sentinel fails, it auto-runs `patch-all.sh` and restarts the daemon. The check is idempotent and takes ~2s when patches are intact.
+
 ## Key Design Decisions
 
 - **Idempotent**: `patch()` checks if `new` string is already present before replacing.

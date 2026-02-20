@@ -12,6 +12,7 @@
   - [Repository Structure](#repository-structure)
 - [Defect Index](#defect-index)
 - [Init-Script Patches](#init-script-patches)
+- [Auto-Reapply on Update](#auto-reapply-on-update)
 - [Compatibility](#compatibility)
 - [Links](#links)
 
@@ -328,6 +329,89 @@ Caution: Option C may overwrite other customizations in `.claude/`.
 These patches fix the **generator functions** inside the npm package (e.g., `generateIntelligenceStub()` in `executor.js`). When the generator runs via `claude-flow init`, it produces the project files in `.claude/helpers/`. If your project was initialized *before* patches were applied, the stubs are already on disk. Patches only modify the npm package source -- they do not touch files already generated in your project.
 
 Additionally, `init upgrade` only force-overwrites 3 "critical" helpers (`auto-memory-hook.mjs`, `hook-handler.cjs`, `intelligence.cjs`). The other 30+ helper files (shell scripts for daemon management, health monitoring, security scanning, swarm hooks, etc.) are only copied on fresh `init`, not on upgrade. If these are missing, use Option A above.
+
+<a id="auto-reapply-on-update"></a>
+
+## Auto-Reapply on Update
+
+When `npx` fetches a new version of `@claude-flow/cli`, `ruvector`, or `ruv-swarm`, it replaces the cached files and wipes all patches. Use one of these approaches to detect this and auto-reapply.
+
+### Option A: Claude Code Hook (Recommended for AI Agents)
+
+Add a `session_start` hook to your project's `.claude/settings.json`. This runs `check-patches.sh` every time Claude starts a session — it detects missing patches and reapplies automatically:
+
+```jsonc
+// .claude/settings.json
+{
+  "hooks": {
+    "session_start": [
+      {
+        "command": "bash /path/to/claude-flow-patch/check-patches.sh --global",
+        "timeout": 30000
+      }
+    ]
+  }
+}
+```
+
+Replace `/path/to/claude-flow-patch` with the absolute path to your clone. If your project also has a local install, use `--global --target .` instead.
+
+`check-patches.sh` is fast and idempotent — if patches are intact it prints `OK` and exits. If any sentinel fails, it runs `patch-all.sh`, restarts the daemon, and reports what happened.
+
+### Option B: Cron / systemd Timer
+
+Poll every 5 minutes with cron:
+
+```bash
+# crontab -e
+*/5 * * * * bash /path/to/claude-flow-patch/check-patches.sh --global >> /tmp/patch-sentinel.log 2>&1
+```
+
+Or with a systemd user timer:
+
+```ini
+# ~/.config/systemd/user/patch-sentinel.timer
+[Timer]
+OnBootSec=60
+OnUnitActiveSec=300
+
+[Install]
+WantedBy=timers.target
+```
+
+```ini
+# ~/.config/systemd/user/patch-sentinel.service
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /path/to/claude-flow-patch/check-patches.sh --global
+```
+
+```bash
+systemctl --user enable --now patch-sentinel.timer
+```
+
+### Option C: npm postinstall Hook
+
+If you install `@claude-flow/cli` as a project dependency, add a postinstall script that reapplies patches whenever `npm install` refreshes it:
+
+```jsonc
+// package.json
+{
+  "scripts": {
+    "postinstall": "npx --yes @sparkleideas/claude-flow-patch --target ."
+  }
+}
+```
+
+### How the Sentinel Works
+
+`check-patches.sh` reads the `sentinel` file in each `patch/*/` directory and checks whether the patched strings are present in the target files. If any check fails:
+
+1. Prints a warning identifying the likely cause (npx cache update)
+2. Runs `patch-all.sh` to reapply all patches
+3. Stops and restarts the claude-flow daemon so it picks up the patched code
+
+The entire check takes under 2 seconds when patches are intact. Reapplication takes 5-10 seconds.
 
 <a id="compatibility"></a>
 
