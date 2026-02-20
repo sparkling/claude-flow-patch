@@ -92,3 +92,6 @@ SRC_HOOK_HANDLER = os.path.join(_pkg_root, ".claude", "helpers", "hook-handler.c
 
 # RuVector (separate package, path set by patch-all.sh)
 ruvector_cli = os.environ.get("RUVECTOR_CLI", "")
+
+# ruv-swarm root (separate package, path set by patch-all.sh via discover.sh)
+ruv_swarm_root = os.environ.get("RUV_SWARM_ROOT", "")

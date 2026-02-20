@@ -327,6 +327,7 @@ Both are idempotent: skip if `new` already present, warn if `old` not found.
 | `START_CMD` | `commands/start.js` | @claude-flow/cli |
 | `CMDS_INDEX` | `commands/index.js` | @claude-flow/cli |
 | `ruvector_cli` | `bin/cli.js` | ruvector |
+| `ruv_swarm_root` | (package root) | ruv-swarm |
 
 To target a new file, add a variable to `lib/common.py` following the existing pattern.
 
@@ -396,6 +397,7 @@ Uses `node:test` (built-in, zero dependencies). Tests live in `tests/`.
 | Patch apply | `03-patch-apply.test.mjs` | Individual patches (HW-001, DM-002, SG-002) applied against fixtures |
 | Idempotency | `04-idempotency.test.mjs` | Double-apply produces identical files, second run reports skipped |
 | Error handling | `05-error-handling.test.mjs` | Empty `BASE`, `/dev/null`, nonexistent dir, unknown options |
+| Discovery | `06-discovery.test.mjs` | Direct/umbrella/multi-install discovery, deduplication, npx cache roots |
 
 ### Fixtures
 

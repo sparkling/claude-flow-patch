@@ -118,6 +118,24 @@ find_local_helpers() {
 }
 
 find_global_helpers() {
+  # Use shared discovery to find all installs, then derive helpers path
+  . "$SCRIPT_DIR/lib/discover.sh"
+  local first_dist_src=""
+  while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    first_dist_src="${line%%	*}"
+    break
+  done < <(discover_all_cf_installs)
+  if [ -n "$first_dist_src" ]; then
+    # dist/src -> package root -> .claude/helpers
+    local pkg_root
+    pkg_root="$(cd "$first_dist_src/../.." 2>/dev/null && pwd)"
+    if [ -d "$pkg_root/.claude/helpers" ]; then
+      echo "$pkg_root/.claude/helpers"
+      return 0
+    fi
+  fi
+  # Fallback: legacy direct glob
   ls -td ~/.npm/_npx/*/node_modules/@claude-flow/cli/.claude/helpers 2>/dev/null | head -1 || true
 }
 
