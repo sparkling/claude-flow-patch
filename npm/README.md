@@ -13,7 +13,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruv-swarm`
 
 <!-- GENERATED:npm-defects:begin -->
-33 tracked defects across 13 categories.
+35 tracked defects across 13 categories.
 
 | Defect | Description | GitHub Issue |
 |--------|-------------|-------------|
@@ -48,6 +48,8 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [RV-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/250-RV-003-trajectory-stats-sync) | trajectory-end does not update stats counters | [ruv-FANN#186](https://github.com/ruvnet/ruv-FANN/issues/186) |
 | [SG-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/260-SG-001-init-settings) | Init generates invalid settings | [#1150](https://github.com/ruvnet/claude-flow/issues/1150) |
 | [SG-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/270-SG-003-init-helpers-all-paths) | Init missing helpers for --dual, --minimal, hooks, and upgrade paths | [#1169](https://github.com/ruvnet/claude-flow/issues/1169) |
+| [SG-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/320-SG-004-wizard-parity) | init wizard lacks parity with init | [#1181](https://github.com/ruvnet/claude-flow/issues/1181) |
+| [SG-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/330-SG-005-start-all-subcommand) | add 'start all' subcommand to start everything at once | [#1177](https://github.com/ruvnet/claude-flow/issues/1177) |
 | [UI-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/280-UI-001-intelligence-stats-crash) | intelligence stats crashes on .toFixed() | [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
 | [UI-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/290-UI-002-neural-status-not-loaded) | neural status shows "Not loaded" | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
 <!-- GENERATED:npm-defects:end -->

@@ -156,10 +156,10 @@ Save the returned GitHub issue number for the defect README.md.
 | NS | Memory Namespace | 3 |
 | RS | ruv-swarm | 1 |
 | RV | RuVector Intelligence | 3 |
-| SG | Settings Generator | 2 |
+| SG | Settings Generator | 4 |
 | UI | Display & Cosmetic | 2 |
 
-## All 33 Defects
+## All 35 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -196,6 +196,8 @@ Save the returned GitHub issue number for the defect README.md.
 | UI-002 | [#1146 neural status shows "Not loaded"](https://github.com/ruvnet/claude-flow/issues/1146) | Low |
 | DM-006 | [#1114 No log rotation — logs grow unbounded](https://github.com/ruvnet/claude-flow/issues/1114) | Medium |
 | HW-004 | [#1117 runWithTimeout rejects but does not kill child process](https://github.com/ruvnet/claude-flow/issues/1117) | Medium |
+| SG-004 | [#1181 init wizard lacks parity with init](https://github.com/ruvnet/claude-flow/issues/1181) | High |
+| SG-005 | [#1177 add 'start all' subcommand to start everything at once](https://github.com/ruvnet/claude-flow/issues/1177) | Enhancement |
 <!-- GENERATED:defect-tables:end -->
 
 ---
@@ -321,6 +323,8 @@ Both are idempotent: skip if `new` already present, warn if `old` not found.
 | `SETTINGS_GEN` | `init/settings-generator.js` | @claude-flow/cli |
 | `HELPERS_GEN` | `init/helpers-generator.js` | @claude-flow/cli |
 | `EXECUTOR` | `init/executor.js` | @claude-flow/cli |
+| `INIT_CMD` | `commands/init.js` | @claude-flow/cli |
+| `START_CMD` | `commands/start.js` | @claude-flow/cli |
 | `ruvector_cli` | `bin/cli.js` | ruvector |
 
 To target a new file, add a variable to `lib/common.py` following the existing pattern.

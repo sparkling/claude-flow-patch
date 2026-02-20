@@ -91,6 +91,18 @@ describe('individual patch application', () => {
       sentinel: 'Rotate main daemon.log',
       absent: null,
     },
+    {
+      id: 'SG-004',
+      file: 'commands/init.js',
+      sentinel: 'SG-004',
+      absent: null,
+    },
+    {
+      id: 'SG-005',
+      file: 'commands/start.js',
+      sentinel: 'allCommand',
+      absent: null,
+    },
   ];
 
   for (const { id, file, sentinel, absent } of TESTS) {

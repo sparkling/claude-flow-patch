@@ -24,6 +24,8 @@ describe('patch idempotency', () => {
     { id: 'HK-004', file: 'mcp-tools/hooks-tools.js' },
     { id: 'HK-005', file: 'mcp-tools/hooks-tools.js' },
     { id: 'DM-006', file: 'commands/daemon.js' },
+    { id: 'SG-004', file: 'commands/init.js' },
+    { id: 'SG-005', file: 'commands/start.js' },
   ];
 
   for (const { id, file } of PATCHES) {

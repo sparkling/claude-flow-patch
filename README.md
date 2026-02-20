@@ -173,7 +173,7 @@ claude-flow-patch/
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-33 defects across 13 categories.
+35 defects across 13 categories.
 
 ### CF -- Config & Doctor
 
@@ -265,6 +265,8 @@ claude-flow-patch/
 |----|-------------|----------|--------------|
 | [SG&#8209;001](patch/260-SG-001-init-settings/) | Init generates invalid settings | High | [#1150](https://github.com/ruvnet/claude-flow/issues/1150) |
 | [SG&#8209;003](patch/270-SG-003-init-helpers-all-paths/) | Init missing helpers for --dual, --minimal, hooks, and upgrade paths | Critical | [#1169](https://github.com/ruvnet/claude-flow/issues/1169) |
+| [SG&#8209;004](patch/320-SG-004-wizard-parity/) | init wizard lacks parity with init | High | [#1181](https://github.com/ruvnet/claude-flow/issues/1181) |
+| [SG&#8209;005](patch/330-SG-005-start-all-subcommand/) | add 'start all' subcommand to start everything at once | Enhancement | [#1177](https://github.com/ruvnet/claude-flow/issues/1177) |
 
 ### UI -- Display & Cosmetic
 
