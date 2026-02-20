@@ -17,8 +17,11 @@ Add an `allCommand` subcommand to the `start` command so that
 `claude-flow start all` initializes memory, starts the daemon, then runs the
 normal `startAction` (swarm + MCP + health checks).
 
-Also adds the subcommand to the `subcommands` array and a corresponding
-example entry.
+| Op | What it does |
+|----|-------------|
+| SG-005a | Adds `allCommand` subcommand definition before `quickCommand` |
+| SG-005b | Registers `allCommand` in the `subcommands` array |
+| SG-005c | Adds `start all` to the examples array for `--help` output |
 
 ## Files Patched
 
@@ -26,4 +29,4 @@ example entry.
 
 ## Ops
 
-2 ops in fix.py
+3 ops in fix.py

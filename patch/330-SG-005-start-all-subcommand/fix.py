@@ -44,7 +44,15 @@ const allCommand = {
 // Quick start subcommand
 const quickCommand = {""")
 
-patch("SG-005b: register allCommand in subcommands array and add example",
+patch("SG-005b: register allCommand in subcommands array",
     START_CMD,
     """    subcommands: [stopCommand, restartCommand, quickCommand],""",
     """    subcommands: [stopCommand, restartCommand, quickCommand, allCommand],""")
+
+patch("SG-005c: add 'start all' to examples array",
+    START_CMD,
+    """        { command: 'claude-flow start stop', description: 'Stop the running system' }
+    ],""",
+    """        { command: 'claude-flow start stop', description: 'Stop the running system' },
+        { command: 'claude-flow start all', description: 'Start memory, daemon, swarm, and MCP' }
+    ],""")

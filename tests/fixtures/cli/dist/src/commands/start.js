@@ -29,6 +29,7 @@ export const startCommand = {
     options: [],
     examples: [
         { command: 'claude-flow start', description: 'Start with configuration defaults' },
+        { command: 'claude-flow start stop', description: 'Stop the running system' }
     ],
     action: startAction
 };

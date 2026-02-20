@@ -1,6 +1,6 @@
 {
   "name": "@sparkleideas/claude-flow-patch",
-  "version": "3.1.0-alpha.44.patch.7",
+  "version": "3.1.0-alpha.44.patch.8",
   "description": "Patch toolkit for @claude-flow/cli init/runtime defects with verify and post-init repair commands",
   "scripts": {
     "preflight": "node scripts/preflight.mjs",
