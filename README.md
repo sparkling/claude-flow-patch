@@ -158,7 +158,7 @@ claude-flow-patch/
     discover.mjs         # Dynamic patch discovery — single source of truth
     categories.json      # Prefix-to-label mapping (e.g. HW → Headless Worker)
   scripts/
-    update-docs.mjs      # Regenerate doc tables from discover() output
+    preflight.mjs        # Pre-commit sync: doc tables, versions, config
   patch/
     {NNN}-{PREFIX}-{NNN}-{slug}/    # NNN = 3-digit execution order
       README.md          # Defect report: title, severity, root cause, fix
@@ -173,7 +173,7 @@ claude-flow-patch/
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-31 defects across 13 categories.
+32 defects across 13 categories.
 
 ### CF -- Config & Doctor
 
@@ -191,7 +191,7 @@ claude-flow-patch/
 | [DM&#8209;003](patch/050-DM-003-macos-freemem/) | macOS freemem() always ~0% — workers blocked | Critical | [#1077](https://github.com/ruvnet/claude-flow/issues/1077) |
 | [DM&#8209;004](patch/060-DM-004-preload-worker-stub/) | Preload worker stub + missing from defaults | Enhancement | [#1139](https://github.com/ruvnet/claude-flow/issues/1139) |
 | [DM&#8209;005](patch/070-DM-005-consolidation-worker-stub/) | Consolidation worker stub (no decay/rebuild) | Enhancement | [#1140](https://github.com/ruvnet/claude-flow/issues/1140) |
-| [DM&#8209;006](patch/300-DM-006-log-rotation/) | No log rotation — headless execution logs grow unbounded | Medium | [#1114](https://github.com/ruvnet/claude-flow/issues/1114) |
+| [DM&#8209;006](patch/300-DM-006-log-rotation/) | No log rotation — logs grow unbounded | Medium | [#1114](https://github.com/ruvnet/claude-flow/issues/1114) |
 
 ### EM -- Embeddings & HNSW
 
@@ -213,6 +213,7 @@ claude-flow-patch/
 | [HK&#8209;001](patch/110-HK-001-post-edit-file-path/) | post-edit hook records file_path as "unknown" | Medium | [#1155](https://github.com/ruvnet/claude-flow/issues/1155) |
 | [HK&#8209;002](patch/120-HK-002-hooks-tools-stub/) | MCP hook handlers are stubs that don't persist data | High | [#1058](https://github.com/ruvnet/claude-flow/issues/1058) |
 | [HK&#8209;003](patch/130-HK-003-metrics-hardcoded/) | hooks_metrics MCP handler returns hardcoded fake data | High | [#1158](https://github.com/ruvnet/claude-flow/issues/1158) |
+| [HK&#8209;004](patch/135-HK-004-respect-daemon-autostart/) | hooks_session-start ignores daemon.autoStart from settings.json | High | [#1175](https://github.com/ruvnet/claude-flow/issues/1175) |
 
 ### HW -- Headless Worker
 
@@ -220,7 +221,7 @@ claude-flow-patch/
 |----|-------------|----------|--------------|
 | [HW&#8209;001](patch/140-HW-001-stdin-hang/) | Headless workers hang — stdin pipe never closed | Critical | [#1111](https://github.com/ruvnet/claude-flow/issues/1111) |
 | [HW&#8209;002](patch/150-HW-002-failures-swallowed/) | Headless failures silently swallowed as success | High | [#1112](https://github.com/ruvnet/claude-flow/issues/1112) |
-| [HW&#8209;003](patch/160-HW-003-aggressive-intervals/) | Worker scheduling intervals too aggressive | High | [#1113](https://github.com/ruvnet/claude-flow/issues/1113) |
+| [HW&#8209;003](patch/160-HW-003-aggressive-intervals/) | Worker scheduling intervals too aggressive + settings ignored | High | [#1113](https://github.com/ruvnet/claude-flow/issues/1113) |
 | [HW&#8209;004](patch/310-HW-004-runwithtimeout-orphan/) | runWithTimeout rejects but does not kill child process | Medium | [#1117](https://github.com/ruvnet/claude-flow/issues/1117) |
 
 ### IN -- Intelligence

@@ -13,7 +13,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruv-swarm`
 
 <!-- GENERATED:npm-defects:begin -->
-31 tracked defects across 13 categories.
+32 tracked defects across 13 categories.
 
 | Defect | Description | GitHub Issue |
 |--------|-------------|-------------|
@@ -24,16 +24,17 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [DM-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/050-DM-003-macos-freemem) | macOS freemem() always ~0% — workers blocked | [#1077](https://github.com/ruvnet/claude-flow/issues/1077) |
 | [DM-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/060-DM-004-preload-worker-stub) | Preload worker stub + missing from defaults | [#1139](https://github.com/ruvnet/claude-flow/issues/1139) |
 | [DM-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/070-DM-005-consolidation-worker-stub) | Consolidation worker stub (no decay/rebuild) | [#1140](https://github.com/ruvnet/claude-flow/issues/1140) |
-| [DM-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/300-DM-006-log-rotation) | No log rotation — headless execution logs grow unbounded | [#1114](https://github.com/ruvnet/claude-flow/issues/1114) |
+| [DM-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/300-DM-006-log-rotation) | No log rotation — logs grow unbounded | [#1114](https://github.com/ruvnet/claude-flow/issues/1114) |
 | [EM-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/080-EM-001-embedding-ignores-config) | Embedding system ignores project config (model + HNSW dims) | [#1143](https://github.com/ruvnet/claude-flow/issues/1143) |
 | [EM-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/090-EM-002-transformers-cache-eacces) | @xenova/transformers cache EACCES | [#1144](https://github.com/ruvnet/claude-flow/issues/1144) |
 | [GV-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/100-GV-001-hnsw-ghost-vectors) | HNSW ghost vectors persist after memory delete | [#1122](https://github.com/ruvnet/claude-flow/issues/1122) |
 | [HK-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/110-HK-001-post-edit-file-path) | post-edit hook records file_path as "unknown" | [#1155](https://github.com/ruvnet/claude-flow/issues/1155) |
 | [HK-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/120-HK-002-hooks-tools-stub) | MCP hook handlers are stubs that don't persist data | [#1058](https://github.com/ruvnet/claude-flow/issues/1058) |
 | [HK-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/130-HK-003-metrics-hardcoded) | hooks_metrics MCP handler returns hardcoded fake data | [#1158](https://github.com/ruvnet/claude-flow/issues/1158) |
+| [HK-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/135-HK-004-respect-daemon-autostart) | hooks_session-start ignores daemon.autoStart from settings.json | [#1175](https://github.com/ruvnet/claude-flow/issues/1175) |
 | [HW-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/140-HW-001-stdin-hang) | Headless workers hang — stdin pipe never closed | [#1111](https://github.com/ruvnet/claude-flow/issues/1111) |
 | [HW-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/150-HW-002-failures-swallowed) | Headless failures silently swallowed as success | [#1112](https://github.com/ruvnet/claude-flow/issues/1112) |
-| [HW-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/160-HW-003-aggressive-intervals) | Worker scheduling intervals too aggressive | [#1113](https://github.com/ruvnet/claude-flow/issues/1113) |
+| [HW-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/160-HW-003-aggressive-intervals) | Worker scheduling intervals too aggressive + settings ignored | [#1113](https://github.com/ruvnet/claude-flow/issues/1113) |
 | [HW-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/310-HW-004-runwithtimeout-orphan) | runWithTimeout rejects but does not kill child process | [#1117](https://github.com/ruvnet/claude-flow/issues/1117) |
 | [IN-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/170-IN-001-intelligence-stub) | intelligence.cjs is a stub that doesn't actually learn | [#1154](https://github.com/ruvnet/claude-flow/issues/1154) |
 | [MM-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/180-MM-001-memory-persist-path) | Remove dead persistPath config option | [#1152](https://github.com/ruvnet/claude-flow/issues/1152) |

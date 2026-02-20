@@ -1,0 +1,26 @@
+#!/bin/bash
+# Pre-commit hook: verify all generated files are up to date.
+# Runs preflight in --check mode (read-only). If stale, tells you to run npm run preflight.
+# Install: git config core.hooksPath hooks
+
+set -euo pipefail
+
+echo "[preflight] Checking consistency..."
+
+npm run preflight:check 2>&1
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "  Fix: npm run preflight && git add -u"
+  echo ""
+  exit 1
+fi
+
+npm test --silent 2>&1
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "  Tests failed. Fix before committing."
+  echo ""
+  exit 1
+fi
+
+echo "[preflight] OK"

@@ -1,1 +1,3 @@
-grep "30 * 60 * 1000" services/worker-daemon.js
+grep "intervalMs: 30" services/worker-daemon.js
+grep "parseInterval" services/worker-daemon.js
+grep "daemon?.schedules" services/worker-daemon.js

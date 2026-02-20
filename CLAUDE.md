@@ -24,6 +24,7 @@ Runtime patches for `@claude-flow/cli` **v3.1.0-alpha.41**, `ruvector`, and `ruv
 - NEVER reuse a defect ID that was previously assigned to a different GitHub issue
 - ONE defect directory and ONE fix.py per GitHub issue -- do not combine multiple GitHub issues into one defect or split one GitHub issue across multiple defects
 - ALWAYS verify with `bash check-patches.sh` after applying
+- ALWAYS run `npm run preflight` before staging — the pre-commit hook (`hooks/pre-commit`) enforces this via `--check` mode
 - ALWAYS update ALL listing files when adding/removing a defect (see checklist)
 - Execution order is determined by the numeric prefix on each defect directory name. Dependencies between defects are expressed by assigning lower numbers to prerequisites.
 
@@ -38,7 +39,7 @@ lib/
   discover.mjs          # Dynamic discovery: scans patch/*/ → structured JSON
   categories.json       # Prefix-to-label mapping (one line per category)
 scripts/
-  update-docs.mjs       # Regenerates doc tables from discovery (npm run update-docs)
+  preflight.mjs         # Pre-commit sync: doc tables, versions, config (npm run preflight)
   upstream-log.mjs      # Show recent upstream releases (npm run upstream-log [count])
 patch/
   {NNN}-{PREFIX}-{NNN}-{slug}/    # NNN = 3-digit execution order
@@ -135,7 +136,7 @@ Save the returned GitHub issue number for the defect README.md.
 | DM | Daemon & Workers | 6 |
 | EM | Embeddings & HNSW | 2 |
 | GV | Ghost Vectors | 1 |
-| HK | Hooks | 3 |
+| HK | Hooks | 4 |
 | HW | Headless Worker | 4 |
 | IN | Intelligence | 1 |
 | MM | Memory Management | 1 |
@@ -145,7 +146,7 @@ Save the returned GitHub issue number for the defect README.md.
 | SG | Settings Generator | 2 |
 | UI | Display & Cosmetic | 2 |
 
-## All 31 Defects
+## All 32 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -162,9 +163,10 @@ Save the returned GitHub issue number for the defect README.md.
 | HK-001 | [#1155 post-edit hook records file_path as "unknown"](https://github.com/ruvnet/claude-flow/issues/1155) | Medium |
 | HK-002 | [#1058 MCP hook handlers are stubs that don't persist data](https://github.com/ruvnet/claude-flow/issues/1058) | High |
 | HK-003 | [#1158 hooks_metrics MCP handler returns hardcoded fake data](https://github.com/ruvnet/claude-flow/issues/1158) | High |
+| HK-004 | [#1175 hooks_session-start ignores daemon.autoStart from settings.json](https://github.com/ruvnet/claude-flow/issues/1175) | High |
 | HW-001 | [#1111 Headless workers hang — stdin pipe never closed](https://github.com/ruvnet/claude-flow/issues/1111) | Critical |
 | HW-002 | [#1112 Headless failures silently swallowed as success](https://github.com/ruvnet/claude-flow/issues/1112) | High |
-| HW-003 | [#1113 Worker scheduling intervals too aggressive](https://github.com/ruvnet/claude-flow/issues/1113) | High |
+| HW-003 | [#1113 Worker scheduling intervals too aggressive + settings ignored](https://github.com/ruvnet/claude-flow/issues/1113) | High |
 | IN-001 | [#1154 intelligence.cjs is a stub that doesn't actually learn](https://github.com/ruvnet/claude-flow/issues/1154) | Critical |
 | MM-001 | [#1152 Remove dead persistPath config option](https://github.com/ruvnet/claude-flow/issues/1152) | Low |
 | NS-001 | [#1123 Discovery ops default to wrong namespace](https://github.com/ruvnet/claude-flow/issues/1123) | Critical |
@@ -178,7 +180,7 @@ Save the returned GitHub issue number for the defect README.md.
 | SG-003 | [#1169 Init missing helpers for --dual, --minimal, hooks, and upgrade paths](https://github.com/ruvnet/claude-flow/issues/1169) | Critical |
 | UI-001 | [#1145 intelligence stats crashes on .toFixed()](https://github.com/ruvnet/claude-flow/issues/1145) | Critical |
 | UI-002 | [#1146 neural status shows "Not loaded"](https://github.com/ruvnet/claude-flow/issues/1146) | Low |
-| DM-006 | [#1114 No log rotation — headless execution logs grow unbounded](https://github.com/ruvnet/claude-flow/issues/1114) | Medium |
+| DM-006 | [#1114 No log rotation — logs grow unbounded](https://github.com/ruvnet/claude-flow/issues/1114) | Medium |
 | HW-004 | [#1117 runWithTimeout rejects but does not kill child process](https://github.com/ruvnet/claude-flow/issues/1117) | Medium |
 <!-- GENERATED:defect-tables:end -->
 
@@ -313,7 +315,7 @@ To target a new file, add a variable to `lib/common.py` following the existing p
 
 ```bash
 # Regenerate all documentation from dynamic discovery
-npm run update-docs
+npm run preflight
 
 # Apply -- should show "Applied: ..."
 bash patch-all.sh --global
@@ -339,7 +341,7 @@ npm test
 - [ ] `patch/{PREFIX}-{NNN}-{slug}/sentinel` created with verification directives
 - [ ] Path variable added to `lib/common.py` (if targeting a new file)
 - [ ] If new category prefix: add one line to `lib/categories.json`
-- [ ] `npm run update-docs` regenerates all doc tables
+- [ ] `npm run preflight` regenerates all doc tables
 - [ ] `bash patch-all.sh` applies successfully
 - [ ] `bash patch-all.sh` is idempotent (0 applied on re-run)
 - [ ] `bash check-patches.sh` shows OK
@@ -355,7 +357,7 @@ Before removing any defect:
 1. Confirm the bug is genuinely fixed upstream or the patch is truly unreachable.
 2. Do NOT remove a defect just because a local workaround exists -- the MCP-level patch may still be needed.
 3. If removing, retire the defect ID permanently. Never reassign a deleted ID to a different GitHub issue.
-4. Run `npm run update-docs` to regenerate all documentation.
+4. Run `npm run preflight` to regenerate all documentation.
 
 ---
 
@@ -449,6 +451,31 @@ Two dependency chains exist:
 | NS-001 -> NS-002 -> NS-003 | `190-NS-001-*` before `200-NS-002-*` before `210-NS-003-*` | Sequential namespace fixes |
 
 All other patches are independent.
+
+## Preflight & Pre-Commit Hook
+
+A git pre-commit hook at `hooks/pre-commit` runs automatically on every commit. It calls `npm run preflight:check` (read-only) and `npm test`. If anything is stale or tests fail, the commit is blocked.
+
+**Setup** (one-time, already done for this clone):
+```bash
+git config core.hooksPath hooks
+```
+
+**Before staging**, run:
+```bash
+npm run preflight    # Syncs doc tables, defect counts, version strings, config
+npm test             # Runs all tests
+```
+
+Then `git add -u` to stage the regenerated files.
+
+**What `preflight` syncs**:
+- Defect tables in README.md, CLAUDE.md, npm/README.md (from `patch/*/README.md`)
+- Defect counts in `npm/config.json` (from discovery)
+- `npm/config.json` version.current (from `package.json`)
+- Upstream baseline version in prose (from `npm/config.json` targets)
+
+Manual edits to generated sections (`<!-- GENERATED:*:begin/end -->`) will be overwritten.
 
 ## Key Design Decisions
 

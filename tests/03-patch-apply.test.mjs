@@ -67,6 +67,24 @@ describe('individual patch application', () => {
       sentinel: '16 * 60 * 1000',
       absent: 'DEFAULT_WORKER_TIMEOUT_MS = 5 * 60 * 1000',
     },
+    {
+      id: 'HW-003',
+      file: 'services/worker-daemon.js',
+      sentinel: 'parseInterval',
+      absent: null,
+    },
+    {
+      id: 'HK-004',
+      file: 'mcp-tools/hooks-tools.js',
+      sentinel: 'claudeFlow?.daemon?.autoStart',
+      absent: null,
+    },
+    {
+      id: 'DM-006',
+      file: 'commands/daemon.js',
+      sentinel: 'Rotate main daemon.log',
+      absent: null,
+    },
   ];
 
   for (const { id, file, sentinel, absent } of TESTS) {

@@ -165,10 +165,14 @@ if [ -x "$SCRIPT_DIR/patch-all.sh" ]; then
   if [[ -n "$TARGET_DIR" ]]; then REAPPLY_ARGS+=(--target "$TARGET_DIR"); fi
   bash "$SCRIPT_DIR/patch-all.sh" "${REAPPLY_ARGS[@]}"
   echo ""
-  echo "[PATCHES] Auto-reapplied. Restarting daemon..."
+  echo "[PATCHES] Auto-reapplied. Stopping existing daemons..."
   npx @claude-flow/cli@latest daemon stop 2>/dev/null
+  # Fallback: kill by PID file if daemon stop missed an orphan (project-scoped, not global)
+  _pid=$(cat .claude-flow/daemon.pid 2>/dev/null)
+  if [ -n "$_pid" ]; then kill "$_pid" 2>/dev/null || true; rm -f .claude-flow/daemon.pid; fi
+  sleep 1
   npx @claude-flow/cli@latest daemon start 2>/dev/null
-  echo "[PATCHES] Daemon restarted with patched code."
+  echo "[PATCHES] Daemon restarted in background (PID: $(cat .claude-flow/daemon.pid 2>/dev/null || echo 'unknown'))"
   echo ""
 else
   echo "[PATCHES] ERROR: patch-all.sh not found at $SCRIPT_DIR"

@@ -1,6 +1,6 @@
 # @sparkleideas/claude-flow-patch
 
-> Runtime patches for `@claude-flow/cli` v3.1.0-alpha.40, `ruvector`, and `ruv-swarm` v1.0.20
+> Runtime patches for `@claude-flow/cli` v3.1.0-alpha.41, `ruvector`, and `ruv-swarm` v1.0.20
 
 **Claude Code instructions are in [CLAUDE.md](CLAUDE.md). Project-specific instructions (defect index, workflows, policies) are in [README.md](README.md).**
 

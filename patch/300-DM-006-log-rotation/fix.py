@@ -56,3 +56,17 @@ patch("DM-006c: add cleanupOldLogs method",
         catch { /* ignore cleanup errors */ }
     }
     logExecution(executionId, type, content) {""")
+
+# DM-006 extension: Main daemon.log rotation in daemon.js
+# Before opening daemon.log for append, check size and rotate if > 50MB
+patch("DM-006d: main daemon.log rotation",
+    DJ,
+    "    const logFile = join(logsDir, 'daemon.log');",
+    """    const logFile = join(logsDir, 'daemon.log');
+    // Rotate main daemon.log if > 50MB
+    try {
+        const logStat = fs.statSync(logFile);
+        if (logStat.size > 50 * 1024 * 1024) {
+            fs.renameSync(logFile, logFile + '.1');
+        }
+    } catch { /* file doesn't exist yet or stat failed — ignore */ }""")

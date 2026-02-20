@@ -1,1 +1,2 @@
 grep "cleanupOldLogs" services/headless-worker-executor.js
+grep "Rotate main daemon.log" commands/daemon.js

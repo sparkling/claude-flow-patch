@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-// scripts/update-docs.mjs — Regenerate documentation from dynamic patch discovery.
-// Updates: README.md, CLAUDE.md, npm/README.md, npm/config.json
+// scripts/preflight.mjs — Pre-commit/pre-publish consistency check.
+// Syncs: doc tables, defect counts, version strings across all files.
+// Source of truth: package.json (version), npm/config.json (targets), patch/*/ (defects).
 //
-// Usage: node scripts/update-docs.mjs [--check]
-//   --check  Exit 1 if docs are out of date (for CI), don't write.
+// Usage: node scripts/preflight.mjs [--check]
+//   --check  Exit 1 if anything is out of date (for hooks/CI), don't write.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
@@ -16,6 +17,14 @@ const checkOnly = process.argv.includes('--check');
 
 const data = discover();
 const { patches, categories, stats } = data;
+
+// ── Sources of truth ──
+
+const pkgJson = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf-8'));
+const configJson = JSON.parse(readFileSync(resolve(ROOT, 'npm', 'config.json'), 'utf-8'));
+const pkgVersion = pkgJson.version;
+const cliTarget = configJson.targets['@claude-flow/cli'];
+const swarmTarget = configJson.targets['ruv-swarm'];
 
 // ── Helpers ──
 
@@ -53,6 +62,20 @@ function replaceMarkerSection(filePath, markerName, newContent) {
 
   if (updated === text) return false;
 
+  if (!checkOnly) writeFileSync(filePath, updated);
+  return true;
+}
+
+/**
+ * Replace all occurrences of a version string in a file.
+ * Returns true if content changed.
+ */
+function syncVersionInFile(filePath, oldVersion, newVersion, label) {
+  if (oldVersion === newVersion) return false;
+  const text = readFileSync(filePath, 'utf-8');
+  if (!text.includes(oldVersion)) return false;
+  const updated = text.replaceAll(oldVersion, newVersion);
+  if (updated === text) return false;
   if (!checkOnly) writeFileSync(filePath, updated);
   return true;
 }
@@ -142,13 +165,21 @@ function updateNpmReadme() {
   );
 }
 
-// ── Update npm/config.json counts ──
+// ── Sync npm/config.json (version + defect counts) ──
 
 function updateNpmConfig() {
   const filePath = resolve(ROOT, 'npm', 'config.json');
   const config = JSON.parse(readFileSync(filePath, 'utf-8'));
 
   let changed = false;
+
+  // Sync version.current from package.json
+  if (config.version?.current !== pkgVersion) {
+    config.version.current = pkgVersion;
+    changed = true;
+  }
+
+  // Sync defect counts from discovery
   if (config.defects?.total !== stats.total) {
     config.defects.total = stats.total;
     changed = true;
@@ -168,41 +199,51 @@ function updateNpmConfig() {
 
 let anyChanged = false;
 
-const readmeChanged = replaceMarkerSection(
-  resolve(ROOT, 'README.md'),
-  'defect-index',
-  generateReadmeIndex()
+function report(changed, label) {
+  if (!changed) return;
+  anyChanged = true;
+  console.log(checkOnly ? `STALE: ${label}` : `Updated: ${label}`);
+}
+
+// 1. Doc tables (marker-based sections)
+report(
+  replaceMarkerSection(resolve(ROOT, 'README.md'), 'defect-index', generateReadmeIndex()),
+  'README.md (defect index)'
 );
-if (readmeChanged) {
-  anyChanged = true;
-  console.log(checkOnly ? 'STALE: README.md' : 'Updated: README.md');
-}
-
-const claudeChanged = replaceMarkerSection(
-  resolve(ROOT, 'CLAUDE.md'),
-  'defect-tables',
-  generateClaudeTables()
+report(
+  replaceMarkerSection(resolve(ROOT, 'CLAUDE.md'), 'defect-tables', generateClaudeTables()),
+  'CLAUDE.md (defect tables)'
 );
-if (claudeChanged) {
-  anyChanged = true;
-  console.log(checkOnly ? 'STALE: CLAUDE.md' : 'Updated: CLAUDE.md');
-}
+report(updateNpmReadme(), 'npm/README.md (defect list)');
 
-const npmReadmeChanged = updateNpmReadme();
-if (npmReadmeChanged) {
-  anyChanged = true;
-  console.log(checkOnly ? 'STALE: npm/README.md' : 'Updated: npm/README.md');
-}
+// 2. Config sync (version + counts)
+report(updateNpmConfig(), 'npm/config.json (version/counts)');
 
-const npmConfigChanged = updateNpmConfig();
-if (npmConfigChanged) {
-  anyChanged = true;
-  console.log(checkOnly ? 'STALE: npm/config.json' : 'Updated: npm/config.json');
+// 3. Upstream baseline version in prose (sync from npm/config.json targets)
+// Find any stale version strings and replace with current targets.
+// We scan for the pattern v?X.Y.Z-alpha.N and replace if it doesn't match config.
+const versionFiles = ['README.md', 'CLAUDE.md', 'npm/README.md', 'AGENTS.md'];
+for (const file of versionFiles) {
+  const filePath = resolve(ROOT, file);
+  let text;
+  try { text = readFileSync(filePath, 'utf-8'); } catch { continue; }
+
+  let updated = text;
+
+  // Sync @claude-flow/cli version references
+  // Match patterns like **v3.1.0-alpha.NN** or `3.1.0-alpha.NN` or @3.1.0-alpha.NN
+  const cliRe = /(?<=[@`*v])3\.1\.0-alpha\.\d+/g;
+  updated = updated.replace(cliRe, cliTarget);
+
+  if (updated !== text) {
+    if (!checkOnly) writeFileSync(filePath, updated);
+    report(true, `${file} (upstream baseline)`);
+  }
 }
 
 if (!anyChanged) {
-  console.log('All docs are up to date.');
+  console.log('All files are up to date.');
 } else if (checkOnly) {
-  console.log('\nDocs are out of date. Run: npm run update-docs');
+  console.log('\nFiles are out of date. Run: npm run preflight');
   process.exit(1);
 }
