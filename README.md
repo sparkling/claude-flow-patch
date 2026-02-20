@@ -173,7 +173,7 @@ claude-flow-patch/
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-32 defects across 13 categories.
+33 defects across 13 categories.
 
 ### CF -- Config & Doctor
 
@@ -214,6 +214,7 @@ claude-flow-patch/
 | [HK&#8209;002](patch/120-HK-002-hooks-tools-stub/) | MCP hook handlers are stubs that don't persist data | High | [#1058](https://github.com/ruvnet/claude-flow/issues/1058) |
 | [HK&#8209;003](patch/130-HK-003-metrics-hardcoded/) | hooks_metrics MCP handler returns hardcoded fake data | High | [#1158](https://github.com/ruvnet/claude-flow/issues/1158) |
 | [HK&#8209;004](patch/135-HK-004-respect-daemon-autostart/) | hooks_session-start ignores daemon.autoStart from settings.json | High | [#1175](https://github.com/ruvnet/claude-flow/issues/1175) |
+| [HK&#8209;005](patch/137-HK-005-daemon-pid-guard/) | Multiple MCP servers start independent in-process daemons | Critical | [#1171](https://github.com/ruvnet/claude-flow/issues/1171) |
 
 ### HW -- Headless Worker
 

@@ -1,0 +1,2 @@
+grep "HK-005: PID-file guard" mcp-tools/hooks-tools.js
+grep "HK-005: Write PID" mcp-tools/hooks-tools.js

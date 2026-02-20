@@ -91,7 +91,13 @@ gh issue comment <NUMBER> --repo ruvnet/claude-flow --body "$(cat <<'EOF'
 
 Defect **{PREFIX}-{NNN}** in [claude-flow-patch](https://github.com/sparkling/claude-flow-patch).
 
+**Root cause:** <1-2 sentences explaining why the bug occurs at the code level>
+
 <What the patch does. Be specific. Include a table if multiple ops.>
+
+**Affected versions:** `@claude-flow/cli` 3.1.0-alpha.44 through current
+
+**Related issues:** #NNN, #NNN
 EOF
 )"
 ```
@@ -115,6 +121,12 @@ gh issue create --repo ruvnet/claude-flow \
 
 ## Files Affected
 - <dist/src/path/to/file.js>
+
+## Affected Versions
+`@claude-flow/cli` 3.1.0-alpha.44 through current
+
+## Related Issues
+- #NNN — <short description of relationship>
 EOF
 )"
 ```
@@ -124,6 +136,7 @@ Save the returned GitHub issue number for the defect README.md.
 ### Comment hygiene:
 
 - One comment per defect, describing the patch. No meta-commentary.
+- Every comment/body MUST include affected versions and related issues (use "None" if truly standalone).
 - If you need to replace a comment, delete the old one first (`gh api -X DELETE`).
 - Do not reference defect history, deletion/restoration, or internal decisions.
 
@@ -136,7 +149,7 @@ Save the returned GitHub issue number for the defect README.md.
 | DM | Daemon & Workers | 6 |
 | EM | Embeddings & HNSW | 2 |
 | GV | Ghost Vectors | 1 |
-| HK | Hooks | 4 |
+| HK | Hooks | 5 |
 | HW | Headless Worker | 4 |
 | IN | Intelligence | 1 |
 | MM | Memory Management | 1 |
@@ -146,7 +159,7 @@ Save the returned GitHub issue number for the defect README.md.
 | SG | Settings Generator | 2 |
 | UI | Display & Cosmetic | 2 |
 
-## All 32 Defects
+## All 33 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -164,6 +177,7 @@ Save the returned GitHub issue number for the defect README.md.
 | HK-002 | [#1058 MCP hook handlers are stubs that don't persist data](https://github.com/ruvnet/claude-flow/issues/1058) | High |
 | HK-003 | [#1158 hooks_metrics MCP handler returns hardcoded fake data](https://github.com/ruvnet/claude-flow/issues/1158) | High |
 | HK-004 | [#1175 hooks_session-start ignores daemon.autoStart from settings.json](https://github.com/ruvnet/claude-flow/issues/1175) | High |
+| HK-005 | [#1171 Multiple MCP servers start independent in-process daemons](https://github.com/ruvnet/claude-flow/issues/1171) | Critical |
 | HW-001 | [#1111 Headless workers hang — stdin pipe never closed](https://github.com/ruvnet/claude-flow/issues/1111) | Critical |
 | HW-002 | [#1112 Headless failures silently swallowed as success](https://github.com/ruvnet/claude-flow/issues/1112) | High |
 | HW-003 | [#1113 Worker scheduling intervals too aggressive + settings ignored](https://github.com/ruvnet/claude-flow/issues/1113) | High |

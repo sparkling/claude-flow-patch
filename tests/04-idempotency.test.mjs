@@ -22,6 +22,7 @@ describe('patch idempotency', () => {
     { id: 'DM-006', file: 'services/headless-worker-executor.js' },
     { id: 'HW-004', file: 'services/worker-daemon.js' },
     { id: 'HK-004', file: 'mcp-tools/hooks-tools.js' },
+    { id: 'HK-005', file: 'mcp-tools/hooks-tools.js' },
     { id: 'DM-006', file: 'commands/daemon.js' },
   ];
 

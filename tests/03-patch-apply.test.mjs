@@ -80,6 +80,12 @@ describe('individual patch application', () => {
       absent: null,
     },
     {
+      id: 'HK-005',
+      file: 'mcp-tools/hooks-tools.js',
+      sentinel: 'HK-005: PID-file guard',
+      absent: null,
+    },
+    {
       id: 'DM-006',
       file: 'commands/daemon.js',
       sentinel: 'Rotate main daemon.log',

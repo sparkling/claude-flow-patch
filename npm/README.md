@@ -13,7 +13,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruv-swarm`
 
 <!-- GENERATED:npm-defects:begin -->
-32 tracked defects across 13 categories.
+33 tracked defects across 13 categories.
 
 | Defect | Description | GitHub Issue |
 |--------|-------------|-------------|
@@ -32,6 +32,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [HK-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/120-HK-002-hooks-tools-stub) | MCP hook handlers are stubs that don't persist data | [#1058](https://github.com/ruvnet/claude-flow/issues/1058) |
 | [HK-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/130-HK-003-metrics-hardcoded) | hooks_metrics MCP handler returns hardcoded fake data | [#1158](https://github.com/ruvnet/claude-flow/issues/1158) |
 | [HK-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/135-HK-004-respect-daemon-autostart) | hooks_session-start ignores daemon.autoStart from settings.json | [#1175](https://github.com/ruvnet/claude-flow/issues/1175) |
+| [HK-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/137-HK-005-daemon-pid-guard) | Multiple MCP servers start independent in-process daemons | [#1171](https://github.com/ruvnet/claude-flow/issues/1171) |
 | [HW-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/140-HW-001-stdin-hang) | Headless workers hang — stdin pipe never closed | [#1111](https://github.com/ruvnet/claude-flow/issues/1111) |
 | [HW-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/150-HW-002-failures-swallowed) | Headless failures silently swallowed as success | [#1112](https://github.com/ruvnet/claude-flow/issues/1112) |
 | [HW-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/160-HW-003-aggressive-intervals) | Worker scheduling intervals too aggressive + settings ignored | [#1113](https://github.com/ruvnet/claude-flow/issues/1113) |
