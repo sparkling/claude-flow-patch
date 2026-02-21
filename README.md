@@ -174,7 +174,7 @@ claude-flow-patch/
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-40 defects across 14 categories.
+41 defects across 14 categories.
 
 ### CF -- Config & Doctor
 
@@ -270,6 +270,7 @@ claude-flow-patch/
 | [SG&#8209;004](patch/320-SG-004-wizard-parity/) | init wizard lacks parity with init | High | [#1181](https://github.com/ruvnet/claude-flow/issues/1181) |
 | [SG&#8209;005](patch/330-SG-005-start-all-subcommand/) | add 'start all' subcommand to start everything at once | Enhancement | [#1177](https://github.com/ruvnet/claude-flow/issues/1177) |
 | [SG&#8209;006](patch/340-SG-006-wizard-capture/) | Wizard captures permissionRequest hook but never assigns it + topology hardcoded | Medium | [#1184](https://github.com/ruvnet/claude-flow/issues/1184) |
+| [SG&#8209;007](patch/385-SG-007-init-shallow-copy/) | --skip-claude / --only-claude mutate shared init options via shallow copy | Medium | [#1188](https://github.com/ruvnet/claude-flow/issues/1188) |
 
 ### UI -- Display & Cosmetic
 

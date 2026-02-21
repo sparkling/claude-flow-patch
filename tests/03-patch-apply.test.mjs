@@ -188,6 +188,25 @@ describe('individual patch application', () => {
       sentinel: 'Active (AutoMemoryBridge)',
       absent: null,
     },
+    // SG-007: deep-clone init options to prevent shallow copy mutation
+    {
+      id: 'SG-007',
+      file: 'commands/init.js',
+      sentinel: 'JSON.parse(JSON.stringify(MINIMAL_INIT_OPTIONS))',
+      absent: '{ ...MINIMAL_INIT_OPTIONS, targetDir: cwd, force }',
+    },
+    {
+      id: 'SG-007',
+      file: 'commands/init.js',
+      sentinel: 'JSON.parse(JSON.stringify(FULL_INIT_OPTIONS))',
+      absent: '{ ...FULL_INIT_OPTIONS, targetDir: cwd, force }',
+    },
+    {
+      id: 'SG-007',
+      file: 'commands/init.js',
+      sentinel: 'JSON.parse(JSON.stringify(DEFAULT_INIT_OPTIONS))',
+      absent: null,
+    },
   ];
 
   for (const { id, file, sentinel, absent } of TESTS) {

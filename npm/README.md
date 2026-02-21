@@ -13,7 +13,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruv-swarm`
 
 <!-- GENERATED:npm-defects:begin -->
-40 tracked defects across 14 categories.
+41 tracked defects across 14 categories.
 
 | Defect | Description | GitHub Issue |
 |--------|-------------|-------------|
@@ -52,6 +52,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [SG-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/320-SG-004-wizard-parity) | init wizard lacks parity with init | [#1181](https://github.com/ruvnet/claude-flow/issues/1181) |
 | [SG-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/330-SG-005-start-all-subcommand) | add 'start all' subcommand to start everything at once | [#1177](https://github.com/ruvnet/claude-flow/issues/1177) |
 | [SG-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/340-SG-006-wizard-capture) | Wizard captures permissionRequest hook but never assigns it + topology hardcoded | [#1184](https://github.com/ruvnet/claude-flow/issues/1184) |
+| [SG-007](https://github.com/sparkling/claude-flow-patch/tree/master/patch/385-SG-007-init-shallow-copy) | --skip-claude / --only-claude mutate shared init options via shallow copy | [#1188](https://github.com/ruvnet/claude-flow/issues/1188) |
 | [UI-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/280-UI-001-intelligence-stats-crash) | intelligence stats crashes on .toFixed() | [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
 | [UI-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/290-UI-002-neural-status-not-loaded) | neural status shows "Not loaded" | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
 | [WM-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/350-WM-001-memory-wiring) | Wire @claude-flow/memory HybridBackend into CLI | [#829](https://github.com/ruvnet/claude-flow/issues/829) |

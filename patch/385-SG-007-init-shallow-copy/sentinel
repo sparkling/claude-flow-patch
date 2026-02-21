@@ -1,0 +1,3 @@
+grep "JSON.parse(JSON.stringify(DEFAULT_INIT_OPTIONS))" commands/init.js
+grep "JSON.parse(JSON.stringify(MINIMAL_INIT_OPTIONS))" commands/init.js
+grep "JSON.parse(JSON.stringify(FULL_INIT_OPTIONS))" commands/init.js

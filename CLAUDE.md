@@ -156,11 +156,11 @@ Save the returned GitHub issue number for the defect README.md.
 | NS | Memory Namespace | 3 |
 | RS | ruv-swarm | 1 |
 | RV | RuVector Intelligence | 3 |
-| SG | Settings Generator | 5 |
+| SG | Settings Generator | 6 |
 | UI | Display & Cosmetic | 2 |
 | WM | Wiring / Memory Integration | 3 |
 
-## All 40 Defects
+## All 41 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -204,6 +204,7 @@ Save the returned GitHub issue number for the defect README.md.
 | WM-002 | [#1185 Neural config gating (neural.enabled not consumed at runtime)](https://github.com/ruvnet/claude-flow/issues/1185) | Medium |
 | WM-003 | [#1102 Activate AutoMemoryBridge in auto-memory-hook.mjs](https://github.com/ruvnet/claude-flow/issues/1102) | High |
 | CF-003 | [#1186 Doctor --install native dependency resolution](https://github.com/ruvnet/claude-flow/issues/1186) | Medium |
+| SG-007 | [#1188 --skip-claude / --only-claude mutate shared init options via shallow copy](https://github.com/ruvnet/claude-flow/issues/1188) | Medium |
 <!-- GENERATED:defect-tables:end -->
 
 ---

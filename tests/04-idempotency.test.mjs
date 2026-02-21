@@ -32,6 +32,7 @@ describe('patch idempotency', () => {
     { id: 'WM-002', file: 'memory/intelligence.js' },
     { id: 'WM-003', file: 'init/helpers-generator.js' },
     { id: 'WM-003', file: '../../.claude/helpers/auto-memory-hook.mjs' },
+    { id: 'SG-007', file: 'commands/init.js' },
   ];
 
   for (const { id, file } of PATCHES) {
