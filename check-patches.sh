@@ -130,7 +130,8 @@ check_sentinels_for_install() {
         local pattern="${BASH_REMATCH[1]}"
         local filepath
         filepath=$(resolve_path "$base" "$rv_base" "$rs_root" "$pkg" "${BASH_REMATCH[2]}")
-        if ! grep -q "$pattern" "$filepath" 2>/dev/null; then
+        # Skip if target file doesn't exist (e.g. umbrella layout missing .claude/helpers/)
+        if [ -f "$filepath" ] && ! grep -q "$pattern" "$filepath" 2>/dev/null; then
           all_ok=false
         fi
       fi

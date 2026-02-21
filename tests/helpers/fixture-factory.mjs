@@ -1,17 +1,24 @@
 // fixture-factory.mjs — Creates isolated temp copies of fixture files for testing
-import { cpSync, mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const FIXTURES_SRC = resolve(__dirname, '..', 'fixtures', 'cli', 'dist', 'src');
+const FIXTURES_HELPERS = resolve(__dirname, '..', 'fixtures', 'cli', '.claude', 'helpers');
 
 /** Copy the fixture tree into a fresh temp dir. Returns { base, cleanup }. */
 export function createFixtureTree() {
   const dir = mkdtempSync(join(tmpdir(), 'cfp-test-'));
   const base = join(dir, 'dist', 'src');
   cpSync(FIXTURES_SRC, base, { recursive: true });
+  // Also copy source helpers fixtures (.claude/helpers/) if they exist
+  if (existsSync(FIXTURES_HELPERS)) {
+    const helpersDir = join(dir, '.claude', 'helpers');
+    mkdirSync(helpersDir, { recursive: true });
+    cpSync(FIXTURES_HELPERS, helpersDir, { recursive: true });
+  }
   return {
     dir,
     base,

@@ -169,6 +169,25 @@ describe('individual patch application', () => {
       sentinel: 'Active (AutoMemoryBridge)',
       absent: 'Fallback mode',
     },
+    // WM-003 source hook patches (ops 4-6)
+    {
+      id: 'WM-003',
+      file: '../../.claude/helpers/auto-memory-hook.mjs',
+      sentinel: 'HybridBackend',
+      absent: null,
+    },
+    {
+      id: 'WM-003',
+      file: '../../.claude/helpers/auto-memory-hook.mjs',
+      sentinel: 'busy_timeout',
+      absent: null,
+    },
+    {
+      id: 'WM-003',
+      file: '../../.claude/helpers/auto-memory-hook.mjs',
+      sentinel: 'Active (AutoMemoryBridge)',
+      absent: null,
+    },
   ];
 
   for (const { id, file, sentinel, absent } of TESTS) {

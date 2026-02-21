@@ -24,7 +24,7 @@ patch("WM-002c: gate initializeIntelligence on neural.enabled config",
         const yamlPath = join(process.cwd(), '.claude-flow', 'config.yaml');
         if (existsSync(yamlPath)) {
             const content = readFileSync(yamlPath, 'utf-8');
-            const neuralSection = content.match(/^neural:\\s*\\n((?:[ \\t]*.*\\n)*?(?=^\\S|\\Z))/m);
+            const neuralSection = content.match(/^neural:\\s*\\n((?:[ \\t]*.*\\n?)*?)(?=^\\S|$)/m);
             if (neuralSection) {
                 const enabledMatch = neuralSection[1].match(/^\\s+enabled:\\s*(\\S+)/m);
                 if (enabledMatch) neuralEnabled = enabledMatch[1] !== 'false';
@@ -36,3 +36,9 @@ patch("WM-002c: gate initializeIntelligence on neural.enabled config",
         return { success: true, sonaEnabled: false, reasoningBankEnabled: false };
     }
     try {""")
+
+# WM-002d: Fix regex \Z anchor (Python syntax, invalid in JS) in already-applied patch
+patch("WM-002d: fix \\\\Z regex anchor in neural config parser",
+    INTEL,
+    """content.match(/^neural:\\s*\\n((?:[ \\t]*.*\\n)*?(?=^\\S|\\Z))/m)""",
+    """content.match(/^neural:\\s*\\n((?:[ \\t]*.*\\n?)*?)(?=^\\S|$)/m)""")

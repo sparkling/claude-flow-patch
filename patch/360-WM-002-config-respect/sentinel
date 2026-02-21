@@ -1,2 +1,3 @@
 grep "neuralEnabled" memory/intelligence.js
 grep "WM-002c" memory/intelligence.js
+absent "\\\\Z" memory/intelligence.js

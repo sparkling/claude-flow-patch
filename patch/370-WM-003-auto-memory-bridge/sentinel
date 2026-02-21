@@ -1,3 +1,6 @@
 grep "AutoMemoryBridge" init/helpers-generator.js
 grep "importFromAutoMemory" init/helpers-generator.js
 grep "syncToAutoMemory" init/helpers-generator.js
+grep "HybridBackend" ../../.claude/helpers/auto-memory-hook.mjs
+grep "busy_timeout" ../../.claude/helpers/auto-memory-hook.mjs
+grep "Active (AutoMemoryBridge)" ../../.claude/helpers/auto-memory-hook.mjs

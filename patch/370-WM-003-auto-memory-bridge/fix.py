@@ -160,3 +160,70 @@ patch("WM-003c: doStatus() — real bridge status",
   console.log(\\`  Database:       \\${existsSync(dbPath) ? dbPath : 'Not created yet'}\\`);
   console.log('');
 }""")
+
+# ── Ops 4-6: Patch pre-built source hook (.claude/helpers/auto-memory-hook.mjs) ──
+# The executor.js copies this file directly during init (bypassing generateAutoMemoryHook).
+# We must patch the source hook too, otherwise init-generated projects use JsonFileBackend.
+# These are normal JavaScript (not template literal), so no double-escaping needed.
+
+# ── Op 4: doImport — upgrade to HybridBackend with JsonFileBackend fallback ──
+# Unique context: "const bridgeConfig = {" follows this block (only in doImport)
+patch("WM-003d: source hook doImport() — HybridBackend upgrade",
+    SRC_AUTO_MEMORY_HOOK,
+    """  const config = readConfig();
+  const backend = new JsonFileBackend(STORE_PATH);
+  await backend.initialize();
+
+  const bridgeConfig = {""",
+    """  const config = readConfig();
+  let backend;
+  try {
+    if (!memPkg.HybridBackend) throw new Error('no HybridBackend');
+    backend = new memPkg.HybridBackend({
+      sqlite: { databasePath: join(PROJECT_ROOT, '.swarm', 'hybrid-memory.db') },
+      agentdb: { dbPath: join(PROJECT_ROOT, '.swarm', 'agentdb-memory.db') },
+      dualWrite: true,
+    });
+    await backend.initialize();
+    const sqlBe = backend.getSQLiteBackend?.();
+    if (sqlBe?.db) sqlBe.db.pragma('busy_timeout = 5000');
+  } catch {
+    backend = new JsonFileBackend(STORE_PATH);
+    await backend.initialize();
+  }
+
+  const bridgeConfig = {""")
+
+# ── Op 5: doSync — upgrade to HybridBackend with JsonFileBackend fallback ──
+# Unique context: "const entryCount = await backend.count();" follows (only in doSync)
+patch("WM-003e: source hook doSync() — HybridBackend upgrade",
+    SRC_AUTO_MEMORY_HOOK,
+    """  const config = readConfig();
+  const backend = new JsonFileBackend(STORE_PATH);
+  await backend.initialize();
+
+  const entryCount = await backend.count();""",
+    """  const config = readConfig();
+  let backend;
+  try {
+    if (!memPkg.HybridBackend) throw new Error('no HybridBackend');
+    backend = new memPkg.HybridBackend({
+      sqlite: { databasePath: join(PROJECT_ROOT, '.swarm', 'hybrid-memory.db') },
+      agentdb: { dbPath: join(PROJECT_ROOT, '.swarm', 'agentdb-memory.db') },
+      dualWrite: true,
+    });
+    await backend.initialize();
+    const sqlBe = backend.getSQLiteBackend?.();
+    if (sqlBe?.db) sqlBe.db.pragma('busy_timeout = 5000');
+  } catch {
+    backend = new JsonFileBackend(STORE_PATH);
+    await backend.initialize();
+  }
+
+  const entryCount = await backend.count();""")
+
+# ── Op 6: doStatus — show "Active (AutoMemoryBridge)" when package available ──
+patch("WM-003f: source hook doStatus() — Active label",
+    SRC_AUTO_MEMORY_HOOK,
+    """console.log(`  Package:        ${memPkg ? '\u2705 Available' : '\u274c Not found'}`);""",
+    """console.log(`  Package:        ${memPkg?.AutoMemoryBridge ? 'Active (AutoMemoryBridge)' : memPkg ? '\u2705 Available' : '\u274c Not found'}`);""")

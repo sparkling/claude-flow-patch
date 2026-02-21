@@ -90,6 +90,7 @@ CMDS_INDEX = commands + "/index.js" if commands else ""
 # Source helpers (shipped with package, copied by writeHelpers when source dir found)
 _pkg_root = os.path.dirname(os.path.dirname(base)) if base else ""
 SRC_HOOK_HANDLER = os.path.join(_pkg_root, ".claude", "helpers", "hook-handler.cjs") if _pkg_root else ""
+SRC_AUTO_MEMORY_HOOK = os.path.join(_pkg_root, ".claude", "helpers", "auto-memory-hook.mjs") if _pkg_root else ""
 
 # RuVector (separate package, path set by patch-all.sh)
 ruvector_cli = os.environ.get("RUVECTOR_CLI", "")
