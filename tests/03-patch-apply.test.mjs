@@ -103,6 +103,72 @@ describe('individual patch application', () => {
       sentinel: 'allCommand',
       absent: null,
     },
+    {
+      id: 'SG-006',
+      file: 'commands/init.js',
+      sentinel: 'options.hooks.permissionRequest',
+      absent: null,
+    },
+    {
+      id: 'SG-006',
+      file: 'commands/init.js',
+      sentinel: 'options.runtime.topology ||',
+      absent: "init --topology hierarchical 2>",
+    },
+    {
+      id: 'WM-001',
+      file: 'memory/memory-initializer.js',
+      sentinel: 'HybridBackend',
+      absent: null,
+    },
+    {
+      id: 'WM-001',
+      file: 'memory/memory-initializer.js',
+      sentinel: 'backendChoice',
+      absent: null,
+    },
+    {
+      id: 'WM-001',
+      file: 'memory/memory-initializer.js',
+      sentinel: 'embeddingGeneratorForHybrid',
+      absent: null,
+    },
+    {
+      id: 'CF-003',
+      file: 'commands/doctor.js',
+      sentinel: 'checkMemoryBackend',
+      absent: null,
+    },
+    {
+      id: 'CF-003',
+      file: 'commands/doctor.js',
+      sentinel: 'better-sqlite3',
+      absent: null,
+    },
+    {
+      id: 'WM-002',
+      file: 'memory/intelligence.js',
+      sentinel: 'neuralEnabled',
+      absent: null,
+    },
+    {
+      id: 'WM-003',
+      file: 'init/helpers-generator.js',
+      sentinel: 'importFromAutoMemory',
+      absent: 'run init --upgrade for full support',
+    },
+    {
+      id: 'WM-003',
+      file: 'init/helpers-generator.js',
+      sentinel: 'syncToAutoMemory',
+      absent: 'Auto memory sync available',
+    },
+    {
+      id: 'WM-003',
+      file: 'init/helpers-generator.js',
+      sentinel: 'Active (AutoMemoryBridge)',
+      absent: 'Fallback mode',
+    },
   ];
 
   for (const { id, file, sentinel, absent } of TESTS) {

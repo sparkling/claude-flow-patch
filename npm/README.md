@@ -13,12 +13,13 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruv-swarm`
 
 <!-- GENERATED:npm-defects:begin -->
-35 tracked defects across 13 categories.
+40 tracked defects across 14 categories.
 
 | Defect | Description | GitHub Issue |
 |--------|-------------|-------------|
 | [CF-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/010-CF-001-doctor-yaml) | Doctor ignores YAML config files | [#1141](https://github.com/ruvnet/claude-flow/issues/1141) |
 | [CF-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/020-CF-002-config-export-yaml) | Config export shows hardcoded defaults | [#1142](https://github.com/ruvnet/claude-flow/issues/1142) |
+| [CF-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/380-CF-003-doctor-native-deps) | Doctor --install native dependency resolution | [#1186](https://github.com/ruvnet/claude-flow/issues/1186) |
 | [DM-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/030-DM-001-daemon-log-zero) | daemon.log always 0 bytes | [#1116](https://github.com/ruvnet/claude-flow/issues/1116) |
 | [DM-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/040-DM-002-cpu-load-threshold) | maxCpuLoad=2.0 blocks all workers on multi-core | [#1138](https://github.com/ruvnet/claude-flow/issues/1138) |
 | [DM-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/050-DM-003-macos-freemem) | macOS freemem() always ~0% — workers blocked | [#1077](https://github.com/ruvnet/claude-flow/issues/1077) |
@@ -50,8 +51,12 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [SG-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/270-SG-003-init-helpers-all-paths) | Init missing helpers for --dual, --minimal, hooks, and upgrade paths | [#1169](https://github.com/ruvnet/claude-flow/issues/1169) |
 | [SG-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/320-SG-004-wizard-parity) | init wizard lacks parity with init | [#1181](https://github.com/ruvnet/claude-flow/issues/1181) |
 | [SG-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/330-SG-005-start-all-subcommand) | add 'start all' subcommand to start everything at once | [#1177](https://github.com/ruvnet/claude-flow/issues/1177) |
+| [SG-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/340-SG-006-wizard-capture) | Wizard captures permissionRequest hook but never assigns it + topology hardcoded | [#1184](https://github.com/ruvnet/claude-flow/issues/1184) |
 | [UI-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/280-UI-001-intelligence-stats-crash) | intelligence stats crashes on .toFixed() | [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
 | [UI-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/290-UI-002-neural-status-not-loaded) | neural status shows "Not loaded" | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
+| [WM-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/350-WM-001-memory-wiring) | Wire @claude-flow/memory HybridBackend into CLI | [#829](https://github.com/ruvnet/claude-flow/issues/829) |
+| [WM-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/360-WM-002-config-respect) | Neural config gating (neural.enabled not consumed at runtime) | [#1185](https://github.com/ruvnet/claude-flow/issues/1185) |
+| [WM-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/370-WM-003-auto-memory-bridge) | Activate AutoMemoryBridge in auto-memory-hook.mjs | [#1102](https://github.com/ruvnet/claude-flow/issues/1102) |
 <!-- GENERATED:npm-defects:end -->
 
 ## Quick Start

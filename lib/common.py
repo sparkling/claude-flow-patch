@@ -67,6 +67,7 @@ WD = services + "/worker-daemon.js" if services else ""
 DJ = commands + "/daemon.js" if commands else ""
 DOC = commands + "/doctor.js" if commands else ""
 MI = memory + "/memory-initializer.js" if memory else ""
+INTEL = memory + "/intelligence.js" if memory else ""
 
 MCP_MEMORY = base + "/mcp-tools/memory-tools.js" if base else ""
 MCP_HOOKS = base + "/mcp-tools/hooks-tools.js" if base else ""

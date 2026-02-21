@@ -145,7 +145,7 @@ Save the returned GitHub issue number for the defect README.md.
 <!-- GENERATED:defect-tables:begin -->
 | Prefix | Category | Count |
 |--------|----------|-------|
-| CF | Config & Doctor | 2 |
+| CF | Config & Doctor | 3 |
 | DM | Daemon & Workers | 6 |
 | EM | Embeddings & HNSW | 2 |
 | GV | Ghost Vectors | 1 |
@@ -156,10 +156,11 @@ Save the returned GitHub issue number for the defect README.md.
 | NS | Memory Namespace | 3 |
 | RS | ruv-swarm | 1 |
 | RV | RuVector Intelligence | 3 |
-| SG | Settings Generator | 4 |
+| SG | Settings Generator | 5 |
 | UI | Display & Cosmetic | 2 |
+| WM | Wiring / Memory Integration | 3 |
 
-## All 35 Defects
+## All 40 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -198,6 +199,11 @@ Save the returned GitHub issue number for the defect README.md.
 | HW-004 | [#1117 runWithTimeout rejects but does not kill child process](https://github.com/ruvnet/claude-flow/issues/1117) | Medium |
 | SG-004 | [#1181 init wizard lacks parity with init](https://github.com/ruvnet/claude-flow/issues/1181) | High |
 | SG-005 | [#1177 add 'start all' subcommand to start everything at once](https://github.com/ruvnet/claude-flow/issues/1177) | Enhancement |
+| SG-006 | [#1184 Wizard captures permissionRequest hook but never assigns it + topology hardcoded](https://github.com/ruvnet/claude-flow/issues/1184) | Medium |
+| WM-001 | [#829 Wire @claude-flow/memory HybridBackend into CLI](https://github.com/ruvnet/claude-flow/issues/829) | Critical |
+| WM-002 | [#1185 Neural config gating (neural.enabled not consumed at runtime)](https://github.com/ruvnet/claude-flow/issues/1185) | Medium |
+| WM-003 | [#1102 Activate AutoMemoryBridge in auto-memory-hook.mjs](https://github.com/ruvnet/claude-flow/issues/1102) | High |
+| CF-003 | [#1186 Doctor --install native dependency resolution](https://github.com/ruvnet/claude-flow/issues/1186) | Medium |
 <!-- GENERATED:defect-tables:end -->
 
 ---

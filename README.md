@@ -174,7 +174,7 @@ claude-flow-patch/
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-35 defects across 13 categories.
+40 defects across 14 categories.
 
 ### CF -- Config & Doctor
 
@@ -182,6 +182,7 @@ claude-flow-patch/
 |----|-------------|----------|--------------|
 | [CF&#8209;001](patch/010-CF-001-doctor-yaml/) | Doctor ignores YAML config files | Low | [#1141](https://github.com/ruvnet/claude-flow/issues/1141) |
 | [CF&#8209;002](patch/020-CF-002-config-export-yaml/) | Config export shows hardcoded defaults | Medium | [#1142](https://github.com/ruvnet/claude-flow/issues/1142) |
+| [CF&#8209;003](patch/380-CF-003-doctor-native-deps/) | Doctor --install native dependency resolution | Medium | [#1186](https://github.com/ruvnet/claude-flow/issues/1186) |
 
 ### DM -- Daemon & Workers
 
@@ -268,6 +269,7 @@ claude-flow-patch/
 | [SG&#8209;003](patch/270-SG-003-init-helpers-all-paths/) | Init missing helpers for --dual, --minimal, hooks, and upgrade paths | Critical | [#1169](https://github.com/ruvnet/claude-flow/issues/1169) |
 | [SG&#8209;004](patch/320-SG-004-wizard-parity/) | init wizard lacks parity with init | High | [#1181](https://github.com/ruvnet/claude-flow/issues/1181) |
 | [SG&#8209;005](patch/330-SG-005-start-all-subcommand/) | add 'start all' subcommand to start everything at once | Enhancement | [#1177](https://github.com/ruvnet/claude-flow/issues/1177) |
+| [SG&#8209;006](patch/340-SG-006-wizard-capture/) | Wizard captures permissionRequest hook but never assigns it + topology hardcoded | Medium | [#1184](https://github.com/ruvnet/claude-flow/issues/1184) |
 
 ### UI -- Display & Cosmetic
 
@@ -275,6 +277,14 @@ claude-flow-patch/
 |----|-------------|----------|--------------|
 | [UI&#8209;001](patch/280-UI-001-intelligence-stats-crash/) | intelligence stats crashes on .toFixed() | Critical | [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
 | [UI&#8209;002](patch/290-UI-002-neural-status-not-loaded/) | neural status shows "Not loaded" | Low | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
+
+### WM -- Wiring / Memory Integration
+
+| ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
+|----|-------------|----------|--------------|
+| [WM&#8209;001](patch/350-WM-001-memory-wiring/) | Wire @claude-flow/memory HybridBackend into CLI | Critical | [#829](https://github.com/ruvnet/claude-flow/issues/829) |
+| [WM&#8209;002](patch/360-WM-002-config-respect/) | Neural config gating (neural.enabled not consumed at runtime) | Medium | [#1185](https://github.com/ruvnet/claude-flow/issues/1185) |
+| [WM&#8209;003](patch/370-WM-003-auto-memory-bridge/) | Activate AutoMemoryBridge in auto-memory-hook.mjs | High | [#1102](https://github.com/ruvnet/claude-flow/issues/1102) |
 <!-- GENERATED:defect-index:end -->
 
 <a id="init-script-patches"></a>

@@ -156,6 +156,26 @@ for entry in "${INSTALLS[@]}"; do
     any_failed=true
     break  # One failure is enough to trigger reapply
   fi
+
+  # ── Syntax validation: node --check on patched JS files ──
+  SYNTAX_FILES=(
+    "$dist_src/memory/memory-initializer.js"
+    "$dist_src/commands/init.js"
+    "$dist_src/memory/intelligence.js"
+    "$dist_src/init/helpers-generator.js"
+    "$dist_src/commands/doctor.js"
+  )
+  for js_file in "${SYNTAX_FILES[@]}"; do
+    [ -f "$js_file" ] || continue
+    if node --check "$js_file" 2>/tmp/syntax-check-err.$$; then
+      echo "[PATCHES] SYNTAX OK: $(basename "$js_file")"
+    else
+      echo "[PATCHES] SYNTAX ERROR: $(basename "$js_file")"
+      cat /tmp/syntax-check-err.$$
+      any_failed=true
+    fi
+    rm -f /tmp/syntax-check-err.$$
+  done
 done
 
 VERSION="${first_version:-unknown}"

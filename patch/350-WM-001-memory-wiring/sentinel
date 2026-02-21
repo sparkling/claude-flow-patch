@@ -1,0 +1,3 @@
+grep "HybridBackend" memory/memory-initializer.js
+grep "backendChoice" memory/memory-initializer.js
+grep "embeddingGeneratorForHybrid" memory/memory-initializer.js

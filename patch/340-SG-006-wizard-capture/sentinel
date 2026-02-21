@@ -1,0 +1,2 @@
+grep "permissionRequest" commands/init.js
+grep "options.runtime.topology" commands/init.js

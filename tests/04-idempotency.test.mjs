@@ -26,6 +26,11 @@ describe('patch idempotency', () => {
     { id: 'DM-006', file: 'commands/daemon.js' },
     { id: 'SG-004', file: 'commands/init.js' },
     { id: 'SG-005', file: 'commands/start.js' },
+    { id: 'SG-006', file: 'commands/init.js' },
+    { id: 'WM-001', file: 'memory/memory-initializer.js' },
+    { id: 'CF-003', file: 'commands/doctor.js' },
+    { id: 'WM-002', file: 'memory/intelligence.js' },
+    { id: 'WM-003', file: 'init/helpers-generator.js' },
   ];
 
   for (const { id, file } of PATCHES) {

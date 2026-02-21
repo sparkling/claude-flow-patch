@@ -53,3 +53,12 @@ const wizardCommand = {
         }
     },
 };
+
+// SG-006 fixture: hooks assignment block ending (old_string for SG-006b)
+                    options.hooks.notification = hooks.includes('notification');
+                }
+
+// SG-006 fixture: hardcoded topology in wizard --start-all (old_string for SG-006c)
+                        execSync('npx @claude-flow/cli@latest swarm init --topology hierarchical 2>/dev/null', {
+                            stdio: 'pipe', cwd: ctx.cwd, timeout: 30000
+                        });

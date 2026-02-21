@@ -1,0 +1,3 @@
+grep "AutoMemoryBridge" init/helpers-generator.js
+grep "importFromAutoMemory" init/helpers-generator.js
+grep "syncToAutoMemory" init/helpers-generator.js

@@ -1,0 +1,148 @@
+# CF-003: Doctor --install native dependency resolution
+# GitHub: #1186
+
+# CF-003a: Add checkMemoryBackend() diagnostic function
+# Insert after checkMemoryDatabase, before checkApiKeys
+patch("CF-003a: checkMemoryBackend diagnostic",
+    DOC,
+    """    return { name: 'Memory Database', status: 'warn', message: 'Not initialized', fix: 'claude-flow memory configure --backend hybrid' };
+}
+// Check API keys""",
+    """    return { name: 'Memory Database', status: 'warn', message: 'Not initialized', fix: 'claude-flow memory configure --backend hybrid' };
+}
+// Check memory backend dependencies
+async function checkMemoryBackend() {
+    // Read configured backend
+    let configuredBackend = 'hybrid';
+    if (process.env.CLAUDE_FLOW_MEMORY_BACKEND) {
+        configuredBackend = process.env.CLAUDE_FLOW_MEMORY_BACKEND;
+    } else {
+        try {
+            const yamlPath = join(process.cwd(), '.claude-flow', 'config.yaml');
+            if (existsSync(yamlPath)) {
+                const content = readFileSync(yamlPath, 'utf-8');
+                const memSection = content.match(/^memory:\\s*\\n((?:[ \\t]*.*\\n)*?(?=^\\S|$))/m);
+                if (memSection) {
+                    const backendMatch = memSection[1].match(/^\\s+backend:\\s*(\\S+)/m);
+                    if (backendMatch) configuredBackend = backendMatch[1].replace(/^["']|["']$/g, '');
+                }
+            }
+        } catch {}
+    }
+    // Check package availability
+    const packages = {};
+    for (const pkg of ['better-sqlite3', 'agentdb', '@claude-flow/memory']) {
+        try {
+            require.resolve(pkg);
+            packages[pkg] = true;
+        } catch {
+            packages[pkg] = false;
+        }
+    }
+    const needsNative = ['hybrid', 'sqlite'].includes(configuredBackend);
+    const hasBetterSqlite3 = packages['better-sqlite3'];
+    const hasMemoryPkg = packages['@claude-flow/memory'];
+    if (needsNative && !hasBetterSqlite3) {
+        return {
+            name: 'Memory Backend',
+            status: 'fail',
+            message: `backend: ${configuredBackend} — better-sqlite3 native bindings missing`,
+            fix: 'npx @claude-flow/cli doctor --install  OR  set backend: sqljs in .claude-flow/config.yaml'
+        };
+    }
+    if (needsNative && !hasMemoryPkg) {
+        return {
+            name: 'Memory Backend',
+            status: 'warn',
+            message: `backend: ${configuredBackend} — @claude-flow/memory not found`,
+            fix: 'npm install @claude-flow/memory'
+        };
+    }
+    const available = Object.entries(packages).filter(([,v]) => v).map(([k]) => k);
+    return {
+        name: 'Memory Backend',
+        status: 'pass',
+        message: `backend: ${configuredBackend} — deps OK (${available.join(', ')})`
+    };
+}
+// Check API keys""")
+
+# CF-003a2: Add checkMemoryBackend to allChecks array
+patch("CF-003a2: add checkMemoryBackend to allChecks",
+    DOC,
+    """            checkMemoryDatabase,
+            checkApiKeys,""",
+    """            checkMemoryDatabase,
+            checkMemoryBackend,
+            checkApiKeys,""")
+
+# CF-003a3: Add checkMemoryBackend to componentMap
+patch("CF-003a3: add checkMemoryBackend to componentMap",
+    DOC,
+    """            'memory': checkMemoryDatabase,""",
+    """            'memory': checkMemoryDatabase,
+            'memory-backend': checkMemoryBackend,""")
+
+# CF-003b: Extend --install to auto-resolve native deps
+patch("CF-003b: --install native dep rebuild",
+    DOC,
+    """                    output.writeln(formatCheck(newCheck));
+                }
+            }
+        }
+        // Summary""",
+    """                    output.writeln(formatCheck(newCheck));
+                }
+            }
+        }
+        // Auto-rebuild native dependencies if needed
+        if (autoInstall) {
+            const memBackendResult = results.find(r => r.name === 'Memory Backend');
+            if (memBackendResult && memBackendResult.status === 'fail') {
+                output.writeln();
+                output.writeln(output.bold('Rebuilding native dependencies...'));
+                try {
+                    // Find better-sqlite3 package directory
+                    let bsqlDir = '';
+                    try {
+                        const resolved = require.resolve('better-sqlite3/package.json');
+                        bsqlDir = resolved.substring(0, resolved.lastIndexOf('/'));
+                    } catch {
+                        // Try common npx cache locations
+                        const homeDir = process.env.HOME || process.env.USERPROFILE || '';
+                        const npxCache = join(homeDir, '.npm', '_npx');
+                        if (existsSync(npxCache)) {
+                            const entries = readdirSync(npxCache);
+                            for (const entry of entries) {
+                                const candidate = join(npxCache, entry, 'node_modules', 'better-sqlite3');
+                                if (existsSync(candidate)) { bsqlDir = candidate; break; }
+                            }
+                        }
+                    }
+                    if (bsqlDir) {
+                        output.writeln(output.dim(`  Rebuilding better-sqlite3 at ${bsqlDir}...`));
+                        execSync('npx node-gyp rebuild', {
+                            cwd: bsqlDir,
+                            encoding: 'utf8',
+                            stdio: 'pipe',
+                            timeout: 120000
+                        });
+                        output.writeln(output.success('  better-sqlite3 rebuilt successfully'));
+                        // Re-check after rebuild
+                        const recheck = await checkMemoryBackend();
+                        const idx = results.findIndex(r => r.name === 'Memory Backend');
+                        if (idx !== -1) results[idx] = recheck;
+                        output.writeln(formatCheck(recheck));
+                    } else {
+                        output.writeln(output.warning('  better-sqlite3 package not found — install it first'));
+                    }
+                } catch (rebuildErr) {
+                    output.writeln(output.error('  Failed to rebuild native dependencies'));
+                    if (rebuildErr instanceof Error) {
+                        output.writeln(output.dim(`  ${rebuildErr.message}`));
+                    }
+                    output.writeln(output.dim('  Workaround: set backend: sqljs in .claude-flow/config.yaml'));
+                }
+            }
+        }
+        // Summary""")
