@@ -454,9 +454,9 @@ describe('subsystems: intelligence neural gating', { skip: skipMsg }, () => {
 
   it('initializeIntelligence returns sonaEnabled:false when neural.enabled:false', { skip: !hasIntelligence ? 'intelligence.js not found' : false }, async () => {
     // Write config with neural.enabled: false
-    // WM-002d fixes the \Z regex anchor so neural: can be the last section
-    writeFileSync(join(project.dir, '.claude-flow', 'config.yaml'),
-      'memory:\n  backend: hybrid\n\nneural:\n  enabled: false\n');
+    // WM-006 changed the reader from config.yaml regex to config.json
+    writeFileSync(join(project.dir, '.claude-flow', 'config.json'),
+      JSON.stringify({ neural: { enabled: false } }));
 
     // Run in subprocess to get clean module state and correct cwd
     const script = `
@@ -481,8 +481,9 @@ describe('subsystems: intelligence neural gating', { skip: skipMsg }, () => {
 
   it('initializeIntelligence returns sonaEnabled:true when neural.enabled:true', { skip: !hasIntelligence ? 'intelligence.js not found' : false }, async () => {
     // Write config with neural.enabled: true
-    writeFileSync(join(project.dir, '.claude-flow', 'config.yaml'),
-      'memory:\n  backend: hybrid\n\nneural:\n  enabled: true\n');
+    // WM-006 changed the reader from config.yaml regex to config.json
+    writeFileSync(join(project.dir, '.claude-flow', 'config.json'),
+      JSON.stringify({ neural: { enabled: true } }));
 
     const script = `
       process.chdir('${project.dir.replace(/'/g, "\\'")}');
@@ -505,8 +506,10 @@ describe('subsystems: intelligence neural gating', { skip: skipMsg }, () => {
 
   it('initializeIntelligence defaults to enabled when no config', { skip: !hasIntelligence ? 'intelligence.js not found' : false }, async () => {
     // Remove config — should default to enabled
-    const configPath = join(project.dir, '.claude-flow', 'config.yaml');
-    if (existsSync(configPath)) rmSync(configPath);
+    const configYaml = join(project.dir, '.claude-flow', 'config.yaml');
+    const configJson = join(project.dir, '.claude-flow', 'config.json');
+    if (existsSync(configYaml)) rmSync(configYaml);
+    if (existsSync(configJson)) rmSync(configJson);
 
     const script = `
       process.chdir('${project.dir.replace(/'/g, "\\'")}');

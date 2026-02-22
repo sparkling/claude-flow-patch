@@ -1,0 +1,1 @@
+grep "SG-008: Also generate config.json" init/executor.js

@@ -1,0 +1,2 @@
+grep "config.json (YAML fallback for migration)" ../../.claude/helpers/auto-memory-hook.mjs
+grep "createBackend(config, memPkg)" ../../.claude/helpers/auto-memory-hook.mjs

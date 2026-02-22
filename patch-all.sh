@@ -180,6 +180,37 @@ apply_patches() {
   echo ""
 }
 
+# ── Post-apply fixup: deduplicate config.js (CF-002 + CF-004 interaction) ──
+# CF-002 (order 020) inserts readYamlConfig before const getCommand.
+# CF-004 (order 420) replaces the first copy and removes the second.
+# Because CF-004 modifies CF-002's output, CF-002 re-applies on each run,
+# leaving a third copy with duplicate ESM imports → SyntaxError.
+# This fixup removes the extra copy after all patches have run.
+dedup_config_js() {
+  local config_js="$1"
+  [ -f "$config_js" ] || return 0
+  python3 - "$config_js" <<'PYEOF'
+import sys
+path = sys.argv[1]
+content = open(path).read()
+marker = "import { readFileSync, existsSync } from 'fs';"
+positions = []
+start = 0
+while True:
+    idx = content.find(marker, start)
+    if idx == -1:
+        break
+    positions.append(idx)
+    start = idx + 1
+if len(positions) >= 2:
+    target = "const getCommand = {"
+    pos = content.find(target, positions[1])
+    if pos > 0:
+        content = content[:positions[1]] + content[pos:]
+        open(path, "w").write(content)
+PYEOF
+}
+
 # ── Apply to each discovered install ──
 
 for entry in "${INSTALLS[@]}"; do
@@ -194,6 +225,7 @@ for entry in "${INSTALLS[@]}"; do
   fi
 
   apply_patches "$dist_src" "$rv_cli" "$rs_root" "$scope"
+  dedup_config_js "$dist_src/commands/config.js" 2>/dev/null || true
 done
 
 echo "[PATCHES] Complete"

@@ -207,10 +207,91 @@ describe('individual patch application', () => {
       sentinel: 'JSON.parse(JSON.stringify(DEFAULT_INIT_OPTIONS))',
       absent: null,
     },
+    // WM-004: source hook config.json reader + createBackend (op a only; b/c need WM-003 first)
+    {
+      id: 'WM-004',
+      file: '../../.claude/helpers/auto-memory-hook.mjs',
+      sentinel: 'config.json (YAML fallback for migration)',
+      absent: null,
+    },
+    {
+      id: 'WM-004',
+      file: '../../.claude/helpers/auto-memory-hook.mjs',
+      sentinel: 'function createBackend(config, memPkg)',
+      absent: null,
+    },
+    // WM-005: memory-initializer reads config.json instead of env var + YAML
+    // WM-005 depends on WM-001 (its old_string contains WM-001's output)
+    {
+      id: 'WM-005',
+      file: 'memory/memory-initializer.js',
+      sentinel: 'WM-005: Resolve backend choice from config.json',
+      absent: 'CLAUDE_FLOW_MEMORY_BACKEND',
+      deps: ['WM-001'],
+    },
+    {
+      id: 'WM-005',
+      file: 'memory/memory-initializer.js',
+      sentinel: 'config.json',
+      absent: 'set backend: sqljs in .claude-flow/config.yaml',
+      deps: ['WM-001'],
+    },
+    // WM-006: intelligence reads neural.enabled from config.json
+    // WM-006 depends on WM-002 (its old_string contains WM-002's output)
+    {
+      id: 'WM-006',
+      file: 'memory/intelligence.js',
+      sentinel: 'WM-006: Read neural.enabled from config.json',
+      absent: 'WM-002c: Read neural.enabled from config.yaml',
+      deps: ['WM-002'],
+    },
+    // CF-004: config export reads config.json + removes duplicate
+    {
+      id: 'CF-004',
+      file: 'commands/config.js',
+      sentinel: 'CF-004: Read config.json (canonical)',
+      absent: null,
+    },
+    {
+      id: 'CF-004',
+      file: 'commands/config.js',
+      sentinel: 'CF-004b: removed duplicate readYamlConfig',
+      absent: null,
+    },
+    // CF-005: doctor checkMemoryBackend reads config.json
+    // CF-005 depends on CF-003 (its old_string contains CF-003's output)
+    {
+      id: 'CF-005',
+      file: 'commands/doctor.js',
+      sentinel: 'CF-005: Read configured backend from config.json',
+      absent: 'CLAUDE_FLOW_MEMORY_BACKEND',
+      deps: ['CF-003'],
+    },
+    {
+      id: 'CF-005',
+      file: 'commands/doctor.js',
+      sentinel: 'config.json',
+      absent: 'set backend: sqljs in .claude-flow/config.yaml',
+      deps: ['CF-003'],
+    },
+    // SG-008: init generates config.json
+    {
+      id: 'SG-008',
+      file: 'init/executor.js',
+      sentinel: 'SG-008: Also generate config.json',
+      absent: null,
+    },
   ];
 
-  for (const { id, file, sentinel, absent } of TESTS) {
+  for (const { id, file, sentinel, absent, deps } of TESTS) {
     it(`${id} applies correctly`, () => {
+      // Pre-apply dependency patches if specified
+      if (deps) {
+        for (const dep of deps) {
+          const dr = runPatch(dep, fixture.base);
+          assert.equal(dr.status, 0, `${id} dep ${dep} exit code: ${dr.stderr}`);
+        }
+      }
       const r = runPatch(id, fixture.base);
       assert.equal(r.status, 0, `${id} exit code: ${r.stderr}`);
 

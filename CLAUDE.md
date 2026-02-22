@@ -145,7 +145,7 @@ Save the returned GitHub issue number for the defect README.md.
 <!-- GENERATED:defect-tables:begin -->
 | Prefix | Category | Count |
 |--------|----------|-------|
-| CF | Config & Doctor | 3 |
+| CF | Config & Doctor | 5 |
 | DM | Daemon & Workers | 6 |
 | EM | Embeddings & HNSW | 2 |
 | GV | Ghost Vectors | 1 |
@@ -156,11 +156,11 @@ Save the returned GitHub issue number for the defect README.md.
 | NS | Memory Namespace | 3 |
 | RS | ruv-swarm | 1 |
 | RV | RuVector Intelligence | 3 |
-| SG | Settings Generator | 6 |
+| SG | Settings Generator | 7 |
 | UI | Display & Cosmetic | 2 |
-| WM | Wiring / Memory Integration | 3 |
+| WM | Wiring / Memory Integration | 6 |
 
-## All 41 Defects
+## All 47 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -205,6 +205,12 @@ Save the returned GitHub issue number for the defect README.md.
 | WM-003 | [#1102 Activate AutoMemoryBridge in auto-memory-hook.mjs](https://github.com/ruvnet/claude-flow/issues/1102) | High |
 | CF-003 | [#1186 Doctor --install native dependency resolution](https://github.com/ruvnet/claude-flow/issues/1186) | Medium |
 | SG-007 | [#1188 --skip-claude / --only-claude mutate shared init options via shallow copy](https://github.com/ruvnet/claude-flow/issues/1188) | Medium |
+| WM-004 | [#1190 Source hook silently falls back to JsonFileBackend](https://github.com/ruvnet/claude-flow/issues/1190) | High |
+| WM-005 | [#1191 memory-initializer reads config.yaml with hand-rolled regex instead of config.json](https://github.com/ruvnet/claude-flow/issues/1191) | Medium |
+| WM-006 | [#1192 intelligence.js reads neural.enabled from config.yaml regex instead of config.json](https://github.com/ruvnet/claude-flow/issues/1192) | Medium |
+| CF-004 | [#1193 config get/export uses hand-rolled YAML parser instead of config.json](https://github.com/ruvnet/claude-flow/issues/1193) | Medium |
+| CF-005 | [#1194 Doctor checkMemoryBackend reads env var + config.yaml instead of config.json](https://github.com/ruvnet/claude-flow/issues/1194) | Medium |
+| SG-008 | [#1195 init should generate .claude-flow/config.json](https://github.com/ruvnet/claude-flow/issues/1195) | Enhancement |
 <!-- GENERATED:defect-tables:end -->
 
 ---

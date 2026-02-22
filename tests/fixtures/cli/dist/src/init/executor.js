@@ -2,6 +2,15 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+async function writeRuntimeConfig(targetDir, options, result) {
+    const configPath = path.join(targetDir, '.claude-flow', 'config.yaml');
+    const config = 'memory:\n  backend: hybrid\n';
+    fs.writeFileSync(configPath, config, 'utf-8');
+    result.created.files.push('.claude-flow/config.yaml');
+    // Write .gitignore
+    const gitignorePath = path.join(targetDir, '.claude-flow', '.gitignore');
+}
+
 async function executeInit(targetDir, options, result) {
         // Generate helpers
         if (options.components.helpers) {

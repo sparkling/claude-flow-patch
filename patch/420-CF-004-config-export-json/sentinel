@@ -1,0 +1,2 @@
+grep "CF-004: Read config.json (canonical)" commands/config.js
+grep "CF-004b: removed duplicate readYamlConfig" commands/config.js

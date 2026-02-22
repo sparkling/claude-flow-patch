@@ -1,0 +1,1 @@
+grep "WM-006: Read neural.enabled from config.json" memory/intelligence.js

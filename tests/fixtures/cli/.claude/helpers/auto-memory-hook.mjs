@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Minimal fixture for WM-003 source hook patches (ops 4-6)
+// Minimal fixture for WM-003 source hook patches (ops 4-6) and WM-004
 // Contains the exact old strings that fix.py searches for.
 
 import { existsSync } from 'fs';
@@ -16,7 +16,43 @@ class JsonFileBackend {
 }
 
 async function loadMemoryPackage() { return null; }
-function readConfig() { return {}; }
+
+// ============================================================================
+// Read config from .claude-flow/config.yaml
+// ============================================================================
+
+function readConfig() {
+  const configPath = join(PROJECT_ROOT, '.claude-flow', 'config.yaml');
+  const defaults = {
+    learningBridge: { enabled: true, sonaMode: 'balanced', confidenceDecayRate: 0.005, accessBoostAmount: 0.03, consolidationThreshold: 10 },
+    memoryGraph: { enabled: true, pageRankDamping: 0.85, maxNodes: 5000, similarityThreshold: 0.8 },
+    agentScopes: { enabled: true, defaultScope: 'project' },
+  };
+
+  if (!existsSync(configPath)) return defaults;
+
+  try {
+    const yaml = readFileSync(configPath, 'utf-8');
+    // Simple YAML parser for the memory section
+    const getBool = (key) => {
+      const match = yaml.match(new RegExp(`${key}:\\s*(true|false)`, 'i'));
+      return match ? match[1] === 'true' : undefined;
+    };
+
+    const lbEnabled = getBool('learningBridge[\\s\\S]*?enabled');
+    if (lbEnabled !== undefined) defaults.learningBridge.enabled = lbEnabled;
+
+    const mgEnabled = getBool('memoryGraph[\\s\\S]*?enabled');
+    if (mgEnabled !== undefined) defaults.memoryGraph.enabled = mgEnabled;
+
+    const asEnabled = getBool('agentScopes[\\s\\S]*?enabled');
+    if (asEnabled !== undefined) defaults.agentScopes.enabled = asEnabled;
+
+    return defaults;
+  } catch {
+    return defaults;
+  }
+}
 
 // ── doImport (WM-003d old string) ──
 async function doImport() {

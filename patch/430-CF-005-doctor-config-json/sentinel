@@ -1,0 +1,1 @@
+grep "CF-005: Read configured backend from config.json" commands/doctor.js
