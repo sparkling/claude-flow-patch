@@ -340,9 +340,23 @@ describe('doctor-settings: config.json handling', { skip: skipMsg }, () => {
       const configPath = join(dir, '.claude-flow', 'config.json');
       if (!existsSync(configPath)) return;
       const parsed = JSON.parse(readFileSync(configPath, 'utf-8'));
-      const backend = parsed.memory?.backend;
-      assert.ok(backend === 'hybrid' || backend === 'json',
-        `memory.backend should default to hybrid (or json for minimal), got: ${backend}`);
+      assert.equal(parsed.memory?.backend, 'hybrid',
+        `default init config.json memory.backend should be hybrid, got: ${parsed.memory?.backend}`);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('config.json neural.enabled defaults to true', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'cfp-cfgjsonneural-'));
+    try {
+      const r = cli(['init', '--yes'], dir, 60000);
+      assert.equal(r.status, 0, `init failed: ${r.stderr}`);
+      const configPath = join(dir, '.claude-flow', 'config.json');
+      if (!existsSync(configPath)) return;
+      const parsed = JSON.parse(readFileSync(configPath, 'utf-8'));
+      assert.equal(parsed.neural?.enabled, true,
+        `default init config.json neural.enabled should be true, got: ${parsed.neural?.enabled}`);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

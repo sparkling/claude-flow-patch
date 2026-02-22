@@ -201,6 +201,24 @@ describe('init-variants: --minimal flag', { skip: skipMsg }, () => {
       `config.json should have memory, neural, or hooks keys, got: ${Object.keys(parsed).join(', ')}`);
   });
 
+  it('config.json uses non-hybrid backend for minimal', () => {
+    const cfgPath = join(dir, '.claude-flow', 'config.json');
+    if (!existsSync(cfgPath)) return;
+    const parsed = JSON.parse(readFileSync(cfgPath, 'utf-8'));
+    const backend = parsed.memory?.backend;
+    // Minimal should use a lighter backend (memory or json), not hybrid
+    assert.ok(backend === 'memory' || backend === 'json',
+      `--minimal config.json memory.backend should be memory or json, got: ${backend}`);
+  });
+
+  it('config.json disables neural for minimal', () => {
+    const cfgPath = join(dir, '.claude-flow', 'config.json');
+    if (!existsSync(cfgPath)) return;
+    const parsed = JSON.parse(readFileSync(cfgPath, 'utf-8'));
+    assert.equal(parsed.neural?.enabled, false,
+      `--minimal config.json neural.enabled should be false, got: ${parsed.neural?.enabled}`);
+  });
+
   it('produces fewer files than full', () => {
     const minimalCount = countFiles(dir);
     const fullDir = mkdtempSync(join(tmpdir(), 'cfp-fullcmp-'));
@@ -276,6 +294,34 @@ describe('init-variants: --full flag', { skip: skipMsg }, () => {
     const hasExpected = 'memory' in parsed || 'neural' in parsed || 'hooks' in parsed;
     assert.ok(hasExpected,
       `config.json should have memory, neural, or hooks keys, got: ${Object.keys(parsed).join(', ')}`);
+  });
+
+  it('config.json uses hybrid backend for full', () => {
+    const cfgPath = join(dir, '.claude-flow', 'config.json');
+    if (!existsSync(cfgPath)) return;
+    const parsed = JSON.parse(readFileSync(cfgPath, 'utf-8'));
+    assert.equal(parsed.memory?.backend, 'hybrid',
+      `--full config.json memory.backend should be hybrid, got: ${parsed.memory?.backend}`);
+  });
+
+  it('config.json enables neural for full', () => {
+    const cfgPath = join(dir, '.claude-flow', 'config.json');
+    if (!existsSync(cfgPath)) return;
+    const parsed = JSON.parse(readFileSync(cfgPath, 'utf-8'));
+    assert.equal(parsed.neural?.enabled, true,
+      `--full config.json neural.enabled should be true, got: ${parsed.neural?.enabled}`);
+  });
+
+  it('settings.json claudeFlow matches config.json backend', () => {
+    const cfgPath = join(dir, '.claude-flow', 'config.json');
+    const settingsPath = join(dir, '.claude', 'settings.json');
+    if (!existsSync(cfgPath) || !existsSync(settingsPath)) return;
+    const cfg = JSON.parse(readFileSync(cfgPath, 'utf-8'));
+    const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
+    const cfgBackend = cfg.memory?.backend;
+    const settingsBackend = settings.claudeFlow?.memory?.backend;
+    assert.equal(cfgBackend, settingsBackend,
+      `config.json backend (${cfgBackend}) should match settings.json claudeFlow.memory.backend (${settingsBackend})`);
   });
 });
 
