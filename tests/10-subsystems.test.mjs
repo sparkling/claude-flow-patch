@@ -454,7 +454,7 @@ describe('subsystems: intelligence neural gating', { skip: skipMsg }, () => {
 
   it('initializeIntelligence returns sonaEnabled:false when neural.enabled:false', { skip: !hasIntelligence ? 'intelligence.js not found' : false }, async () => {
     // Write config with neural.enabled: false
-    // WM-006 changed the reader from config.yaml regex to config.json
+    // WM-002c (absorbs WM-006) reads neural.enabled from config.json
     writeFileSync(join(project.dir, '.claude-flow', 'config.json'),
       JSON.stringify({ neural: { enabled: false } }));
 
@@ -481,7 +481,7 @@ describe('subsystems: intelligence neural gating', { skip: skipMsg }, () => {
 
   it('initializeIntelligence returns sonaEnabled:true when neural.enabled:true', { skip: !hasIntelligence ? 'intelligence.js not found' : false }, async () => {
     // Write config with neural.enabled: true
-    // WM-006 changed the reader from config.yaml regex to config.json
+    // WM-002c (absorbs WM-006) reads neural.enabled from config.json
     writeFileSync(join(project.dir, '.claude-flow', 'config.json'),
       JSON.stringify({ neural: { enabled: true } }));
 

@@ -34,10 +34,10 @@ describe('patch idempotency', () => {
     { id: 'WM-003', file: '../../.claude/helpers/auto-memory-hook.mjs' },
     { id: 'SG-007', file: 'commands/init.js' },
     { id: 'WM-004', file: '../../.claude/helpers/auto-memory-hook.mjs' },
-    { id: 'WM-005', file: 'memory/memory-initializer.js' },
-    { id: 'WM-006', file: 'memory/intelligence.js' },
+    // WM-005: absorbed into WM-001 (no-op, skip)
+    // WM-006: absorbed into WM-002 (no-op, skip)
     { id: 'CF-004', file: 'commands/config.js' },
-    { id: 'CF-005', file: 'commands/doctor.js' },
+    // CF-005: absorbed into CF-003 (no-op, skip)
     { id: 'SG-008', file: 'init/executor.js' },
   ];
 

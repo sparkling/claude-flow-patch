@@ -1,7 +1,7 @@
 # WM-002: Neural config gating (neural.enabled not consumed at runtime)
 # GitHub: #1185
 
-patch("WM-002c: gate initializeIntelligence on neural.enabled config",
+patch("WM-002c: gate initializeIntelligence on neural.enabled config (absorbs WM-006)",
     INTEL,
     """    if (intelligenceInitialized) {
         return {
@@ -18,17 +18,13 @@ patch("WM-002c: gate initializeIntelligence on neural.enabled config",
             reasoningBankEnabled: !!reasoningBank
         };
     }
-    // WM-002c: Read neural.enabled from config.yaml — skip init when disabled
+    // WM-002c: Read neural.enabled from config.json — skip init when disabled
     let neuralEnabled = true;
     try {
-        const yamlPath = join(process.cwd(), '.claude-flow', 'config.yaml');
-        if (existsSync(yamlPath)) {
-            const content = readFileSync(yamlPath, 'utf-8');
-            const neuralSection = content.match(/^neural:\\s*\\n((?:[ \\t]*.*\\n?)*?)(?=^\\S|$)/m);
-            if (neuralSection) {
-                const enabledMatch = neuralSection[1].match(/^\\s+enabled:\\s*(\\S+)/m);
-                if (enabledMatch) neuralEnabled = enabledMatch[1] !== 'false';
-            }
+        const cfgPath = join(process.cwd(), '.claude-flow', 'config.json');
+        if (existsSync(cfgPath)) {
+            const cfg = JSON.parse(readFileSync(cfgPath, 'utf-8'));
+            if (cfg.neural && cfg.neural.enabled === false) neuralEnabled = false;
         }
     } catch (_cfgErr) { /* config read failure is non-fatal */ }
     if (!neuralEnabled) {
@@ -37,8 +33,5 @@ patch("WM-002c: gate initializeIntelligence on neural.enabled config",
     }
     try {""")
 
-# WM-002d: Fix regex \Z anchor (Python syntax, invalid in JS) in already-applied patch
-patch("WM-002d: fix \\\\Z regex anchor in neural config parser",
-    INTEL,
-    """content.match(/^neural:\\s*\\n((?:[ \\t]*.*\\n)*?(?=^\\S|\\Z))/m)""",
-    """content.match(/^neural:\\s*\\n((?:[ \\t]*.*\\n?)*?)(?=^\\S|$)/m)""")
+# WM-002d removed: the \Z regex anchor fix targeted YAML regex code that
+# WM-002c no longer writes (absorbed WM-006's config.json reader instead).

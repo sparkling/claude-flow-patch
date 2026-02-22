@@ -125,7 +125,7 @@ describe('individual patch application', () => {
       id: 'WM-001',
       file: 'memory/memory-initializer.js',
       sentinel: 'backendChoice',
-      absent: null,
+      absent: 'CLAUDE_FLOW_MEMORY_BACKEND',
     },
     {
       id: 'WM-001',
@@ -143,13 +143,13 @@ describe('individual patch application', () => {
       id: 'CF-003',
       file: 'commands/doctor.js',
       sentinel: 'better-sqlite3',
-      absent: null,
+      absent: 'CLAUDE_FLOW_MEMORY_BACKEND',
     },
     {
       id: 'WM-002',
       file: 'memory/intelligence.js',
       sentinel: 'neuralEnabled',
-      absent: null,
+      absent: 'config.yaml',
     },
     {
       id: 'WM-003',
@@ -220,31 +220,8 @@ describe('individual patch application', () => {
       sentinel: 'function createBackend(config, memPkg)',
       absent: null,
     },
-    // WM-005: memory-initializer reads config.json instead of env var + YAML
-    // WM-005 depends on WM-001 (its old_string contains WM-001's output)
-    {
-      id: 'WM-005',
-      file: 'memory/memory-initializer.js',
-      sentinel: 'WM-005: Resolve backend choice from config.json',
-      absent: 'CLAUDE_FLOW_MEMORY_BACKEND',
-      deps: ['WM-001'],
-    },
-    {
-      id: 'WM-005',
-      file: 'memory/memory-initializer.js',
-      sentinel: 'config.json',
-      absent: 'set backend: sqljs in .claude-flow/config.yaml',
-      deps: ['WM-001'],
-    },
-    // WM-006: intelligence reads neural.enabled from config.json
-    // WM-006 depends on WM-002 (its old_string contains WM-002's output)
-    {
-      id: 'WM-006',
-      file: 'memory/intelligence.js',
-      sentinel: 'WM-006: Read neural.enabled from config.json',
-      absent: 'WM-002c: Read neural.enabled from config.yaml',
-      deps: ['WM-002'],
-    },
+    // WM-005: absorbed into WM-001 — WM-001a now writes config.json reader directly
+    // WM-006: absorbed into WM-002 — WM-002c now writes config.json reader directly
     // CF-004: config export reads config.json + removes duplicate
     {
       id: 'CF-004',
@@ -258,22 +235,7 @@ describe('individual patch application', () => {
       sentinel: 'CF-004b: removed duplicate readYamlConfig',
       absent: null,
     },
-    // CF-005: doctor checkMemoryBackend reads config.json
-    // CF-005 depends on CF-003 (its old_string contains CF-003's output)
-    {
-      id: 'CF-005',
-      file: 'commands/doctor.js',
-      sentinel: 'CF-005: Read configured backend from config.json',
-      absent: 'CLAUDE_FLOW_MEMORY_BACKEND',
-      deps: ['CF-003'],
-    },
-    {
-      id: 'CF-005',
-      file: 'commands/doctor.js',
-      sentinel: 'config.json',
-      absent: 'set backend: sqljs in .claude-flow/config.yaml',
-      deps: ['CF-003'],
-    },
+    // CF-005: absorbed into CF-003 — CF-003a now writes config.json reader directly
     // SG-008: init generates config.json
     {
       id: 'SG-008',

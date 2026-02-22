@@ -3,7 +3,7 @@
 
 # CF-003a: Add checkMemoryBackend() diagnostic function
 # Insert after checkMemoryDatabase, before checkApiKeys
-patch("CF-003a: checkMemoryBackend diagnostic",
+patch("CF-003a: checkMemoryBackend diagnostic (absorbs CF-005)",
     DOC,
     """    return { name: 'Memory Database', status: 'warn', message: 'Not initialized', fix: 'claude-flow memory configure --backend hybrid' };
 }
@@ -12,23 +12,15 @@ patch("CF-003a: checkMemoryBackend diagnostic",
 }
 // Check memory backend dependencies
 async function checkMemoryBackend() {
-    // Read configured backend
+    // CF-003a: Read configured backend from config.json
     let configuredBackend = 'hybrid';
-    if (process.env.CLAUDE_FLOW_MEMORY_BACKEND) {
-        configuredBackend = process.env.CLAUDE_FLOW_MEMORY_BACKEND;
-    } else {
-        try {
-            const yamlPath = join(process.cwd(), '.claude-flow', 'config.yaml');
-            if (existsSync(yamlPath)) {
-                const content = readFileSync(yamlPath, 'utf-8');
-                const memSection = content.match(/^memory:\\s*\\n((?:[ \\t]*.*\\n)*?(?=^\\S|$))/m);
-                if (memSection) {
-                    const backendMatch = memSection[1].match(/^\\s+backend:\\s*(\\S+)/m);
-                    if (backendMatch) configuredBackend = backendMatch[1].replace(/^["']|["']$/g, '');
-                }
-            }
-        } catch {}
-    }
+    try {
+        const cfgPath = join(process.cwd(), '.claude-flow', 'config.json');
+        if (existsSync(cfgPath)) {
+            const cfg = JSON.parse(readFileSync(cfgPath, 'utf-8'));
+            if (cfg.memory && cfg.memory.backend) configuredBackend = cfg.memory.backend;
+        }
+    } catch {}
     // Check package availability
     const packages = {};
     for (const pkg of ['better-sqlite3', 'agentdb', '@claude-flow/memory']) {
@@ -47,7 +39,7 @@ async function checkMemoryBackend() {
             name: 'Memory Backend',
             status: 'fail',
             message: `backend: ${configuredBackend} — better-sqlite3 native bindings missing`,
-            fix: 'npx @claude-flow/cli doctor --install  OR  set backend: sqljs in .claude-flow/config.yaml'
+            fix: 'npx @claude-flow/cli doctor --install  OR  set "memory.backend": "sqljs" in .claude-flow/config.json'
         };
     }
     if (needsNative && !hasMemoryPkg) {
@@ -141,7 +133,7 @@ patch("CF-003b: --install native dep rebuild",
                     if (rebuildErr instanceof Error) {
                         output.writeln(output.dim(`  ${rebuildErr.message}`));
                     }
-                    output.writeln(output.dim('  Workaround: set backend: sqljs in .claude-flow/config.yaml'));
+                    output.writeln(output.dim('  Workaround: set "memory.backend": "sqljs" in .claude-flow/config.json'));
                 }
             }
         }

@@ -3,49 +3,9 @@
 # NOTE: This patch was originally applied via sed, not via patch().
 # The patch() calls below replicate the same changes.
 
-# Add fs/path imports after existing imports
-patch("16a: config.js add readYamlConfig",
-    CONF,
-    "const getCommand = {",
-    """import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
-
-// Helper to read config.yaml if it exists
-function readYamlConfig() {
-    const configPath = join(process.cwd(), '.claude-flow', 'config.yaml');
-    if (!existsSync(configPath)) { return {}; }
-    try {
-        const content = readFileSync(configPath, 'utf8');
-        const config = {};
-        const lines = content.split('\\n');
-        let currentSection = null;
-        for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed || trimmed.startsWith('#')) continue;
-            if (!trimmed.includes(':')) continue;
-            const indent = line.match(/^\\s*/)[0].length;
-            if (indent === 0) {
-                const [key, ...rest] = trimmed.split(':');
-                const value = rest.join(':').trim();
-                if (value && value !== '') {
-                    config[key.trim()] = value.replace(/^["']|["']$/g, '');
-                } else {
-                    currentSection = key.trim();
-                    config[currentSection] = {};
-                }
-            } else if (currentSection && indent > 0) {
-                const [key, ...rest] = trimmed.split(':');
-                const value = rest.join(':').trim();
-                if (value && value !== '') {
-                    config[currentSection][key.trim()] = value.replace(/^["']|["']$/g, '');
-                }
-            }
-        }
-        return config;
-    } catch (error) { return {}; }
-}
-
-const getCommand = {""")
+# Op 16a removed: the upstream bundler already emits readYamlConfig() twice.
+# CF-004 (order 420) upgrades the first copy to read config.json and removes the second.
+# Inserting a third copy here caused a re-application conflict on every run.
 
 # Update getCommand to merge YAML config
 patch("16b: config get merge yaml",

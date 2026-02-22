@@ -2,6 +2,7 @@
 
 **Severity**: Medium
 **GitHub**: [#1191](https://github.com/ruvnet/claude-flow/issues/1191)
+**Status**: Absorbed into WM-001
 
 ## Root Cause
 
@@ -23,12 +24,12 @@ The env var silently overrides everything, the YAML regex is fragile, and config
 
 ## Fix
 
-Replace the env var + YAML regex block with a JSON reader that reads `.claude-flow/config.json`. The error message is updated to reference config.json.
+Absorbed into WM-001: WM-001a now writes the config.json reader directly instead of the YAML regex. The error message references config.json.
 
 ## Files Patched
 
-- `memory/memory-initializer.js`
+- `memory/memory-initializer.js` (via WM-001)
 
 ## Ops
 
-2 ops in fix.py
+0 ops in fix.py (absorbed)

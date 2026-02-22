@@ -24,24 +24,15 @@ export async function initializeMemoryDatabase(options) {
     const dbPath = customPath || path.join(swarmDir, 'memory.db');
     const dbDir = path.dirname(dbPath);
 
-    // WM-001a: Resolve backend choice (env > config.yaml > options > default)
+    // WM-001a: Resolve backend choice from config.json (absorbs WM-005)
     let backendChoice = backend;
-    if (process.env.CLAUDE_FLOW_MEMORY_BACKEND) {
-        backendChoice = process.env.CLAUDE_FLOW_MEMORY_BACKEND;
-    }
-    if (backendChoice === 'hybrid') {
-        try {
-            const yamlPath = path.join(process.cwd(), '.claude-flow', 'config.yaml');
-            if (fs.existsSync(yamlPath)) {
-                const yamlContent = fs.readFileSync(yamlPath, 'utf-8');
-                const memSection = yamlContent.match(/^memory:\\s*\\n((?:[ \\t]*.*\\n)*?(?=^\\S|$))/m);
-                if (memSection) {
-                    const backendMatch = memSection[1].match(/^\\s+backend:\\s*(\\S+)/m);
-                    if (backendMatch) backendChoice = backendMatch[1].replace(/^["']|["']$/g, '');
-                }
-            }
-        } catch {}
-    }
+    try {
+        const cfgPath = path.join(process.cwd(), '.claude-flow', 'config.json');
+        if (fs.existsSync(cfgPath)) {
+            const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf-8'));
+            if (cfg.memory && cfg.memory.backend) backendChoice = cfg.memory.backend;
+        }
+    } catch {}
     backendChoice = ['hybrid','sqlite','sqljs','agentdb','memory'].includes(backendChoice)
         ? backendChoice : 'hybrid';
 
@@ -140,7 +131,7 @@ export async function initializeMemoryDatabase(options) {
             const msg = hybridError instanceof Error ? hybridError.message : String(hybridError);
             console.error(`[WM-001] ERROR: HybridBackend failed to initialize: ${msg}`);
             console.error('[WM-001] Run: npx @claude-flow/cli doctor --install');
-            console.error('[WM-001] Or set backend: sqljs in .claude-flow/config.yaml');
+            console.error('[WM-001] Or set "memory": {"backend": "sqljs"} in .claude-flow/config.json');
             return {
                 success: false,
                 backend: backendChoice,
@@ -155,7 +146,7 @@ export async function initializeMemoryDatabase(options) {
                     hnswIndexing: false,
                     migrationTracking: false
                 },
-                error: `HybridBackend unavailable: ${msg}. Run: npx @claude-flow/cli doctor --install -- or set backend: sqljs`
+                error: `HybridBackend unavailable: ${msg}. Run: npx @claude-flow/cli doctor --install -- or set "memory.backend": "sqljs" in config.json`
             };
         }
     }

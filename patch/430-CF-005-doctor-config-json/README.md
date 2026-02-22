@@ -2,6 +2,7 @@
 
 **Severity**: Medium
 **GitHub**: [#1194](https://github.com/ruvnet/claude-flow/issues/1194)
+**Status**: Absorbed into CF-003
 
 ## Root Cause
 
@@ -19,12 +20,12 @@ if (process.env.CLAUDE_FLOW_MEMORY_BACKEND) {
 
 ## Fix
 
-Replace the env var + YAML regex block with a config.json reader. Update error/fix messages to reference config.json.
+Absorbed into CF-003: CF-003a now writes the config.json reader and updated error messages directly.
 
 ## Files Patched
 
-- `commands/doctor.js`
+- `commands/doctor.js` (via CF-003)
 
 ## Ops
 
-3 ops in fix.py
+0 ops in fix.py (absorbed)

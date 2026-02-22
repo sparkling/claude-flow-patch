@@ -21,8 +21,8 @@ memory backend can actually be loaded.
 Two patch ops:
 
 **CF-003a**: Add a `checkMemoryBackend()` diagnostic function near the
-existing `checkMemoryDatabase`. It reads `CLAUDE_FLOW_MEMORY_BACKEND`
-env var and `.claude-flow/config.yaml` `memory.backend`, then tries
+existing `checkMemoryDatabase`. It reads `memory.backend` from
+`.claude-flow/config.json` (absorbs CF-005), then tries
 `require.resolve()` for `better-sqlite3`, `agentdb`, and
 `@claude-flow/memory`. Reports configured backend vs actual package
 availability. Flags mismatches with a clear fix suggestion.
@@ -39,4 +39,4 @@ rebuild and report success/failure.
 
 ## Ops
 
-2 ops in fix.py
+4 ops in fix.py (CF-003a, CF-003a2, CF-003a3, CF-003b)

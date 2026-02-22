@@ -8,4 +8,4 @@ Add `readYamlConfig()` helper function. Merge YAML config values over defaults i
 ## Files Patched
 - commands/config.js
 ## Ops
-3 ops in fix.py
+2 ops in fix.py (16a removed — bundler already provides readYamlConfig)

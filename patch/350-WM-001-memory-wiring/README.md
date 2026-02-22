@@ -20,7 +20,7 @@ imported at runtime. This means:
 
 Insert an early-return branch at the top of `initializeMemoryDatabase()` that:
 
-1. Reads backend choice from env var / config.yaml / default
+1. Reads backend choice from config.json / default (absorbs WM-005)
 2. Imports `HybridBackend` and `createDefaultEntry` from `@claude-flow/memory`
 3. Pre-loads the embedding model and creates a Float32Array wrapper
 4. Constructs `HybridBackendConfig` with correct keys (`sqlite.databasePath`,

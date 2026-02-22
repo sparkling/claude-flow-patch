@@ -2,6 +2,7 @@
 
 **Severity**: Medium
 **GitHub**: [#1192](https://github.com/ruvnet/claude-flow/issues/1192)
+**Status**: Absorbed into WM-002
 
 ## Root Cause
 
@@ -17,12 +18,12 @@ This regex-based parser is fragile and inconsistent with config.json as the cano
 
 ## Fix
 
-Replace the YAML regex parser with a JSON reader that reads `neural.enabled` from `.claude-flow/config.json`, falling back to `true` when no config exists.
+Absorbed into WM-002: WM-002c now writes the config.json reader directly instead of the YAML regex.
 
 ## Files Patched
 
-- `memory/intelligence.js`
+- `memory/intelligence.js` (via WM-002)
 
 ## Ops
 
-1 op in fix.py
+0 ops in fix.py (absorbed)

@@ -12,10 +12,11 @@ of this config setting. The config value is never read at runtime.
 ## Fix
 
 Insert a config gate at the top of `initializeIntelligence()` that reads
-`neural.enabled` from `.claude-flow/config.yaml`. When `false`, the function
-sets `intelligenceInitialized = true` (to prevent re-invocation loops from
-callers that check this flag) and returns early without initializing SONA or
-ReasoningBank.
+`neural.enabled` from `.claude-flow/config.json` (absorbs WM-006). When `false`,
+the function sets `intelligenceInitialized = true` (to prevent re-invocation
+loops from callers that check this flag) and returns early without initializing
+SONA or ReasoningBank. WM-002d (regex anchor fix) was removed since WM-002c no
+longer writes YAML regex code.
 
 ## Files Patched
 
@@ -23,4 +24,4 @@ ReasoningBank.
 
 ## Ops
 
-1 op in fix.py
+1 op in fix.py (WM-002c; WM-002d removed)

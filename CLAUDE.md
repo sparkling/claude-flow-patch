@@ -477,14 +477,29 @@ Execution order is controlled by the 3-digit numeric prefix on each directory na
 `patch-all.sh` globs `patch/*/fix.py` which sorts lexicographically, so numeric prefixes
 execute in the correct order automatically.
 
-Two dependency chains exist:
+Three dependency chains exist:
 
 | Chain | Directories | Reason |
 |-------|-------------|--------|
 | IN-001 -> SG-003 | `170-IN-001-*` before `270-SG-003-*` | SG-003's `old_string` contains code introduced by IN-001 |
 | NS-001 -> NS-002 -> NS-003 | `190-NS-001-*` before `200-NS-002-*` before `210-NS-003-*` | Sequential namespace fixes |
+| WM-003 -> WM-004 | `370-WM-003-*` before `390-WM-004-*` | WM-004's `old_string` matches code written by WM-003 (doImport/doSync HybridBackend stubs) |
 
 All other patches are independent.
+
+### Absorbed Patches
+
+Three patches have been absorbed into their parent patches to eliminate dead YAML
+regex code that was immediately replaced by later config.json readers:
+
+| Absorbed | Into | Reason |
+|----------|------|--------|
+| WM-005 | WM-001 | WM-001a now writes config.json reader directly |
+| WM-006 | WM-002 | WM-002c now writes config.json reader directly; WM-002d deleted (regex fix for removed code) |
+| CF-005 | CF-003 | CF-003a now writes config.json reader and updated error messages directly |
+
+These patches retain their directories and README files for GitHub issue tracking
+but their `fix.py` files are empty (no ops) and sentinels are set to `none`.
 
 ## Preflight & Pre-Commit Hook
 

@@ -297,7 +297,7 @@ describe('integration: memory wiring runtime', { skip: !depsAvailable ? 'native 
 
         const content = readFileSync(join(fixture2.base, 'memory', 'intelligence.js'), 'utf-8');
         assert.ok(content.includes('neuralEnabled'), 'should have neuralEnabled variable');
-        assert.ok(content.includes("enabledMatch[1] !== 'false'"), 'should parse enabled: false');
+        assert.ok(content.includes('cfg.neural && cfg.neural.enabled === false'), 'should check neural.enabled from config.json');
         assert.ok(content.includes('sonaEnabled: false'), 'should return sonaEnabled: false when disabled');
         assert.ok(content.includes('intelligenceInitialized = true'), 'should set flag when disabled');
       } finally {
