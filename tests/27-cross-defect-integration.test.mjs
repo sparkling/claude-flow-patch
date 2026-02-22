@@ -119,14 +119,16 @@ describe('cross-defect: IN-001 -> SG-003 (intelligence generation chain)', { ski
     if (dualDir) rmSync(dualDir, { recursive: true, force: true });
   });
 
-  it('init --full generates intelligence.cjs', { skip: !fullDir ? 'init --full failed' : false }, () => {
+  it('init --full generates intelligence.cjs', (t) => {
+    if (!fullDir) return t.skip('init --full failed');
     // SG-003 wires the intelligence.cjs helper; IN-001 provides the real content
     const intelPath = join(fullDir, '.claude', 'helpers', 'intelligence.cjs');
     assert.ok(existsSync(intelPath),
       'init --full should generate .claude/helpers/intelligence.cjs (SG-003 + IN-001)');
   });
 
-  it('generated intelligence.cjs is real (not stub)', { skip: !fullDir ? 'init --full failed' : false }, () => {
+  it('generated intelligence.cjs is real (not stub)', (t) => {
+    if (!fullDir) return t.skip('init --full failed');
     // IN-001 replaces the stub (< 200 lines) with a real implementation (> 500 lines)
     const intelPath = join(fullDir, '.claude', 'helpers', 'intelligence.cjs');
     if (!existsSync(intelPath)) return;
@@ -136,14 +138,15 @@ describe('cross-defect: IN-001 -> SG-003 (intelligence generation chain)', { ski
       `intelligence.cjs should be real (> 500 lines), got ${lineCount} lines (IN-001 stub replacement)`);
   });
 
-  it('generated intelligence.cjs has learning functions', { skip: !fullDir ? 'init --full failed' : false }, () => {
-    // Real intelligence.cjs should have actual learning/routing functions
+  it('generated intelligence.cjs has learning functions', (t) => {
+    if (!fullDir) return t.skip('init --full failed');
+    // Real intelligence.cjs should have actual learning/routing/context functions
     const intelPath = join(fullDir, '.claude', 'helpers', 'intelligence.cjs');
     if (!existsSync(intelPath)) return;
     const content = readFileSync(intelPath, 'utf-8');
-    const hasLearning = content.includes('recordOutcome') || content.includes('getRoutingDecision');
+    const hasLearning = content.includes('recordEdit') || content.includes('getContext') || content.includes('feedback');
     assert.ok(hasLearning,
-      'intelligence.cjs should contain recordOutcome or getRoutingDecision (IN-001 real implementation)');
+      'intelligence.cjs should contain recordEdit, getContext, or feedback (IN-001 real implementation)');
   });
 
   it('init --dual also generates intelligence.cjs', () => {
@@ -297,7 +300,8 @@ describe('cross-defect: WM-001 -> WM-003 (memory wiring chain)', {
     if (project) project.cleanup();
   });
 
-  it('init generates HybridBackend-based hook (WM-001 + WM-003)', { skip: !project ? 'init failed' : false }, () => {
+  it('init generates HybridBackend-based hook (WM-001 + WM-003)', (t) => {
+    if (!project) return t.skip('init failed');
     const hookPath = join(project.dir, '.claude', 'helpers', 'auto-memory-hook.mjs');
     assert.ok(existsSync(hookPath), 'auto-memory-hook.mjs should exist');
     const content = readFileSync(hookPath, 'utf-8');
@@ -305,7 +309,8 @@ describe('cross-defect: WM-001 -> WM-003 (memory wiring chain)', {
       'hook should use HybridBackend (WM-001 wiring + WM-003 activation)');
   });
 
-  it('hook import creates hybrid-memory.db (WM-001 backend)', { skip: !project ? 'init failed' : false }, () => {
+  it('hook import creates hybrid-memory.db (WM-001 backend)', (t) => {
+    if (!project) return t.skip('init failed');
     const hookPath = join(project.dir, '.claude', 'helpers', 'auto-memory-hook.mjs');
     if (!existsSync(hookPath)) return;
 
@@ -327,7 +332,8 @@ describe('cross-defect: WM-001 -> WM-003 (memory wiring chain)', {
     }
   });
 
-  it('hook status shows Active (AutoMemoryBridge) (WM-003)', { skip: !project ? 'init failed' : false }, () => {
+  it('hook status shows Active (AutoMemoryBridge) (WM-003)', (t) => {
+    if (!project) return t.skip('init failed');
     const hookPath = join(project.dir, '.claude', 'helpers', 'auto-memory-hook.mjs');
     if (!existsSync(hookPath)) return;
 
@@ -347,7 +353,8 @@ describe('cross-defect: WM-001 -> WM-003 (memory wiring chain)', {
     }
   });
 
-  it('store via backend -> retrieve via backend (WM-001 round-trip)', { skip: !project ? 'init failed' : false }, async () => {
+  it('store via backend -> retrieve via backend (WM-001 round-trip)', async (t) => {
+    if (!project) return t.skip('init failed');
     if (!memPkg?.HybridBackend || !memPkg?.createDefaultEntry) return;
 
     const backend = new memPkg.HybridBackend({
@@ -654,5 +661,81 @@ describe('cross-defect: WM-002 + IN-001 (neural config gating + intelligence)', 
                         helpersGenSrc.includes('intelligence');
     assert.ok(hasGating && hasLearning,
       'WM-002 (gating) and IN-001 (real intelligence) should both be wired');
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Suite: cross-defect: SG-008 config.json flow (6 consumers)
+//
+// SG-008 generates config.json via init. Six subsequent patches read it:
+//   WM-001 (absorbs WM-005): memory-initializer
+//   WM-002 (absorbs WM-006): intelligence
+//   CF-003 (absorbs CF-005): doctor
+//   CF-004: config export
+//   WM-004: helpers-generator hook template
+//   SG-008 itself: executor generates the file
+// ══════════════════════════════════════════════════════════════════════════════
+
+describe('cross-defect: SG-008 config.json flow (6 consumers)', { skip: skipMsg }, () => {
+  let executorSrc = '';
+  let memInitSrc = '';
+  let intelSrc = '';
+  let doctorSrc = '';
+  let configSrc = '';
+  let hookSrc = '';
+
+  before(() => {
+    try { executorSrc = readFileSync(join(cliBase, 'init', 'executor.js'), 'utf-8'); } catch {}
+    try { memInitSrc = readFileSync(join(cliBase, 'memory', 'memory-initializer.js'), 'utf-8'); } catch {}
+    try { intelSrc = readFileSync(join(cliBase, 'memory', 'intelligence.js'), 'utf-8'); } catch {}
+    try { doctorSrc = readFileSync(join(cliBase, 'commands', 'doctor.js'), 'utf-8'); } catch {}
+    try { configSrc = readFileSync(join(cliBase, 'commands', 'config.js'), 'utf-8'); } catch {}
+    try { hookSrc = readFileSync(join(cliBase, '..', '..', '.claude', 'helpers', 'auto-memory-hook.mjs'), 'utf-8'); } catch {}
+  });
+
+  it('SG-008: executor.js generates config.json', () => {
+    assert.ok(executorSrc.includes('config.json'),
+      'executor.js should reference config.json (SG-008 generation)');
+  });
+
+  it('WM-001 (absorbs WM-005): memory-initializer reads config.json', () => {
+    assert.ok(memInitSrc.includes('config.json'),
+      'memory-initializer.js should reference config.json (WM-001 absorbs WM-005)');
+  });
+
+  it('WM-002 (absorbs WM-006): intelligence reads config.json', () => {
+    assert.ok(intelSrc.includes('config.json'),
+      'intelligence.js should reference config.json (WM-002 absorbs WM-006)');
+  });
+
+  it('CF-003 (absorbs CF-005): doctor reads config.json', () => {
+    assert.ok(doctorSrc.includes('config.json'),
+      'doctor.js should reference config.json (CF-003 absorbs CF-005)');
+  });
+
+  it('CF-004: config export reads config.json', () => {
+    assert.ok(configSrc.includes('config.json'),
+      'config.js should reference config.json (CF-004)');
+  });
+
+  it('WM-004: auto-memory-hook reads config.json', () => {
+    assert.ok(hookSrc.includes('config.json'),
+      'auto-memory-hook.mjs should reference config.json (WM-004)');
+  });
+
+  it('all consumers use canonical .claude-flow/config.json path', () => {
+    const sources = [
+      { name: 'executor.js', src: executorSrc },
+      { name: 'memory-initializer.js', src: memInitSrc },
+      { name: 'intelligence.js', src: intelSrc },
+      { name: 'doctor.js', src: doctorSrc },
+      { name: 'config.js', src: configSrc },
+      { name: 'auto-memory-hook.mjs', src: hookSrc },
+    ];
+    const missing = sources.filter(s => !s.src.includes('.claude-flow/config.json') &&
+                                         !s.src.includes("'config.json'") &&
+                                         !s.src.includes('"config.json"'));
+    assert.equal(missing.length, 0,
+      `all 6 consumers should reference config.json, missing in: ${missing.map(s => s.name).join(', ')}`);
   });
 });

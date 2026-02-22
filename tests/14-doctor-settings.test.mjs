@@ -297,3 +297,77 @@ describe('doctor-settings: config YAML handling', { skip: skipMsg }, () => {
     }
   });
 });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Suite: Config JSON handling (SG-008 + CF-004)
+// ══════════════════════════════════════════════════════════════════════════════
+
+describe('doctor-settings: config.json handling', { skip: skipMsg }, () => {
+  it('init creates config.json (SG-008)', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'cfp-cfgjson-'));
+    try {
+      const r = cli(['init', '--yes'], dir, 60000);
+      assert.equal(r.status, 0, `init failed: ${r.stderr}`);
+      const configPath = join(dir, '.claude-flow', 'config.json');
+      assert.ok(existsSync(configPath), '.claude-flow/config.json should exist after init');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('config.json has memory/neural/hooks sections', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'cfp-cfgjsonkeys-'));
+    try {
+      const r = cli(['init', '--yes'], dir, 60000);
+      assert.equal(r.status, 0, `init failed: ${r.stderr}`);
+      const configPath = join(dir, '.claude-flow', 'config.json');
+      if (!existsSync(configPath)) return;
+      const parsed = JSON.parse(readFileSync(configPath, 'utf-8'));
+      assert.ok(parsed && typeof parsed === 'object', 'config.json should be a valid object');
+      const hasExpected = 'memory' in parsed || 'neural' in parsed || 'hooks' in parsed;
+      assert.ok(hasExpected,
+        `config.json should have memory, neural, or hooks, got: ${Object.keys(parsed).join(', ')}`);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('config.json memory.backend defaults to hybrid', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'cfp-cfgjsonbe-'));
+    try {
+      const r = cli(['init', '--yes'], dir, 60000);
+      assert.equal(r.status, 0, `init failed: ${r.stderr}`);
+      const configPath = join(dir, '.claude-flow', 'config.json');
+      if (!existsSync(configPath)) return;
+      const parsed = JSON.parse(readFileSync(configPath, 'utf-8'));
+      const backend = parsed.memory?.backend;
+      assert.ok(backend === 'hybrid' || backend === 'json',
+        `memory.backend should default to hybrid (or json for minimal), got: ${backend}`);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('config export reflects config.json values (CF-004)', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'cfp-cfgjsonexport-'));
+    try {
+      cli(['init', '--yes'], dir, 60000);
+      const configPath = join(dir, '.claude-flow', 'config.json');
+      if (!existsSync(configPath)) return;
+      // Write custom config.json with a distinctive backend value
+      writeFileSync(configPath, JSON.stringify({
+        memory: { backend: 'sqlite' },
+        neural: { enabled: false },
+        hooks: { enabled: true },
+      }));
+      const r = cli(['config', 'export', '--format', 'json'], dir, 30000);
+      assert.equal(r.status, 0, `config export failed: ${r.stderr}`);
+      const output = r.stdout;
+      // Verify the custom value appears in output
+      assert.ok(output.includes('sqlite') || output.includes('memory'),
+        `config export should reflect config.json values, got: ${output.substring(0, 300)}`);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});

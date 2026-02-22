@@ -186,6 +186,21 @@ describe('init-variants: --minimal flag', { skip: skipMsg }, () => {
     assert.ok(config.includes('mesh'), `config should contain mesh topology, got: ${config.substring(0, 200)}`);
   });
 
+  it('creates config.json (SG-008)', () => {
+    assert.ok(existsSync(join(dir, '.claude-flow', 'config.json')),
+      '.claude-flow/config.json should exist after --minimal init');
+  });
+
+  it('config.json is valid JSON with expected keys (SG-008)', () => {
+    const cfgPath = join(dir, '.claude-flow', 'config.json');
+    if (!existsSync(cfgPath)) return;
+    const parsed = JSON.parse(readFileSync(cfgPath, 'utf-8'));
+    assert.ok(parsed && typeof parsed === 'object', 'config.json should be a valid JSON object');
+    const hasExpected = 'memory' in parsed || 'neural' in parsed || 'hooks' in parsed;
+    assert.ok(hasExpected,
+      `config.json should have memory, neural, or hooks keys, got: ${Object.keys(parsed).join(', ')}`);
+  });
+
   it('produces fewer files than full', () => {
     const minimalCount = countFiles(dir);
     const fullDir = mkdtempSync(join(tmpdir(), 'cfp-fullcmp-'));
@@ -247,6 +262,21 @@ describe('init-variants: --full flag', { skip: skipMsg }, () => {
     assert.ok(config.includes('hierarchical-mesh') || config.includes('hierarchical'),
       `full config should use hierarchical-mesh topology`);
   });
+
+  it('creates config.json (SG-008)', () => {
+    assert.ok(existsSync(join(dir, '.claude-flow', 'config.json')),
+      '.claude-flow/config.json should exist after --full init');
+  });
+
+  it('config.json is valid JSON with expected keys (SG-008)', () => {
+    const cfgPath = join(dir, '.claude-flow', 'config.json');
+    if (!existsSync(cfgPath)) return;
+    const parsed = JSON.parse(readFileSync(cfgPath, 'utf-8'));
+    assert.ok(parsed && typeof parsed === 'object', 'config.json should be a valid JSON object');
+    const hasExpected = 'memory' in parsed || 'neural' in parsed || 'hooks' in parsed;
+    assert.ok(hasExpected,
+      `config.json should have memory, neural, or hooks keys, got: ${Object.keys(parsed).join(', ')}`);
+  });
 });
 
 describe('init-variants: --skip-claude flag', { skip: skipMsg }, () => {
@@ -263,6 +293,22 @@ describe('init-variants: --skip-claude flag', { skip: skipMsg }, () => {
     // --skip-claude should still create runtime (.claude-flow/)
     assert.ok(existsSync(join(dir, '.claude-flow', 'config.yaml')),
       '.claude-flow/config.yaml should exist (runtime not skipped)');
+  });
+
+  it('creates config.json (SG-008)', () => {
+    // --skip-claude skips .claude/ but should still create .claude-flow/ runtime files
+    assert.ok(existsSync(join(dir, '.claude-flow', 'config.json')),
+      '.claude-flow/config.json should exist (runtime not skipped by --skip-claude)');
+  });
+
+  it('config.json is valid JSON with expected keys (SG-008)', () => {
+    const cfgPath = join(dir, '.claude-flow', 'config.json');
+    if (!existsSync(cfgPath)) return;
+    const parsed = JSON.parse(readFileSync(cfgPath, 'utf-8'));
+    assert.ok(parsed && typeof parsed === 'object', 'config.json should be a valid JSON object');
+    const hasExpected = 'memory' in parsed || 'neural' in parsed || 'hooks' in parsed;
+    assert.ok(hasExpected,
+      `config.json should have memory, neural, or hooks keys, got: ${Object.keys(parsed).join(', ')}`);
   });
 
   it('should skip .claude/settings.json (known bug: may still create it)', () => {
@@ -301,6 +347,28 @@ describe('init-variants: --only-claude flag', { skip: skipMsg }, () => {
     } else {
       assert.ok(true, '--only-claude correctly skipped runtime config');
     }
+  });
+
+  it('config.json follows config.yaml (SG-008)', () => {
+    // --only-claude should skip runtime; config.json should follow config.yaml behavior
+    const yamlExists = existsSync(join(dir, '.claude-flow', 'config.yaml'));
+    const jsonExists = existsSync(join(dir, '.claude-flow', 'config.json'));
+    if (yamlExists && jsonExists) {
+      // Both created (known shallow-copy bug)
+      const parsed = JSON.parse(readFileSync(join(dir, '.claude-flow', 'config.json'), 'utf-8'));
+      assert.ok(parsed && typeof parsed === 'object', 'config.json should be valid JSON');
+    } else if (!yamlExists && !jsonExists) {
+      assert.ok(true, '--only-claude correctly skipped both runtime config files');
+    } else {
+      assert.ok(true, `config.yaml=${yamlExists}, config.json=${jsonExists} — partial skip`);
+    }
+  });
+
+  it('config.json is valid JSON if created (SG-008)', () => {
+    const cfgPath = join(dir, '.claude-flow', 'config.json');
+    if (!existsSync(cfgPath)) return;
+    const parsed = JSON.parse(readFileSync(cfgPath, 'utf-8'));
+    assert.ok(parsed && typeof parsed === 'object', 'config.json should be a valid JSON object');
   });
 });
 

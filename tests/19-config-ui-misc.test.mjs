@@ -23,12 +23,17 @@ const canRun = !!npxNm;
 const skipMsg = !canRun ? 'patched npx cache not found' : false;
 const cliBase = npxNm ? join(npxNm, '@claude-flow', 'cli', 'dist', 'src') : '';
 
-// ── Find ruv-swarm package ──────────────────────────────────────────────────
+// ── Find ruv-swarm package (may be in a different npx cache hash) ────────────
 
 let ruvSwarmRoot = null;
-if (npxNm) {
-  const rsPath = join(npxNm, 'ruv-swarm');
-  if (existsSync(rsPath)) ruvSwarmRoot = rsPath;
+{
+  const npxDir = join(homedir(), '.npm', '_npx');
+  if (existsSync(npxDir)) {
+    for (const hash of readdirSync(npxDir)) {
+      const rsPath = join(npxDir, hash, 'node_modules', 'ruv-swarm');
+      if (existsSync(join(rsPath, 'package.json'))) { ruvSwarmRoot = rsPath; break; }
+    }
+  }
 }
 const noRuvSwarm = !ruvSwarmRoot ? 'ruv-swarm package not found' : false;
 
@@ -380,6 +385,65 @@ describe('config-ui-misc: SG-006 wizard hook capture', { skip: skipMsg }, () => 
     assert.ok(
       initContent.includes('options.runtime.topology'),
       'init.js wizard should use options.runtime.topology (not hardcoded hierarchical)',
+    );
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Suite: CF-004 — Config export reads config.json
+// ══════════════════════════════════════════════════════════════════════════════
+
+describe('config-ui-misc: CF-004 config export reads config.json', { skip: skipMsg }, () => {
+  let configContent;
+
+  before(() => {
+    configContent = readFileSync(join(cliBase, 'commands', 'config.js'), 'utf-8');
+  });
+
+  it('CF-004a: readYamlConfig references config.json', () => {
+    assert.ok(
+      configContent.includes('config.json'),
+      'config.js readYamlConfig should reference config.json',
+    );
+  });
+
+  it('CF-004b: duplicate readYamlConfig removed', () => {
+    const matches = configContent.match(/function readYamlConfig/g) || [];
+    assert.equal(matches.length, 1,
+      `config.js should have exactly 1 readYamlConfig function, found ${matches.length}`);
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Suite: WM-004 — Source hook config.json + fail-loud
+// ══════════════════════════════════════════════════════════════════════════════
+
+describe('config-ui-misc: WM-004 source hook config.json + fail-loud', { skip: skipMsg }, () => {
+  let hookContent;
+  const hookPath = join(cliBase, '..', '..', '.claude', 'helpers', 'auto-memory-hook.mjs');
+
+  before(() => {
+    hookContent = existsSync(hookPath) ? readFileSync(hookPath, 'utf-8') : '';
+  });
+
+  it('WM-004a: hook reads config.json', () => {
+    assert.ok(
+      hookContent.includes('config.json'),
+      'auto-memory-hook.mjs should reference config.json (WM-004)',
+    );
+  });
+
+  it('WM-004b: createBackend function in hook', () => {
+    assert.ok(
+      hookContent.includes('createBackend'),
+      'auto-memory-hook.mjs should include createBackend function (WM-004)',
+    );
+  });
+
+  it('WM-004c: fail-loud message references doctor --install', () => {
+    assert.ok(
+      hookContent.includes('doctor --install'),
+      'auto-memory-hook.mjs should include doctor --install in fail-loud message (WM-004)',
     );
   });
 });
