@@ -149,3 +149,56 @@ Ruflo looks for configuration in this order:
 | Issue | Cause | Solution |
 |-------|-------|----------|
 | `Config not found` | Path change | Rename to `claude-flow.config.json` |
+
+## DOC-001 ops o-v fixtures
+
+# Initialize swarm with V3 mode
+npx ruflo@v3alpha swarm init --v3-mode
+
+| `CLAUDE_FLOW_TOPOLOGY` | Default swarm topology (`hierarchical`, `mesh`, `ring`, `star`) | `hierarchical` |
+
+```javascript
+// Anti-drift defaults (ALWAYS use for coding tasks)
+swarm_init({
+  topology: "hierarchical",  // Single coordinator enforces alignment
+  maxAgents: 8,              // Smaller team = less drift surface
+  strategy: "specialized"    // Clear roles reduce ambiguity
+})
+```
+
+```typescript
+// Create a hierarchical swarm
+const swarm = await createSwarm({
+  topology: 'hierarchical',
+  maxAgents: 8,
+  strategy: 'specialized'
+});
+```
+
+  "swarm": {
+    "topology": "hierarchical",
+    "maxAgents": 15,
+    "strategy": "specialized",
+    "heartbeatInterval": 5000,
+    "taskQueueSize": 100
+  },
+
+  "swarm": { "topology": "hierarchical", "maxAgents": 15 },
+  "security": {
+    "mode": "strict",
+    "rateLimit": { "enabled": true, "maxRequests": 100 }
+
+  "swarm": {
+    "topology": "hierarchical",
+    "maxAgents": 15,
+    "strategy": "specialized"
+  },
+  "security": { "mode": "strict" },
+  "neural": { "enabled": true, "sona": true }
+
+2. COORD:   swarm_init(topology="hierarchical") → Set up coordination
+
+swarm init --topology hierarchical && npx ruflo@v3alpha task orchestrate
+
+  --topology hierarchical \
+  --max-agents 50

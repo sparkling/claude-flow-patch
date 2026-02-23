@@ -13,7 +13,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruv-swarm`
 
 <!-- GENERATED:npm-defects:begin -->
-53 tracked defects across 15 categories.
+56 tracked defects across 15 categories.
 
 | Defect | Description | GitHub Issue |
 |--------|-------------|-------------|
@@ -61,6 +61,8 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [SG-007](https://github.com/sparkling/claude-flow-patch/tree/master/patch/385-SG-007-init-shallow-copy) | --skip-claude / --only-claude mutate shared init options via shallow copy | [#1188](https://github.com/ruvnet/claude-flow/issues/1188) |
 | [SG-008](https://github.com/sparkling/claude-flow-patch/tree/master/patch/440-SG-008-init-config-json) | init should generate .claude-flow/config.json (not config.yaml) | [#1195](https://github.com/ruvnet/claude-flow/issues/1195) |
 | [SG-009](https://github.com/sparkling/claude-flow-patch/tree/master/patch/490-SG-009-remove-v3-mode) | Remove --v3-mode from swarm init, make v3 the default | [#1202](https://github.com/ruvnet/claude-flow/issues/1202) |
+| [SG-010](https://github.com/sparkling/claude-flow-patch/tree/master/patch/540-SG-010-init-cli-options) | Add CLI options to init for all config.json settings | [#1205](https://github.com/ruvnet/claude-flow/issues/1205) |
+| [SG-011](https://github.com/sparkling/claude-flow-patch/tree/master/patch/550-SG-011-topology-hierarchical-refs) | Fix stale --topology hierarchical references | [#1206](https://github.com/ruvnet/claude-flow/issues/1206) |
 | [UI-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/280-UI-001-intelligence-stats-crash) | intelligence stats crashes on .toFixed() | [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
 | [UI-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/290-UI-002-neural-status-not-loaded) | neural status shows "Not loaded" | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
 | [WM-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/350-WM-001-memory-wiring) | Wire @claude-flow/memory HybridBackend into CLI | [#829](https://github.com/ruvnet/claude-flow/issues/829) |
@@ -69,6 +71,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [WM-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/390-WM-004-source-hook-fail-loud) | Source hook silently falls back to JsonFileBackend | [#1190](https://github.com/ruvnet/claude-flow/issues/1190) |
 | [WM-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/400-WM-005-memory-init-config-json) | memory-initializer reads config.yaml with hand-rolled regex instead of config.json | [#1191](https://github.com/ruvnet/claude-flow/issues/1191) |
 | [WM-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/410-WM-006-neural-config-json) | intelligence.js reads neural.enabled from config.yaml regex instead of config.json | [#1192](https://github.com/ruvnet/claude-flow/issues/1192) |
+| [WM-007](https://github.com/sparkling/claude-flow-patch/tree/master/patch/530-WM-007-wire-dead-config-keys) | Wire dead config.json keys into runtime consumers | [#1204](https://github.com/ruvnet/claude-flow/issues/1204) |
 | [DOC-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/480-DOC-001-readme-docs) | Update upstream README.md to match patched CLI behavior | [#1201](https://github.com/ruvnet/claude-flow/issues/1201) |
 <!-- GENERATED:npm-defects:end -->
 

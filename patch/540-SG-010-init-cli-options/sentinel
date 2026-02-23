@@ -1,0 +1,8 @@
+grep "name: 'cache-size'" commands/init.js
+grep "name: 'memory-backend'" commands/init.js
+grep "name: 'sona-mode'" commands/init.js
+grep "SG-010b" commands/init.js
+grep "SG-010c" init/executor.js
+grep "cacheSize: options.runtime.cacheSize || 256" init/executor.js
+grep "init --cache-size 512" commands/init.js
+absent "cacheSize: 100," init/executor.js

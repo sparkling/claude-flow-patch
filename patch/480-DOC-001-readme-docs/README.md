@@ -5,7 +5,7 @@
 
 ## Root Cause
 
-After 47 patches, the upstream `README.md` still describes pre-patch behavior:
+After patching, the upstream `README.md` still describes pre-patch behavior:
 config paths, schema keys, doctor checks, and use-case examples that no longer
 match the running code. Incorrect documentation misleads users about:
 
@@ -16,7 +16,7 @@ match the running code. Incorrect documentation misleads users about:
 
 ## Fix
 
-14 targeted string replacements in `README.md` to align documentation with
+24 targeted string replacements in `README.md` to align documentation with
 patched behavior. No patch IDs appear in the output — the README reads as
 natural documentation.
 
@@ -36,6 +36,12 @@ natural documentation.
 | l | Prod config | `type`→`backend` |
 | m | CI config | `type`→`backend` |
 | n | Mem-constrained | `type`→`backend` |
+| o | CLI example | Remove `--v3-mode` from swarm init |
+| p | Env var table | Topology default `hierarchical` → `hierarchical-mesh` |
+| q1-q5 | JSON blocks | `"topology": "hierarchical"` → `"hierarchical-mesh"` (5 locations) |
+| r | Self-learning | `topology="hierarchical"` → `"hierarchical-mesh"` |
+| s | Feature dev | `--topology hierarchical` → `--topology hierarchical-mesh` |
+| t | Shell example | `--topology hierarchical` → `--topology hierarchical-mesh` |
 
 ## Files Patched
 
@@ -43,4 +49,4 @@ natural documentation.
 
 ## Ops
 
-14 ops in fix.py
+24 ops in fix.py

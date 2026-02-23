@@ -156,12 +156,12 @@ Save the returned GitHub issue number for the defect README.md.
 | NS | Memory Namespace | 3 |
 | RS | ruv-swarm | 1 |
 | RV | RuVector Intelligence | 3 |
-| SG | Settings Generator | 8 |
+| SG | Settings Generator | 10 |
 | UI | Display & Cosmetic | 2 |
-| WM | Wiring / Memory Integration | 6 |
+| WM | Wiring / Memory Integration | 7 |
 | DOC | Documentation | 1 |
 
-## All 53 Defects
+## All 56 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -218,6 +218,9 @@ Save the returned GitHub issue number for the defect README.md.
 | DOC-001 | [#1201 Update upstream README.md to match patched CLI behavior](https://github.com/ruvnet/claude-flow/issues/1201) | Enhancement |
 | SG-009 | [#1202 Remove --v3-mode from swarm init, make v3 the default](https://github.com/ruvnet/claude-flow/issues/1202) | High |
 | CF-009 | [#1203 Upgrade MINIMAL init preset to v3 runtime defaults](https://github.com/ruvnet/claude-flow/issues/1203) | High |
+| WM-007 | [#1204 Wire dead config.json keys into runtime consumers](https://github.com/ruvnet/claude-flow/issues/1204) | High |
+| SG-010 | [#1205 Add CLI options to init for all config.json settings](https://github.com/ruvnet/claude-flow/issues/1205) | Enhancement |
+| SG-011 | [#1206 Fix stale --topology hierarchical references](https://github.com/ruvnet/claude-flow/issues/1206) | Medium |
 <!-- GENERATED:defect-tables:end -->
 
 ---

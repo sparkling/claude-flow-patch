@@ -165,3 +165,109 @@ patch("DOC-001n: mem-constrained config — backend key",
     "maxEntries": 1000,
     "hnsw": { "m": 8, "ef": 100 }
   },""")
+
+# ── Op o: Remove --v3-mode from example (line 2637) ──
+patch("DOC-001o: remove --v3-mode from swarm init example",
+    README_MD,
+    """# Initialize swarm with V3 mode
+npx ruflo@v3alpha swarm init --v3-mode""",
+    """# Initialize swarm
+npx ruflo@v3alpha swarm init""")
+
+# ── Op p: Update env var topology default (line 6690) ──
+patch("DOC-001p: env var topology default to hierarchical-mesh",
+    README_MD,
+    """| `CLAUDE_FLOW_TOPOLOGY` | Default swarm topology (`hierarchical`, `mesh`, `ring`, `star`) | `hierarchical` |""",
+    """| `CLAUDE_FLOW_TOPOLOGY` | Default swarm topology (`hierarchical-mesh`, `hierarchical`, `mesh`, `ring`, `star`) | `hierarchical-mesh` |""")
+
+# ── Op q1: Anti-drift recommended config (line 361) ──
+# Use surrounding JS context to uniquely identify this block
+patch("DOC-001q1: anti-drift topology to hierarchical-mesh",
+    README_MD,
+    """// Anti-drift defaults (ALWAYS use for coding tasks)
+swarm_init({
+  topology: "hierarchical",  // Single coordinator enforces alignment
+  maxAgents: 8,              // Smaller team = less drift surface""",
+    """// Anti-drift defaults (ALWAYS use for coding tasks)
+swarm_init({
+  topology: "hierarchical-mesh",  // Hybrid coordinator enforces alignment
+  maxAgents: 8,                   // Smaller team = less drift surface""")
+
+# ── Op q2: createSwarm TypeScript example (line 4232) ──
+patch("DOC-001q2: createSwarm topology to hierarchical-mesh",
+    README_MD,
+    """// Create a hierarchical swarm
+const swarm = await createSwarm({
+  topology: 'hierarchical',
+  maxAgents: 8,""",
+    """// Create a hierarchical-mesh swarm
+const swarm = await createSwarm({
+  topology: 'hierarchical-mesh',
+  maxAgents: 8,""")
+
+# ── Op q3: Full config reference (line 6859) ──
+# Use heartbeatInterval line for unique context
+patch("DOC-001q3: full config ref topology to hierarchical-mesh",
+    README_MD,
+    """  "swarm": {
+    "topology": "hierarchical",
+    "maxAgents": 15,
+    "strategy": "specialized",
+    "heartbeatInterval": 5000,""",
+    """  "swarm": {
+    "topology": "hierarchical-mesh",
+    "maxAgents": 15,
+    "strategy": "specialized",
+    "heartbeatInterval": 5000,""")
+
+# ── Op q4: Production config (line 6990) ──
+# Use security mode line for unique context
+patch("DOC-001q4: production config topology to hierarchical-mesh",
+    README_MD,
+    """  "swarm": { "topology": "hierarchical", "maxAgents": 15 },
+  "security": {
+    "mode": "strict",
+    "rateLimit": { "enabled": true, "maxRequests": 100 }""",
+    """  "swarm": { "topology": "hierarchical-mesh", "maxAgents": 15 },
+  "security": {
+    "mode": "strict",
+    "rateLimit": { "enabled": true, "maxRequests": 100 }""")
+
+# ── Op q5: Getting started config (line 7221) ──
+# Use neural line for unique context
+patch("DOC-001q5: getting started topology to hierarchical-mesh",
+    README_MD,
+    """  "swarm": {
+    "topology": "hierarchical",
+    "maxAgents": 15,
+    "strategy": "specialized"
+  },
+  "security": { "mode": "strict" },
+  "neural": { "enabled": true, "sona": true }""",
+    """  "swarm": {
+    "topology": "hierarchical-mesh",
+    "maxAgents": 15,
+    "strategy": "specialized"
+  },
+  "security": { "mode": "strict" },
+  "neural": { "enabled": true, "sona": true }""")
+
+# ── Op r: Self-learning workflow (line 616) ──
+patch("DOC-001r: self-learning workflow topology to hierarchical-mesh",
+    README_MD,
+    """2. COORD:   swarm_init(topology="hierarchical") → Set up coordination""",
+    """2. COORD:   swarm_init(topology="hierarchical-mesh") → Set up coordination""")
+
+# ── Op s: Feature development example (line 2801) ──
+patch("DOC-001s: feature dev topology to hierarchical-mesh",
+    README_MD,
+    """swarm init --topology hierarchical && npx ruflo@v3alpha task orchestrate""",
+    """swarm init --topology hierarchical-mesh && npx ruflo@v3alpha task orchestrate""")
+
+# ── Op t: Shell example (line 5480) ──
+patch("DOC-001t: nexus deploy topology to hierarchical-mesh",
+    README_MD,
+    """  --topology hierarchical \\
+  --max-agents 50""",
+    """  --topology hierarchical-mesh \\
+  --max-agents 50""")

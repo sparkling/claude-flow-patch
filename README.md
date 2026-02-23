@@ -174,7 +174,7 @@ claude-flow-patch/
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-53 defects across 15 categories.
+56 defects across 15 categories.
 
 ### CF -- Config & Doctor
 
@@ -279,6 +279,8 @@ claude-flow-patch/
 | [SG&#8209;007](patch/385-SG-007-init-shallow-copy/) | --skip-claude / --only-claude mutate shared init options via shallow copy | Medium | [#1188](https://github.com/ruvnet/claude-flow/issues/1188) |
 | [SG&#8209;008](patch/440-SG-008-init-config-json/) | init should generate .claude-flow/config.json (not config.yaml) | Enhancement | [#1195](https://github.com/ruvnet/claude-flow/issues/1195) |
 | [SG&#8209;009](patch/490-SG-009-remove-v3-mode/) | Remove --v3-mode from swarm init, make v3 the default | High | [#1202](https://github.com/ruvnet/claude-flow/issues/1202) |
+| [SG&#8209;010](patch/540-SG-010-init-cli-options/) | Add CLI options to init for all config.json settings | Enhancement | [#1205](https://github.com/ruvnet/claude-flow/issues/1205) |
+| [SG&#8209;011](patch/550-SG-011-topology-hierarchical-refs/) | Fix stale --topology hierarchical references | Medium | [#1206](https://github.com/ruvnet/claude-flow/issues/1206) |
 
 ### UI -- Display & Cosmetic
 
@@ -297,6 +299,7 @@ claude-flow-patch/
 | [WM&#8209;004](patch/390-WM-004-source-hook-fail-loud/) | Source hook silently falls back to JsonFileBackend | High | [#1190](https://github.com/ruvnet/claude-flow/issues/1190) |
 | [WM&#8209;005](patch/400-WM-005-memory-init-config-json/) | memory-initializer reads config.yaml with hand-rolled regex instead of config.json | Medium | [#1191](https://github.com/ruvnet/claude-flow/issues/1191) |
 | [WM&#8209;006](patch/410-WM-006-neural-config-json/) | intelligence.js reads neural.enabled from config.yaml regex instead of config.json | Medium | [#1192](https://github.com/ruvnet/claude-flow/issues/1192) |
+| [WM&#8209;007](patch/530-WM-007-wire-dead-config-keys/) | Wire dead config.json keys into runtime consumers | High | [#1204](https://github.com/ruvnet/claude-flow/issues/1204) |
 
 ### DOC -- Documentation
 

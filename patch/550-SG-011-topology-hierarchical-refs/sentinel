@@ -1,0 +1,5 @@
+grep "topology hierarchical-mesh 2>" commands/init.js
+grep "topology hierarchical-mesh --max-agents 8" init/claudemd-generator.js
+grep "topology hierarchical-mesh --max-agents 8" init/executor.js
+absent "topology hierarchical --max-agents 8" init/claudemd-generator.js
+absent "topology hierarchical --max-agents 8" init/executor.js

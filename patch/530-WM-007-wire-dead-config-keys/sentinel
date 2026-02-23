@@ -1,0 +1,10 @@
+grep "cfgMemory" memory/memory-initializer.js
+grep "cfgMemory.enableHNSW" memory/memory-initializer.js
+grep "cfgMemory.agentScopes" memory/memory-initializer.js
+grep "cfgLearningBridge" memory/intelligence.js
+grep "configOverrides" memory/intelligence.js
+grep "WM-007c" memory/intelligence.js
+grep "coordinationStrategy: swarmConfig" commands/start.js
+grep "WM-007e" mcp-tools/hooks-tools.js
+grep "configCacheSize" mcp-tools/embeddings-tools.js
+absent "Read HNSW config from embeddings.json" memory/memory-initializer.js

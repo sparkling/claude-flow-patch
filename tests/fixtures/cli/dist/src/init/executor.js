@@ -80,6 +80,10 @@ async function executeUpgrade(targetDir, result) {
             };
 }
 
+// SG-011c fixture: CAPABILITIES.md topology references (old_string for SG-011c)
+npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8
+
 // SG-008b fixture: CAPABILITIES.md template with config.yaml reference
 const capabilitiesTemplate = `
 .claude-flow/

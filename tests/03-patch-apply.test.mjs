@@ -113,7 +113,7 @@ describe('individual patch application', () => {
       id: 'SG-006',
       file: 'commands/init.js',
       sentinel: 'options.runtime.topology ||',
-      absent: "init --topology hierarchical 2>",
+      absent: "topology hierarchical 2>/dev/null', {\n                            stdio",
     },
     {
       id: 'WM-001',
@@ -386,6 +386,118 @@ describe('individual patch application', () => {
       file: 'init/types.js',
       sentinel: "maxAgents: 15",
       absent: "maxAgents: 5",
+    },
+    // WM-007: wire dead config.json keys into runtime consumers
+    {
+      id: 'WM-007',
+      file: 'memory/memory-initializer.js',
+      sentinel: 'cfgMemory',
+      absent: 'Read HNSW config from embeddings.json',
+      deps: ['WM-001'],
+    },
+    {
+      id: 'WM-007',
+      file: 'memory/memory-initializer.js',
+      sentinel: 'cfgMemory.agentScopes',
+      absent: null,
+      deps: ['WM-001'],
+    },
+    {
+      id: 'WM-007',
+      file: 'memory/intelligence.js',
+      sentinel: 'cfgLearningBridge',
+      absent: null,
+      deps: ['WM-002'],
+    },
+    {
+      id: 'WM-007',
+      file: 'memory/intelligence.js',
+      sentinel: 'WM-007c',
+      absent: null,
+    },
+    {
+      id: 'WM-007',
+      file: 'commands/start.js',
+      sentinel: "coordinationStrategy: swarmConfig",
+      absent: null,
+      deps: ['SG-009', 'CF-006'],
+    },
+    {
+      id: 'WM-007',
+      file: 'mcp-tools/hooks-tools.js',
+      sentinel: 'WM-007e',
+      absent: null,
+      deps: ['HK-004'],
+    },
+    {
+      id: 'WM-007',
+      file: 'mcp-tools/embeddings-tools.js',
+      sentinel: 'configCacheSize',
+      absent: null,
+    },
+    // SG-010: add CLI options to init + fix cacheSize mismatch
+    {
+      id: 'SG-010',
+      file: 'commands/init.js',
+      sentinel: "name: 'cache-size'",
+      absent: null,
+      deps: ['SG-007', 'CF-008'],
+    },
+    {
+      id: 'SG-010',
+      file: 'commands/init.js',
+      sentinel: 'SG-010b',
+      absent: null,
+      deps: ['SG-007', 'CF-008'],
+    },
+    {
+      id: 'SG-010',
+      file: 'init/executor.js',
+      sentinel: 'SG-010c',
+      absent: 'cacheSize: 100,',
+      deps: ['SG-008'],
+    },
+    {
+      id: 'SG-010',
+      file: 'commands/init.js',
+      sentinel: 'init --cache-size 512',
+      absent: null,
+      deps: ['SG-007', 'CF-008'],
+    },
+    // SG-011: fix stale --topology hierarchical references
+    {
+      id: 'SG-011',
+      file: 'commands/init.js',
+      sentinel: 'topology hierarchical-mesh 2>',
+      absent: 'topology hierarchical 2>',
+      deps: ['SG-006'],
+    },
+    {
+      id: 'SG-011',
+      file: 'init/claudemd-generator.js',
+      sentinel: 'topology hierarchical-mesh --max-agents 8',
+      absent: 'topology hierarchical --max-agents 8',
+      deps: ['SG-009'],
+    },
+    {
+      id: 'SG-011',
+      file: 'init/executor.js',
+      sentinel: 'topology hierarchical-mesh --max-agents 8',
+      absent: 'topology hierarchical --max-agents 8',
+      deps: ['SG-008'],
+    },
+    // DOC-001 ops o-v: README topology + v3-mode cleanup
+    {
+      id: 'DOC-001',
+      file: '../../README.md',
+      sentinel: 'hierarchical-mesh',
+      absent: 'swarm init --v3-mode',
+    },
+    {
+      id: 'DOC-001',
+      file: '../../README.md',
+      sentinel: 'hierarchical-mesh',
+      absent: 'topology="hierarchical"',
     },
   ];
 

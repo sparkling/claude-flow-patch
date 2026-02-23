@@ -90,8 +90,8 @@ const quickCommand = {
     }
 };
 
-// start all swarm init call
-const swarmResult = await callMCPTool('swarm_init', {
+// start all swarm init call (pre-SG-009k form; 8-space indent matches upstream)
+        const swarmResult = await callMCPTool('swarm_init', {
             topology: finalTopology,
             maxAgents,
             autoScaling: swarmConfig.autoScale !== false,

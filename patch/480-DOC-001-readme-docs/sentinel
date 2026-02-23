@@ -6,3 +6,6 @@ grep "\"backend\": \"hybrid\"" ../../README.md
 grep "disables SONA" ../../README.md
 absent "Valid JSON/YAML" ../../README.md
 absent "\"type\": \"hybrid\"" ../../README.md
+grep "hierarchical-mesh" ../../README.md
+absent "swarm init --v3-mode" ../../README.md
+absent "topology=\"hierarchical\"" ../../README.md

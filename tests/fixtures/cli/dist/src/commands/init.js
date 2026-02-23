@@ -97,6 +97,30 @@ const wizardCommand = {
                 Object.assign(options, FULL_INIT_OPTIONS);
             }
 
+// SG-010a fixture: dual option close + examples open (old_string for SG-010a)
+        {
+            name: 'dual',
+            description: 'Initialize for both Claude Code and OpenAI Codex',
+            type: 'boolean',
+            default: false,
+        },
+    ],
+    examples: [
+        { command: 'claude-flow init --dual', description: 'Initialize for both Claude Code and Codex' },
+    ],
+    action: initAction,
+
+// SG-010b fixture: Handle --skip-claude (old_string for SG-010b)
+    // Handle --skip-claude and --only-claude flags
+    if (skipClaude) {
+
+// SG-011a fixture: --start-all topology (old_string for SG-011a)
+                    execSync('npx @claude-flow/cli@latest swarm init --topology hierarchical 2>/dev/null', {
+                        stdio: 'pipe',
+                        cwd: ctx.cwd,
+                        timeout: 30000
+                    });
+
 // CF-008 fixture: display strings referencing config.yaml
             output.printInfo('  Found: .claude-flow/config.yaml');
                 `Config:      .claude-flow/config.yaml`,

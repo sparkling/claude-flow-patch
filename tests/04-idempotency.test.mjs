@@ -52,6 +52,19 @@ describe('patch idempotency', () => {
     { id: 'SG-009', file: 'commands/config.js' },
     // CF-009: upgrade MINIMAL init preset to v3 runtime defaults
     { id: 'CF-009', file: 'init/types.js' },
+    // WM-007: wire dead config.json keys
+    { id: 'WM-007', file: 'memory/memory-initializer.js' },
+    { id: 'WM-007', file: 'memory/intelligence.js' },
+    { id: 'WM-007', file: 'commands/start.js' },
+    { id: 'WM-007', file: 'mcp-tools/hooks-tools.js' },
+    { id: 'WM-007', file: 'mcp-tools/embeddings-tools.js' },
+    // SG-010: add CLI options to init
+    { id: 'SG-010', file: 'commands/init.js' },
+    { id: 'SG-010', file: 'init/executor.js' },
+    // SG-011: fix stale topology references
+    { id: 'SG-011', file: 'commands/init.js' },
+    { id: 'SG-011', file: 'init/claudemd-generator.js' },
+    { id: 'SG-011', file: 'init/executor.js' },
   ];
 
   for (const { id, file } of PATCHES) {
