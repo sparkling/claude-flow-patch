@@ -3,7 +3,6 @@
     "claude-flow": {
       "command": "npx",
       "args": [
-        "-y",
         "@claude-flow/cli@latest",
         "mcp",
         "start"
@@ -15,28 +14,7 @@
         "CLAUDE_FLOW_MAX_AGENTS": "15",
         "CLAUDE_FLOW_MEMORY_BACKEND": "hybrid"
       },
-      "autoStart": true
-    },
-    "ruv-swarm": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "ruv-swarm@latest",
-        "mcp",
-        "start",
-        "--stability"
-      ],
-      "autoStart": true
-    },
-    "ruvector": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "ruvector@latest",
-        "mcp",
-        "start"
-      ],
-      "autoStart": true
+      "autoStart": false
     }
   }
 }

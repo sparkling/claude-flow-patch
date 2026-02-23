@@ -156,39 +156,96 @@ async function loadMemoryPackage() {
 }
 
 // ============================================================================
-// Read config from .claude-flow/config.yaml
+// Read config from .claude-flow/config.json (YAML fallback for migration)
 // ============================================================================
 
 function readConfig() {
-  const configPath = join(PROJECT_ROOT, '.claude-flow', 'config.yaml');
   const defaults = {
+    backend: 'hybrid',
     learningBridge: { enabled: true, sonaMode: 'balanced', confidenceDecayRate: 0.005, accessBoostAmount: 0.03, consolidationThreshold: 10 },
     memoryGraph: { enabled: true, pageRankDamping: 0.85, maxNodes: 5000, similarityThreshold: 0.8 },
     agentScopes: { enabled: true, defaultScope: 'project' },
+    syncMode: 'on-session-end',
+    minConfidence: 0.7,
   };
 
-  if (!existsSync(configPath)) return defaults;
+  // Primary: read .claude-flow/config.json
+  const jsonPath = join(PROJECT_ROOT, '.claude-flow', 'config.json');
+  if (existsSync(jsonPath)) {
+    try {
+      const cfg = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+      const mem = cfg.memory || {};
+      if (['hybrid', 'json', 'sqlite', 'agentdb'].includes(mem.backend)) defaults.backend = mem.backend;
+      if (mem.learningBridge) Object.assign(defaults.learningBridge, mem.learningBridge);
+      if (mem.memoryGraph) Object.assign(defaults.memoryGraph, mem.memoryGraph);
+      if (mem.agentScopes) Object.assign(defaults.agentScopes, mem.agentScopes);
+      if (mem.syncMode) defaults.syncMode = mem.syncMode;
+      if (typeof mem.minConfidence === 'number') defaults.minConfidence = mem.minConfidence;
+      return defaults;
+    } catch (err) {
+      dim(`[config:error] Failed to parse config.json: ${err.message}`);
+    }
+  }
 
+  // Fallback: read config.yaml for backward compat
+  const yamlPath = join(PROJECT_ROOT, '.claude-flow', 'config.yaml');
+  if (existsSync(yamlPath)) {
+    try {
+      const yaml = readFileSync(yamlPath, 'utf-8');
+      const getBool = (key) => {
+        const match = yaml.match(new RegExp(`${key}:\\s*(true|false)`, 'i'));
+        return match ? match[1] === 'true' : undefined;
+      };
+      const getStr = (key) => {
+        const match = yaml.match(new RegExp(`${key}:\\s*([\\w-]+)`, 'i'));
+        return match ? match[1] : undefined;
+      };
+      const parsedBackend = getStr('backend');
+      if (parsedBackend && ['hybrid', 'json', 'sqlite', 'agentdb'].includes(parsedBackend)) defaults.backend = parsedBackend;
+      const lbEnabled = getBool('learningBridge[\\s\\S]*?enabled');
+      if (lbEnabled !== undefined) defaults.learningBridge.enabled = lbEnabled;
+      const mgEnabled = getBool('memoryGraph[\\s\\S]*?enabled');
+      if (mgEnabled !== undefined) defaults.memoryGraph.enabled = mgEnabled;
+      const asEnabled = getBool('agentScopes[\\s\\S]*?enabled');
+      if (asEnabled !== undefined) defaults.agentScopes.enabled = asEnabled;
+      defaults.syncMode = getStr('syncMode') || defaults.syncMode;
+      dim('[config] Read from config.yaml (legacy).');
+      return defaults;
+    } catch {
+      return defaults;
+    }
+  }
+
+  return defaults;
+}
+
+// WM-004: Backend factory (fail-loud when non-JSON backend is unavailable)
+function createBackend(config, memPkg) {
+  if (config.backend === 'json') {
+    return { backend: new JsonFileBackend(STORE_PATH), isHybrid: false };
+  }
+  if (!memPkg.HybridBackend) {
+    throw new Error(
+      `Memory backend '${config.backend}' requires HybridBackend but it is not exported.\n` +
+      `Fix: Run 'npx @claude-flow/cli doctor --install'\n` +
+      `  Or: set "memory.backend": "json" in .claude-flow/config.json`
+    );
+  }
+  const swarmDir = join(PROJECT_ROOT, '.swarm');
+  if (!existsSync(swarmDir)) mkdirSync(swarmDir, { recursive: true });
   try {
-    const yaml = readFileSync(configPath, 'utf-8');
-    // Simple YAML parser for the memory section
-    const getBool = (key) => {
-      const match = yaml.match(new RegExp(`${key}:\\s*(true|false)`, 'i'));
-      return match ? match[1] === 'true' : undefined;
-    };
-
-    const lbEnabled = getBool('learningBridge[\\s\\S]*?enabled');
-    if (lbEnabled !== undefined) defaults.learningBridge.enabled = lbEnabled;
-
-    const mgEnabled = getBool('memoryGraph[\\s\\S]*?enabled');
-    if (mgEnabled !== undefined) defaults.memoryGraph.enabled = mgEnabled;
-
-    const asEnabled = getBool('agentScopes[\\s\\S]*?enabled');
-    if (asEnabled !== undefined) defaults.agentScopes.enabled = asEnabled;
-
-    return defaults;
-  } catch {
-    return defaults;
+    const backend = new memPkg.HybridBackend({
+      sqlite: { databasePath: join(swarmDir, 'hybrid-memory.db') },
+      agentdb: { dbPath: join(swarmDir, 'agentdb-memory.db') },
+      dualWrite: config.backend === 'hybrid',
+    });
+    return { backend, isHybrid: true };
+  } catch (err) {
+    throw new Error(
+      `HybridBackend failed to initialize: ${err.message}\n` +
+      `Fix: Run 'npx @claude-flow/cli doctor --install'\n` +
+      `  Or: set "memory.backend": "json" in .claude-flow/config.json`
+    );
   }
 }
 
@@ -206,12 +263,12 @@ async function doImport() {
   }
 
   const config = readConfig();
-  const backend = new JsonFileBackend(STORE_PATH);
+  const { backend, isHybrid } = createBackend(config, memPkg);
   await backend.initialize();
 
   const bridgeConfig = {
     workingDir: PROJECT_ROOT,
-    syncMode: 'on-session-end',
+    syncMode: config.syncMode || 'on-session-end',
   };
 
   // Wire learning if enabled and available
@@ -259,7 +316,7 @@ async function doSync() {
   }
 
   const config = readConfig();
-  const backend = new JsonFileBackend(STORE_PATH);
+  const { backend, isHybrid } = createBackend(config, memPkg);
   await backend.initialize();
 
   const entryCount = await backend.count();
@@ -313,7 +370,7 @@ async function doStatus() {
   const config = readConfig();
 
   console.log('\n=== Auto Memory Bridge Status ===\n');
-  console.log(`  Package:        ${memPkg ? '✅ Available' : '❌ Not found'}`);
+  console.log(`  Package:        ${memPkg?.AutoMemoryBridge ? 'Active (AutoMemoryBridge)' : memPkg ? '✅ Available' : '❌ Not found'}`);
   console.log(`  Store:          ${existsSync(STORE_PATH) ? '✅ ' + STORE_PATH : '⏸ Not initialized'}`);
   console.log(`  LearningBridge: ${config.learningBridge.enabled ? '✅ Enabled' : '⏸ Disabled'}`);
   console.log(`  MemoryGraph:    ${config.memoryGraph.enabled ? '✅ Enabled' : '⏸ Disabled'}`);

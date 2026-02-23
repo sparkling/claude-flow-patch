@@ -13,7 +13,6 @@ Claude-Flow is the ultimate multi-terminal orchestration platform that revolutio
 
 ### 🚀 System Management
 - `./claude-flow start` - Start orchestration system
-- `./claude-flow start all` - Start memory, daemon, swarm, and MCP server
 - `./claude-flow start --ui` - Start with interactive process management UI
 - `./claude-flow status` - Check system status
 - `./claude-flow monitor` - Real-time monitoring
@@ -68,12 +67,6 @@ Claude-Flow is the ultimate multi-terminal orchestration platform that revolutio
 ### Initialize with SPARC:
 ```bash
 npx -y claude-flow@latest init --sparc
-```
-
-### Interactive setup wizard:
-```bash
-claude-flow wizard                # Interactive configuration
-claude-flow wizard --start-all    # Wizard + auto-start services
 ```
 
 ### Start a development swarm:
