@@ -1,1 +1,2 @@
+grep "loadEmbeddingModel" services/worker-daemon.js
 grep "applyTemporalDecay" services/worker-daemon.js

@@ -709,3 +709,308 @@ describe('init-variants: SG-004 wizard parity checks', { skip: skipMsg || noType
     }
   });
 });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Suite: SG-010 CLI flag overrides (e2e — runs init with flags, checks config.json)
+// ══════════════════════════════════════════════════════════════════════════════
+
+function readConfigJson(dir) {
+  const cfgPath = join(dir, '.claude-flow', 'config.json');
+  if (!existsSync(cfgPath)) return null;
+  return JSON.parse(readFileSync(cfgPath, 'utf-8'));
+}
+
+describe('init-variants: SG-010 --topology flag', { skip: skipMsg }, () => {
+  let dir;
+
+  before(() => {
+    dir = mkdtempSync(join(tmpdir(), 'cfp-topology-'));
+    const r = cli(['init', '--yes', '--topology', 'mesh'], dir, 60000);
+    assert.equal(r.status, 0, `init --topology mesh failed: ${r.stderr}`);
+  });
+
+  after(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+  it('config.json sets swarm.topology to mesh (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.swarm?.topology, 'mesh',
+      `--topology mesh should set swarm.topology to "mesh", got: ${cfg.swarm?.topology}`);
+  });
+});
+
+describe('init-variants: SG-010 --cache-size flag', { skip: skipMsg }, () => {
+  let dir;
+
+  before(() => {
+    dir = mkdtempSync(join(tmpdir(), 'cfp-cachesize-'));
+    const r = cli(['init', '--yes', '--cache-size', '512'], dir, 60000);
+    assert.equal(r.status, 0, `init --cache-size 512 failed: ${r.stderr}`);
+  });
+
+  after(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+  it('config.json sets memory.cacheSize to 512 (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.memory?.cacheSize, 512,
+      `--cache-size 512 should set memory.cacheSize to 512, got: ${cfg.memory?.cacheSize}`);
+  });
+});
+
+describe('init-variants: SG-010 --memory-backend flag', { skip: skipMsg }, () => {
+  let dir;
+
+  before(() => {
+    dir = mkdtempSync(join(tmpdir(), 'cfp-backend-'));
+    const r = cli(['init', '--yes', '--memory-backend', 'agentdb'], dir, 60000);
+    assert.equal(r.status, 0, `init --memory-backend agentdb failed: ${r.stderr}`);
+  });
+
+  after(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+  it('config.json sets memory.backend to agentdb (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.memory?.backend, 'agentdb',
+      `--memory-backend agentdb should set memory.backend to "agentdb", got: ${cfg.memory?.backend}`);
+  });
+});
+
+describe('init-variants: SG-010 --no-hooks flag', { skip: skipMsg }, () => {
+  let dir;
+
+  before(() => {
+    dir = mkdtempSync(join(tmpdir(), 'cfp-nohooks-'));
+    const r = cli(['init', '--yes', '--no-hooks'], dir, 60000);
+    assert.equal(r.status, 0, `init --no-hooks failed: ${r.stderr}`);
+  });
+
+  after(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+  it('config.json sets hooks.enabled to false (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.hooks?.enabled, false,
+      `--no-hooks should set hooks.enabled to false, got: ${cfg.hooks?.enabled}`);
+  });
+});
+
+describe('init-variants: SG-010 --max-agents flag', { skip: skipMsg }, () => {
+  let dir;
+
+  before(() => {
+    dir = mkdtempSync(join(tmpdir(), 'cfp-maxagents-'));
+    const r = cli(['init', '--yes', '--max-agents', '8'], dir, 60000);
+    assert.equal(r.status, 0, `init --max-agents 8 failed: ${r.stderr}`);
+  });
+
+  after(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+  it('config.json sets swarm.maxAgents to 8 (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.swarm?.maxAgents, 8,
+      `--max-agents 8 should set swarm.maxAgents to 8, got: ${cfg.swarm?.maxAgents}`);
+  });
+});
+
+describe('init-variants: SG-010 --model-path flag', { skip: skipMsg }, () => {
+  let dir;
+
+  before(() => {
+    dir = mkdtempSync(join(tmpdir(), 'cfp-modelpath-'));
+    const r = cli(['init', '--yes', '--model-path', 'custom/neural-models'], dir, 60000);
+    assert.equal(r.status, 0, `init --model-path failed: ${r.stderr}`);
+  });
+
+  after(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+  it('config.json sets neural.modelPath to custom path (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.neural?.modelPath, 'custom/neural-models',
+      `--model-path should set neural.modelPath, got: ${cfg.neural?.modelPath}`);
+  });
+});
+
+describe('init-variants: SG-010 --coordination-strategy flag', { skip: skipMsg }, () => {
+  let dir;
+
+  before(() => {
+    dir = mkdtempSync(join(tmpdir(), 'cfp-coordstrat-'));
+    const r = cli(['init', '--yes', '--coordination-strategy', 'round-robin'], dir, 60000);
+    assert.equal(r.status, 0, `init --coordination-strategy round-robin failed: ${r.stderr}`);
+  });
+
+  after(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+  it('config.json sets swarm.coordinationStrategy to round-robin (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.swarm?.coordinationStrategy, 'round-robin',
+      `--coordination-strategy round-robin should set swarm.coordinationStrategy, got: ${cfg.swarm?.coordinationStrategy}`);
+  });
+});
+
+describe('init-variants: SG-010 --sona-mode flag', { skip: skipMsg }, () => {
+  let dir;
+
+  before(() => {
+    dir = mkdtempSync(join(tmpdir(), 'cfp-sonamode-'));
+    const r = cli(['init', '--yes', '--sona-mode', 'aggressive'], dir, 60000);
+    assert.equal(r.status, 0, `init --sona-mode aggressive failed: ${r.stderr}`);
+  });
+
+  after(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+  it('config.json sets memory.learningBridge.sonaMode to aggressive (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.memory?.learningBridge?.sonaMode, 'aggressive',
+      `--sona-mode aggressive should set learningBridge.sonaMode, got: ${cfg.memory?.learningBridge?.sonaMode}`);
+  });
+});
+
+describe('init-variants: SG-010 --default-scope flag', { skip: skipMsg }, () => {
+  let dir;
+
+  before(() => {
+    dir = mkdtempSync(join(tmpdir(), 'cfp-defscope-'));
+    const r = cli(['init', '--yes', '--default-scope', 'session'], dir, 60000);
+    assert.equal(r.status, 0, `init --default-scope session failed: ${r.stderr}`);
+  });
+
+  after(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+  it('config.json sets memory.agentScopes.defaultScope to session (SG-010i)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.memory?.agentScopes?.defaultScope, 'session',
+      `--default-scope session should set agentScopes.defaultScope, got: ${cfg.memory?.agentScopes?.defaultScope}`);
+  });
+});
+
+describe('init-variants: SG-010 combined flags', { skip: skipMsg }, () => {
+  let dir;
+
+  before(() => {
+    dir = mkdtempSync(join(tmpdir(), 'cfp-combined-'));
+    const r = cli([
+      'init', '--yes',
+      '--topology', 'star',
+      '--max-agents', '4',
+      '--cache-size', '1024',
+      '--memory-backend', 'sqlite',
+      '--no-neural',
+      '--mcp-port', '4000',
+    ], dir, 60000);
+    assert.equal(r.status, 0, `init with combined flags failed: ${r.stderr}`);
+  });
+
+  after(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+  it('config.json reflects all combined overrides (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.swarm?.topology, 'star', 'topology should be star');
+    assert.equal(cfg.swarm?.maxAgents, 4, 'maxAgents should be 4');
+    assert.equal(cfg.memory?.cacheSize, 1024, 'cacheSize should be 1024');
+    assert.equal(cfg.memory?.backend, 'sqlite', 'backend should be sqlite');
+    assert.equal(cfg.neural?.enabled, false, 'neural.enabled should be false');
+    assert.equal(cfg.mcp?.port, 4000, 'mcp.port should be 4000');
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Suite: SG-010 default values (e2e — init with no flags, verify defaults)
+// ══════════════════════════════════════════════════════════════════════════════
+
+describe('init-variants: SG-010 default config values', { skip: skipMsg }, () => {
+  let dir;
+
+  before(() => {
+    dir = mkdtempSync(join(tmpdir(), 'cfp-defaults-'));
+    const r = cli(['init', '--yes'], dir, 60000);
+    assert.equal(r.status, 0, `init --yes failed: ${r.stderr}`);
+  });
+
+  after(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+  it('config.json has cacheSize 256 (not old 100) (SG-010c)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.memory?.cacheSize, 256,
+      `default cacheSize should be 256 (SG-010c fix), got: ${cfg.memory?.cacheSize}`);
+  });
+
+  it('config.json has coordinationStrategy consensus (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.swarm?.coordinationStrategy, 'consensus',
+      `default coordinationStrategy should be consensus, got: ${cfg.swarm?.coordinationStrategy}`);
+  });
+
+  it('config.json has hooks.enabled true by default (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.hooks?.enabled, true,
+      `default hooks.enabled should be true, got: ${cfg.hooks?.enabled}`);
+  });
+
+  it('config.json has hooks.autoExecute true by default (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.hooks?.autoExecute, true,
+      `default hooks.autoExecute should be true, got: ${cfg.hooks?.autoExecute}`);
+  });
+
+  it('config.json has mcp.port 3000 by default (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.mcp?.port, 3000,
+      `default mcp.port should be 3000, got: ${cfg.mcp?.port}`);
+  });
+
+  it('config.json has neural.modelPath default (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.neural?.modelPath, '.claude-flow/neural',
+      `default neural.modelPath should be .claude-flow/neural, got: ${cfg.neural?.modelPath}`);
+  });
+
+  it('config.json has learningBridge.sonaMode balanced (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.memory?.learningBridge?.sonaMode, 'balanced',
+      `default sonaMode should be balanced, got: ${cfg.memory?.learningBridge?.sonaMode}`);
+  });
+
+  it('config.json has memoryGraph.pageRankDamping 0.85 (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.memory?.memoryGraph?.pageRankDamping, 0.85,
+      `default pageRankDamping should be 0.85, got: ${cfg.memory?.memoryGraph?.pageRankDamping}`);
+  });
+
+  it('config.json has memoryGraph.maxNodes 5000 (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.memory?.memoryGraph?.maxNodes, 5000,
+      `default maxNodes should be 5000, got: ${cfg.memory?.memoryGraph?.maxNodes}`);
+  });
+
+  it('config.json has memoryGraph.similarityThreshold 0.8 (SG-010)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.memory?.memoryGraph?.similarityThreshold, 0.8,
+      `default similarityThreshold should be 0.8, got: ${cfg.memory?.memoryGraph?.similarityThreshold}`);
+  });
+
+  it('config.json has agentScopes.defaultScope project (SG-010i)', () => {
+    const cfg = readConfigJson(dir);
+    assert.ok(cfg, 'config.json should exist');
+    assert.equal(cfg.memory?.agentScopes?.defaultScope, 'project',
+      `default defaultScope should be project, got: ${cfg.memory?.agentScopes?.defaultScope}`);
+  });
+});

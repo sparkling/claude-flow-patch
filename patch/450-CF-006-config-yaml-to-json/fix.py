@@ -1,7 +1,7 @@
-# CF-006: start.js uses hand-rolled YAML parser instead of config.json
-# GitHub: #1197
+# CF-006: config.yaml -> config.json migration in start.js, status.js, init.js
+# GitHub: #1197 (also covers #1198 CF-007, #1199 CF-008 — merged)
 
-# ── Op 1: Replace isInitialized + parseSimpleYaml + loadConfig with config.json readers ──
+# ── Op 1 (ex CF-006a): Replace isInitialized + parseSimpleYaml + loadConfig in start.js ──
 patch("CF-006a: replace YAML parser with config.json reader in start.js",
     START_CMD,
     """// Check if project is initialized
@@ -88,3 +88,51 @@ function loadConfig(cwd) {
         return null;
     }
 }""")
+
+# ── Op 2 (ex CF-007a): Replace isInitialized in status.js ──
+patch("CF-007a: replace isInitialized in status.js to check config.json",
+    STATUS_CMD,
+    """// Check if project is initialized
+function isInitialized(cwd) {
+    const configPath = path.join(cwd, '.claude-flow', 'config.yaml');
+    return fs.existsSync(configPath);
+}""",
+    """// CF-007: Check if project is initialized
+function isInitialized(cwd) {
+    const jsonPath = path.join(cwd, '.claude-flow', 'config.json');
+    return fs.existsSync(jsonPath);
+}""")
+
+# ── Op 3 (ex CF-008a): Replace display strings in init.js ──
+patch_all("CF-008a: replace config.yaml display strings with config.json",
+    INIT_CMD,
+    """.claude-flow/config.yaml""",
+    """.claude-flow/config.json""")
+
+# ── Op 4 (ex CF-008b): Replace isInitialized in init.js ──
+patch("CF-008b: replace isInitialized in init.js to check config.json",
+    INIT_CMD,
+    """// Check if project is already initialized
+function isInitialized(cwd) {
+    const claudePath = path.join(cwd, '.claude', 'settings.json');
+    const claudeFlowPath = path.join(cwd, '.claude-flow', 'config.yaml');
+    return {
+        claude: fs.existsSync(claudePath),
+        claudeFlow: fs.existsSync(claudeFlowPath),
+    };
+}""",
+    """// CF-008: Check if project is already initialized
+function isInitialized(cwd) {
+    const claudePath = path.join(cwd, '.claude', 'settings.json');
+    const cfJsonPath = path.join(cwd, '.claude-flow', 'config.json');
+    return {
+        claude: fs.existsSync(claudePath),
+        claudeFlow: fs.existsSync(cfJsonPath),
+    };
+}""")
+
+# ── Op 5 (ex CF-008c): Replace config.yaml in JSON output path ──
+patch("CF-008c: replace config.yaml in JSON output path",
+    INIT_CMD,
+    """path.join(ctx.cwd, '.claude-flow', 'config.yaml')""",
+    """path.join(ctx.cwd, '.claude-flow', 'config.json')""")

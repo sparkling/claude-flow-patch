@@ -227,3 +227,192 @@ patch("SG-010d: add CLI examples for new options",
         { command: 'claude-flow init --mcp-port 4000', description: 'Set MCP server port' },
     ],
     action: initAction,""")
+
+# ── Op e: Add 7 option declarations after --similarity-threshold ──
+patch("SG-010e: add 7 more config option declarations (topology thru access-boost-amount)",
+    INIT_CMD,
+    """        {
+            name: 'similarity-threshold',
+            description: 'Memory graph similarity threshold',
+            type: 'number',
+            default: 0.8,
+        },
+    ],
+    examples: [""",
+    """        {
+            name: 'similarity-threshold',
+            description: 'Memory graph similarity threshold',
+            type: 'number',
+            default: 0.8,
+        },
+        {
+            name: 'topology',
+            description: 'Swarm topology',
+            type: 'string',
+            default: 'hierarchical-mesh',
+            choices: ['hierarchical-mesh', 'hierarchical', 'mesh', 'ring', 'star'],
+        },
+        {
+            name: 'max-agents',
+            description: 'Maximum concurrent agents',
+            type: 'number',
+            default: 15,
+        },
+        {
+            name: 'enable-hnsw',
+            description: 'Enable HNSW vector indexing',
+            type: 'boolean',
+            default: true,
+        },
+        {
+            name: 'model-path',
+            description: 'Neural model storage path',
+            type: 'string',
+            default: '.claude-flow/neural',
+        },
+        {
+            name: 'hooks',
+            description: 'Enable hooks system',
+            type: 'boolean',
+            default: true,
+        },
+        {
+            name: 'auto-execute',
+            description: 'Auto-execute hooks',
+            type: 'boolean',
+            default: true,
+        },
+        {
+            name: 'access-boost-amount',
+            description: 'SONA access boost amount',
+            type: 'number',
+            default: 0.03,
+        },
+    ],
+    examples: [""")
+
+# ── Op f: Wire 7 new flags into options ──
+# NOTE: old_string includes "if (skipClaude) {" to consume SG-010b's preserved comment+code
+# and the new_string tags the comment with "(SG-010f)" so SG-010b's old_string no longer matches.
+patch("SG-010f: wire 7 new CLI flags into options",
+    INIT_CMD,
+    """    if (ctx.flags.mcpAutoStart != null) options.mcp.autoStart = ctx.flags.mcpAutoStart;
+    // Handle --skip-claude and --only-claude flags
+    if (skipClaude) {""",
+    """    if (ctx.flags.mcpAutoStart != null) options.mcp.autoStart = ctx.flags.mcpAutoStart;
+    if (ctx.flags.topology) options.runtime.topology = ctx.flags.topology;
+    if (ctx.flags.maxAgents != null) options.runtime.maxAgents = ctx.flags.maxAgents;
+    if (ctx.flags.enableHnsw != null) options.runtime.enableHNSW = ctx.flags.enableHnsw;
+    if (ctx.flags.modelPath) options.runtime.modelPath = ctx.flags.modelPath;
+    if (ctx.flags.hooks != null) options.hooks.enabled = ctx.flags.hooks;
+    if (ctx.flags.autoExecute != null) options.hooks.autoExecute = ctx.flags.autoExecute;
+    if (ctx.flags.accessBoostAmount != null) options.runtime.accessBoostAmount = ctx.flags.accessBoostAmount;
+    // Handle --skip-claude and --only-claude flags (SG-010f)
+    if (skipClaude) {""")
+
+# ── Op g: Wire new keys into executor config.json template (3 sub-patches) ──
+patch("SG-010g1: wire accessBoostAmount from options into config.json template",
+    EXECUTOR,
+    """                accessBoostAmount: 0.03,""",
+    """                accessBoostAmount: options.runtime.accessBoostAmount ?? 0.03,""")
+
+patch("SG-010g2: wire hooks.enabled and autoExecute from options into config.json template",
+    EXECUTOR,
+    """        hooks: {
+            enabled: true,
+            autoExecute: true,
+        },""",
+    """        hooks: {
+            enabled: options.hooks?.enabled !== false,
+            autoExecute: options.hooks?.autoExecute !== false,
+        },""")
+
+patch("SG-010g3: wire modelPath from options into config.json template",
+    EXECUTOR,
+    """            modelPath: '.claude-flow/neural',""",
+    """            modelPath: options.runtime.modelPath || '.claude-flow/neural',""")
+
+# ── Op h: Add 2 CLI examples ──
+patch("SG-010h: add CLI examples for topology and hooks options",
+    INIT_CMD,
+    """        { command: 'claude-flow init --mcp-port 4000', description: 'Set MCP server port' },
+    ],
+    action: initAction,""",
+    """        { command: 'claude-flow init --mcp-port 4000', description: 'Set MCP server port' },
+        { command: 'claude-flow init --topology mesh --max-agents 8', description: 'Use mesh topology' },
+        { command: 'claude-flow init --no-hooks', description: 'Initialize with hooks disabled' },
+    ],
+    action: initAction,""")
+
+# ── Op j: Deduplicate SG-010b wiring block (stale cache cleanup) ──
+# During development, SG-010b's wiring block was duplicated multiple times
+# in the live npx cache. This cleanup collapses N consecutive copies into 1.
+# MUST run before ops i1-i3 so defaultScope is added to the single surviving block.
+import re as _re
+try:
+    with open(INIT_CMD, 'r') as _f:
+        _c = _f.read()
+    _sig = '    // SG-010b: Wire CLI flags into options.runtime/options.mcp\n'
+    _n = _c.count(_sig)
+    if _n > 1:
+        _block = (
+            r'    // SG-010b: Wire CLI flags into options\.runtime/options\.mcp\n'
+            r'(?:    if \(ctx\.flags\.\w+[^\n]*\n)+')
+        _dedup_pat = _re.compile(r'(' + _block + r')(?:' + _block + r')+')
+        _new_c = _dedup_pat.sub(r'\1', _c)
+        if _new_c != _c:
+            with open(INIT_CMD, 'w') as _f:
+                _f.write(_new_c)
+            _n2 = _new_c.count(_sig)
+            print(f"  Applied: SG-010j: deduplicate SG-010b wiring ({_n} → {_n2})")
+        else:
+            print(f"  Skipped: SG-010j: dedup regex did not match")
+    elif _n == 1:
+        print(f"  Skipped: SG-010j: no duplicates found")
+    else:
+        print(f"  Skipped: SG-010j: SG-010b not yet applied")
+except Exception as _e:
+    print(f"  WARN: SG-010j — {_e}")
+
+# ── Op i: Add --default-scope CLI option, wiring, and template ──
+
+# i1: Option declaration — after --access-boost-amount (SG-010e's last entry)
+patch("SG-010i1: add --default-scope option declaration",
+    INIT_CMD,
+    """        {
+            name: 'access-boost-amount',
+            description: 'SONA access boost amount',
+            type: 'number',
+            default: 0.03,
+        },
+    ],
+    examples: [""",
+    """        {
+            name: 'access-boost-amount',
+            description: 'SONA access boost amount',
+            type: 'number',
+            default: 0.03,
+        },
+        {
+            name: 'default-scope',
+            description: 'Default agent memory scope',
+            type: 'string',
+            default: 'project',
+        },
+    ],
+    examples: [""")
+
+# i2: Wire flag into options — after accessBoostAmount (SG-010f's last wiring line)
+patch("SG-010i2: wire --default-scope flag into options",
+    INIT_CMD,
+    """    if (ctx.flags.accessBoostAmount != null) options.runtime.accessBoostAmount = ctx.flags.accessBoostAmount;
+    // Handle --skip-claude and --only-claude flags (SG-010f)""",
+    """    if (ctx.flags.accessBoostAmount != null) options.runtime.accessBoostAmount = ctx.flags.accessBoostAmount;
+    if (ctx.flags.defaultScope) options.runtime.defaultScope = ctx.flags.defaultScope;
+    // Handle --skip-claude and --only-claude flags (SG-010f)""")
+
+# i3: Wire into executor config.json template — replace hardcoded 'project'
+patch("SG-010i3: wire defaultScope from options into config.json template",
+    EXECUTOR,
+    """                defaultScope: 'project',""",
+    """                defaultScope: options.runtime.defaultScope || 'project',""")

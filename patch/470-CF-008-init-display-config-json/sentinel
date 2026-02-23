@@ -1,2 +1,0 @@
-grep "CF-008: Check if project is already initialized" commands/init.js
-grep "cfJsonPath" commands/init.js

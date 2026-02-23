@@ -8,3 +8,8 @@ grep "coordinationStrategy: swarmConfig" commands/start.js
 grep "WM-007e" mcp-tools/hooks-tools.js
 grep "configCacheSize" mcp-tools/embeddings-tools.js
 absent "Read HNSW config from embeddings.json" memory/memory-initializer.js
+grep "hooks.autoExecute === false" mcp-tools/hooks-tools.js
+grep "cfgMemory.agentScopes.enabled !== false" memory/memory-initializer.js
+grep "cfgLearningBridge.enabled !== false" memory/intelligence.js
+grep "cfgMemoryGraph.enabled !== false" memory/intelligence.js
+grep "cfgMemory.memoryGraph.enabled !== false" memory/memory-initializer.js

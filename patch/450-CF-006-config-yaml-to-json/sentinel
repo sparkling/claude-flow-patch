@@ -1,0 +1,7 @@
+grep "CF-006: Load configuration from config.json" commands/start.js
+absent "parseSimpleYaml" commands/start.js
+absent "config.yaml" commands/start.js
+grep "CF-007: Check if project is initialized" commands/status.js
+absent "config.yaml" commands/status.js
+grep "CF-008: Check if project is already initialized" commands/init.js
+grep "cfJsonPath" commands/init.js

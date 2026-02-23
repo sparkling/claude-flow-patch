@@ -1,5 +1,6 @@
 # SG-008: init should generate .claude-flow/config.json (not config.yaml)
-# GitHub: #1195, #1200
+# GitHub: #1195
+# Related: #1200
 
 # ── Op 1: Replace config.yaml generation with config.json in writeRuntimeConfig ──
 patch("SG-008a: replace yaml generation with config.json in writeRuntimeConfig",

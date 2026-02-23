@@ -25,3 +25,7 @@ longer writes YAML regex code.
 ## Ops
 
 1 op in fix.py (WM-002c; WM-002d removed)
+
+## Absorbed Patches
+
+- **WM-006** ([#1192](https://github.com/ruvnet/claude-flow/issues/1192)): intelligence.js reads neural.enabled from config.yaml — absorbed because WM-002c now writes the config.json reader directly.

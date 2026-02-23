@@ -226,8 +226,6 @@ describe('individual patch application', () => {
       sentinel: 'function createBackend(config, memPkg)',
       absent: null,
     },
-    // WM-005: absorbed into WM-001 — WM-001a now writes config.json reader directly
-    // WM-006: absorbed into WM-002 — WM-002c now writes config.json reader directly
     // CF-004: inject readYamlConfig that reads config.json
     {
       id: 'CF-004',
@@ -235,7 +233,6 @@ describe('individual patch application', () => {
       sentinel: 'CF-004: Read project config from .claude-flow/config.json',
       absent: null,
     },
-    // CF-005: absorbed into CF-003 — CF-003a now writes config.json reader directly
     // SG-008: init generates config.json (replaces yaml)
     {
       id: 'SG-008',
@@ -249,23 +246,21 @@ describe('individual patch application', () => {
       sentinel: 'config.json      # Runtime configuration',
       absent: null,
     },
-    // CF-006: start.js config.json reader (replaces parseSimpleYaml)
+    // CF-006: config.yaml -> config.json migration (start.js, status.js, init.js)
     {
       id: 'CF-006',
       file: 'commands/start.js',
       sentinel: 'CF-006: Load configuration from config.json',
       absent: 'parseSimpleYaml',
     },
-    // CF-007: status.js isInitialized checks config.json
     {
-      id: 'CF-007',
+      id: 'CF-006',
       file: 'commands/status.js',
       sentinel: 'CF-007: Check if project is initialized',
       absent: "const configPath = path.join(cwd, '.claude-flow', 'config.yaml')",
     },
-    // CF-008: init.js isInitialized + display strings use config.json
     {
-      id: 'CF-008',
+      id: 'CF-006',
       file: 'commands/init.js',
       sentinel: 'CF-008: Check if project is already initialized',
       absent: "const claudeFlowPath = path.join(cwd, '.claude-flow', 'config.yaml');",
@@ -435,20 +430,49 @@ describe('individual patch application', () => {
       sentinel: 'configCacheSize',
       absent: null,
     },
+    // WM-007 ops g-j: autoExecute gate, agentScopes.enabled, learningBridge.enabled, memoryGraph.enabled
+    {
+      id: 'WM-007',
+      file: 'mcp-tools/hooks-tools.js',
+      sentinel: 'hooks.autoExecute === false',
+      absent: null,
+      deps: ['HK-004'],
+    },
+    {
+      id: 'WM-007',
+      file: 'memory/memory-initializer.js',
+      sentinel: 'cfgMemory.agentScopes.enabled !== false',
+      absent: null,
+      deps: ['WM-001'],
+    },
+    {
+      id: 'WM-007',
+      file: 'memory/intelligence.js',
+      sentinel: 'cfgLearningBridge.enabled !== false',
+      absent: null,
+      deps: ['WM-002'],
+    },
+    {
+      id: 'WM-007',
+      file: 'memory/memory-initializer.js',
+      sentinel: 'cfgMemory.memoryGraph.enabled !== false',
+      absent: null,
+      deps: ['WM-001'],
+    },
     // SG-010: add CLI options to init + fix cacheSize mismatch
     {
       id: 'SG-010',
       file: 'commands/init.js',
       sentinel: "name: 'cache-size'",
       absent: null,
-      deps: ['SG-007', 'CF-008'],
+      deps: ['SG-007', 'CF-006'],
     },
     {
       id: 'SG-010',
       file: 'commands/init.js',
       sentinel: 'SG-010b',
       absent: null,
-      deps: ['SG-007', 'CF-008'],
+      deps: ['SG-007', 'CF-006'],
     },
     {
       id: 'SG-010',
@@ -462,7 +486,58 @@ describe('individual patch application', () => {
       file: 'commands/init.js',
       sentinel: 'init --cache-size 512',
       absent: null,
-      deps: ['SG-007', 'CF-008'],
+      deps: ['SG-007', 'CF-006'],
+    },
+    // SG-010 ops e-h: 7 more CLI options + wiring + executor template + examples
+    {
+      id: 'SG-010',
+      file: 'commands/init.js',
+      sentinel: "name: 'topology'",
+      absent: null,
+      deps: ['SG-007', 'CF-006'],
+    },
+    {
+      id: 'SG-010',
+      file: 'commands/init.js',
+      sentinel: 'options.runtime.topology',
+      absent: null,
+      deps: ['SG-007', 'CF-006'],
+    },
+    {
+      id: 'SG-010',
+      file: 'init/executor.js',
+      sentinel: 'options.hooks?.enabled',
+      absent: null,
+      deps: ['SG-008'],
+    },
+    {
+      id: 'SG-010',
+      file: 'commands/init.js',
+      sentinel: 'init --topology mesh',
+      absent: null,
+      deps: ['SG-007', 'CF-006'],
+    },
+    // SG-010 op i: --default-scope option, wiring, and template
+    {
+      id: 'SG-010',
+      file: 'commands/init.js',
+      sentinel: "name: 'default-scope'",
+      absent: null,
+      deps: ['SG-007', 'CF-006'],
+    },
+    {
+      id: 'SG-010',
+      file: 'commands/init.js',
+      sentinel: 'ctx.flags.defaultScope',
+      absent: null,
+      deps: ['SG-007', 'CF-006'],
+    },
+    {
+      id: 'SG-010',
+      file: 'init/executor.js',
+      sentinel: 'options.runtime.defaultScope',
+      absent: null,
+      deps: ['SG-008'],
     },
     // SG-011: fix stale --topology hierarchical references
     {

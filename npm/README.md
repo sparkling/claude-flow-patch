@@ -13,7 +13,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruv-swarm`
 
 <!-- GENERATED:npm-defects:begin -->
-56 tracked defects across 15 categories.
+50 tracked defects across 15 categories.
 
 | Defect | Description | GitHub Issue |
 |--------|-------------|-------------|
@@ -21,16 +21,12 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [CF-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/020-CF-002-config-export-yaml) | Config export shows hardcoded defaults | [#1142](https://github.com/ruvnet/claude-flow/issues/1142) |
 | [CF-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/380-CF-003-doctor-native-deps) | Doctor --install native dependency resolution | [#1186](https://github.com/ruvnet/claude-flow/issues/1186) |
 | [CF-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/420-CF-004-config-export-json) | config get/export uses hand-rolled YAML parser instead of config.json | [#1193](https://github.com/ruvnet/claude-flow/issues/1193) |
-| [CF-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/430-CF-005-doctor-config-json) | Doctor checkMemoryBackend reads env var + config.yaml instead of config.json | [#1194](https://github.com/ruvnet/claude-flow/issues/1194) |
-| [CF-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/450-CF-006-start-config-json) | start.js uses hand-rolled YAML parser instead of config.json | [#1197](https://github.com/ruvnet/claude-flow/issues/1197) |
-| [CF-007](https://github.com/sparkling/claude-flow-patch/tree/master/patch/460-CF-007-status-config-json) | status.js isInitialized checks config.yaml instead of config.json | [#1198](https://github.com/ruvnet/claude-flow/issues/1198) |
-| [CF-008](https://github.com/sparkling/claude-flow-patch/tree/master/patch/470-CF-008-init-display-config-json) | init.js isInitialized and display strings reference config.yaml | [#1199](https://github.com/ruvnet/claude-flow/issues/1199) |
+| [CF-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/450-CF-006-config-yaml-to-json) | config.yaml -> config.json migration in start.js, status.js, init.js | [#1197](https://github.com/ruvnet/claude-flow/issues/1197) |
 | [CF-009](https://github.com/sparkling/claude-flow-patch/tree/master/patch/500-CF-009-minimal-v3-defaults) | Upgrade MINIMAL init preset to v3 runtime defaults | [#1203](https://github.com/ruvnet/claude-flow/issues/1203) |
 | [DM-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/030-DM-001-daemon-log-zero) | daemon.log always 0 bytes | [#1116](https://github.com/ruvnet/claude-flow/issues/1116) |
 | [DM-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/040-DM-002-cpu-load-threshold) | maxCpuLoad=2.0 blocks all workers on multi-core | [#1138](https://github.com/ruvnet/claude-flow/issues/1138) |
 | [DM-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/050-DM-003-macos-freemem) | macOS freemem() always ~0% — workers blocked | [#1077](https://github.com/ruvnet/claude-flow/issues/1077) |
-| [DM-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/060-DM-004-preload-worker-stub) | Preload worker stub + missing from defaults | [#1139](https://github.com/ruvnet/claude-flow/issues/1139) |
-| [DM-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/070-DM-005-consolidation-worker-stub) | Consolidation worker stub (no decay/rebuild) | [#1140](https://github.com/ruvnet/claude-flow/issues/1140) |
+| [DM-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/060-DM-004-worker-stubs) | Worker stubs — preload + consolidation | [#1139](https://github.com/ruvnet/claude-flow/issues/1139) |
 | [DM-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/300-DM-006-log-rotation) | No log rotation — logs grow unbounded | [#1114](https://github.com/ruvnet/claude-flow/issues/1114) |
 | [EM-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/080-EM-001-embedding-ignores-config) | Embedding system ignores project config (model + HNSW dims) | [#1143](https://github.com/ruvnet/claude-flow/issues/1143) |
 | [EM-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/090-EM-002-transformers-cache-eacces) | @xenova/transformers cache EACCES | [#1144](https://github.com/ruvnet/claude-flow/issues/1144) |
@@ -69,8 +65,6 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [WM-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/360-WM-002-config-respect) | Neural config gating (neural.enabled not consumed at runtime) | [#1185](https://github.com/ruvnet/claude-flow/issues/1185) |
 | [WM-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/370-WM-003-auto-memory-bridge) | Activate AutoMemoryBridge in auto-memory-hook.mjs | [#1102](https://github.com/ruvnet/claude-flow/issues/1102) |
 | [WM-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/390-WM-004-source-hook-fail-loud) | Source hook silently falls back to JsonFileBackend | [#1190](https://github.com/ruvnet/claude-flow/issues/1190) |
-| [WM-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/400-WM-005-memory-init-config-json) | memory-initializer reads config.yaml with hand-rolled regex instead of config.json | [#1191](https://github.com/ruvnet/claude-flow/issues/1191) |
-| [WM-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/410-WM-006-neural-config-json) | intelligence.js reads neural.enabled from config.yaml regex instead of config.json | [#1192](https://github.com/ruvnet/claude-flow/issues/1192) |
 | [WM-007](https://github.com/sparkling/claude-flow-patch/tree/master/patch/530-WM-007-wire-dead-config-keys) | Wire dead config.json keys into runtime consumers | [#1204](https://github.com/ruvnet/claude-flow/issues/1204) |
 | [DOC-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/480-DOC-001-readme-docs) | Update upstream README.md to match patched CLI behavior | [#1201](https://github.com/ruvnet/claude-flow/issues/1201) |
 <!-- GENERATED:npm-defects:end -->

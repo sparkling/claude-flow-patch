@@ -21,7 +21,7 @@ The remaining 12 are dead — written but never read:
 
 ## Fix
 
-8 ops wire the 12 dead keys into their respective consumers.
+12 ops wire 17 dead/undergated keys into their respective consumers.
 
 | Op | File | Keys wired |
 |----|------|-----------|
@@ -31,6 +31,10 @@ The remaining 12 are dead — written but never read:
 | d | start.js | swarm.coordinationStrategy |
 | e | hooks-tools.js | hooks.enabled |
 | f | embeddings-tools.js | memory.cacheSize |
+| g | hooks-tools.js | hooks.autoExecute |
+| h | memory-initializer.js | memory.agentScopes.enabled |
+| i | intelligence.js | memory.learningBridge.enabled, memory.memoryGraph.enabled |
+| j | memory-initializer.js | memory.memoryGraph.enabled (semanticThreshold gate) |
 
 ## Files Patched
 
@@ -42,4 +46,4 @@ The remaining 12 are dead — written but never read:
 
 ## Ops
 
-6 ops in fix.py
+12 ops in fix.py

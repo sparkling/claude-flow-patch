@@ -40,3 +40,7 @@ rebuild and report success/failure.
 ## Ops
 
 4 ops in fix.py (CF-003a, CF-003a2, CF-003a3, CF-003b)
+
+## Absorbed Patches
+
+- **CF-005** ([#1194](https://github.com/ruvnet/claude-flow/issues/1194)): Doctor checkMemoryBackend reads env var + config.yaml — absorbed because CF-003a now writes the config.json reader directly.

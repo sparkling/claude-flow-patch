@@ -97,7 +97,7 @@ patch("SG-004c: wizard --start-all + next-steps",
                 if (startAll) {
                     try {
                         output.writeln(output.dim('  Initializing swarm...'));
-                        execSync('npx @claude-flow/cli@latest swarm init --topology hierarchical 2>/dev/null', {
+                        execSync(`npx @claude-flow/cli@latest swarm init --topology ${options.runtime.topology || 'hierarchical-mesh'} 2>/dev/null`, {
                             stdio: 'pipe', cwd: ctx.cwd, timeout: 30000
                         });
                         output.writeln(output.success('  \\u2713 Swarm initialized'));

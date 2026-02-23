@@ -203,3 +203,52 @@ patch("WM-007f: wire memory.cacheSize from config.json into embeddings init",
                 }
             } catch {}
             const cacheSize = input.cacheSize || configCacheSize || 256;""")
+
+# ── Op g: Gate hooks on autoExecute ──
+patch("WM-007g: gate hook execution on hooks.autoExecute config",
+    MCP_HOOKS,
+    """                if (hCfg.hooks && hCfg.hooks.enabled === false) {
+                    return { success: true, skipped: true, reason: 'hooks.enabled is false in config.json' };
+                }""",
+    """                if (hCfg.hooks && hCfg.hooks.enabled === false) {
+                    return { success: true, skipped: true, reason: 'hooks.enabled is false in config.json' };
+                }
+                if (hCfg.hooks && hCfg.hooks.autoExecute === false) {
+                    return { success: true, skipped: true, reason: 'hooks.autoExecute is false in config.json' };
+                }""")
+
+# ── Op h: Gate agentScopes.defaultScope on .enabled ──
+patch("WM-007h: gate agentScopes.defaultScope on enabled flag",
+    MI,
+    """            hybridConfig.defaultNamespace = (cfgMemory.agentScopes && cfgMemory.agentScopes.defaultScope) || 'default';""",
+    """            hybridConfig.defaultNamespace = (cfgMemory.agentScopes && cfgMemory.agentScopes.enabled !== false && cfgMemory.agentScopes.defaultScope) || 'default';""")
+
+# ── Op i: Gate learningBridge overrides on .enabled ──
+patch("WM-007i: gate learningBridge overrides on enabled flag",
+    INTEL,
+    """        // WM-007b: Merge config.json learningBridge/memoryGraph into SONA config
+        const configOverrides = {};
+        if (cfgLearningBridge.sonaMode) configOverrides.sonaMode = cfgLearningBridge.sonaMode;
+        if (cfgLearningBridge.confidenceDecayRate != null) configOverrides.confidenceDecayRate = cfgLearningBridge.confidenceDecayRate;
+        if (cfgLearningBridge.accessBoostAmount != null) configOverrides.accessBoostAmount = cfgLearningBridge.accessBoostAmount;
+        if (cfgLearningBridge.consolidationThreshold != null) configOverrides.consolidationThreshold = cfgLearningBridge.consolidationThreshold;
+        if (cfgMemoryGraph.pageRankDamping != null) configOverrides.pageRankDamping = cfgMemoryGraph.pageRankDamping;
+        if (cfgMemoryGraph.maxNodes != null) configOverrides.maxNodes = cfgMemoryGraph.maxNodes;""",
+    """        // WM-007b: Merge config.json learningBridge/memoryGraph into SONA config
+        const configOverrides = {};
+        if (cfgLearningBridge.enabled !== false) {
+            if (cfgLearningBridge.sonaMode) configOverrides.sonaMode = cfgLearningBridge.sonaMode;
+            if (cfgLearningBridge.confidenceDecayRate != null) configOverrides.confidenceDecayRate = cfgLearningBridge.confidenceDecayRate;
+            if (cfgLearningBridge.accessBoostAmount != null) configOverrides.accessBoostAmount = cfgLearningBridge.accessBoostAmount;
+            if (cfgLearningBridge.consolidationThreshold != null) configOverrides.consolidationThreshold = cfgLearningBridge.consolidationThreshold;
+        }
+        if (cfgMemoryGraph.enabled !== false) {
+            if (cfgMemoryGraph.pageRankDamping != null) configOverrides.pageRankDamping = cfgMemoryGraph.pageRankDamping;
+            if (cfgMemoryGraph.maxNodes != null) configOverrides.maxNodes = cfgMemoryGraph.maxNodes;
+        }""")
+
+# ── Op j: Gate semanticThreshold on memoryGraph.enabled ──
+patch("WM-007j: gate semanticThreshold on memoryGraph.enabled flag",
+    MI,
+    """            hybridConfig.semanticThreshold = (cfgMemory.memoryGraph && cfgMemory.memoryGraph.similarityThreshold) || 0.7;""",
+    """            hybridConfig.semanticThreshold = (cfgMemory.memoryGraph && cfgMemory.memoryGraph.enabled !== false && cfgMemory.memoryGraph.similarityThreshold) || 0.7;""")

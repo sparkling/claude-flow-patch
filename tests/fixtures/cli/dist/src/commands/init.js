@@ -70,8 +70,8 @@ const wizardCommand = {
                     options.hooks.notification = hooks.includes('notification');
                 }
 
-// SG-006 fixture: hardcoded topology in wizard --start-all (old_string for SG-006c)
-                        execSync('npx @claude-flow/cli@latest swarm init --topology hierarchical 2>/dev/null', {
+// SG-006 fixture: wizard --start-all topology (SG-004c now emits template directly; SG-006c SKIPs)
+                        execSync(`npx @claude-flow/cli@latest swarm init --topology ${options.runtime.topology || 'hierarchical-mesh'} 2>/dev/null`, {
                             stdio: 'pipe', cwd: ctx.cwd, timeout: 30000
                         });
 

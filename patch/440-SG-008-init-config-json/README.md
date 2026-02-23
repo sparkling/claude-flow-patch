@@ -1,7 +1,8 @@
 # SG-008: init should generate .claude-flow/config.json (not config.yaml)
 
 **Severity**: Enhancement
-**GitHub**: [#1195](https://github.com/ruvnet/claude-flow/issues/1195), [#1200](https://github.com/ruvnet/claude-flow/issues/1200)
+**GitHub**: [#1195](https://github.com/ruvnet/claude-flow/issues/1195)
+**Related**: [#1200](https://github.com/ruvnet/claude-flow/issues/1200) — follow-up: replace YAML generation entirely
 
 ## Root Cause
 

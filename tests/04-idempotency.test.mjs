@@ -34,14 +34,12 @@ describe('patch idempotency', () => {
     { id: 'WM-003', file: '../../.claude/helpers/auto-memory-hook.mjs' },
     { id: 'SG-007', file: 'commands/init.js' },
     { id: 'WM-004', file: '../../.claude/helpers/auto-memory-hook.mjs' },
-    // WM-005: absorbed into WM-001 (no-op, skip)
-    // WM-006: absorbed into WM-002 (no-op, skip)
     { id: 'CF-004', file: 'commands/config.js' },
-    // CF-005: absorbed into CF-003 (no-op, skip)
     { id: 'SG-008', file: 'init/executor.js' },
+    // CF-006: config.yaml -> config.json migration (merged CF-007, CF-008)
     { id: 'CF-006', file: 'commands/start.js' },
-    { id: 'CF-007', file: 'commands/status.js' },
-    { id: 'CF-008', file: 'commands/init.js' },
+    { id: 'CF-006', file: 'commands/status.js' },
+    { id: 'CF-006', file: 'commands/init.js' },
     // DOC-001: upstream README.md documentation corrections
     { id: 'DOC-001', file: '../../README.md' },
     // SG-009: remove --v3-mode from swarm init

@@ -44,3 +44,7 @@ want WASM-only set `backend: sqljs` explicitly.
 ## Ops
 
 5 ops in fix.py (WM-001a through WM-001e, logically grouped into 2 patch() calls)
+
+## Absorbed Patches
+
+- **WM-005** ([#1191](https://github.com/ruvnet/claude-flow/issues/1191)): memory-initializer reads config.yaml — absorbed because WM-001a now writes the config.json reader directly.

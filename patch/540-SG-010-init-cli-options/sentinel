@@ -6,3 +6,14 @@ grep "SG-010c" init/executor.js
 grep "cacheSize: options.runtime.cacheSize || 256" init/executor.js
 grep "init --cache-size 512" commands/init.js
 absent "cacheSize: 100," init/executor.js
+grep "name: 'topology'" commands/init.js
+grep "name: 'hooks'" commands/init.js
+grep "options.runtime.topology" commands/init.js
+grep "SG-010f" commands/init.js
+grep "options.hooks?.enabled" init/executor.js
+grep "options.runtime.modelPath" init/executor.js
+grep "init --topology mesh" commands/init.js
+grep "init --no-hooks" commands/init.js
+grep "name: 'default-scope'" commands/init.js
+grep "ctx.flags.defaultScope" commands/init.js
+grep "options.runtime.defaultScope" init/executor.js

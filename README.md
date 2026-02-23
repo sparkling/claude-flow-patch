@@ -174,7 +174,7 @@ claude-flow-patch/
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-56 defects across 15 categories.
+50 defects across 15 categories.
 
 ### CF -- Config & Doctor
 
@@ -184,10 +184,7 @@ claude-flow-patch/
 | [CF&#8209;002](patch/020-CF-002-config-export-yaml/) | Config export shows hardcoded defaults | Medium | [#1142](https://github.com/ruvnet/claude-flow/issues/1142) |
 | [CF&#8209;003](patch/380-CF-003-doctor-native-deps/) | Doctor --install native dependency resolution | Medium | [#1186](https://github.com/ruvnet/claude-flow/issues/1186) |
 | [CF&#8209;004](patch/420-CF-004-config-export-json/) | config get/export uses hand-rolled YAML parser instead of config.json | Medium | [#1193](https://github.com/ruvnet/claude-flow/issues/1193) |
-| [CF&#8209;005](patch/430-CF-005-doctor-config-json/) | Doctor checkMemoryBackend reads env var + config.yaml instead of config.json | Medium | [#1194](https://github.com/ruvnet/claude-flow/issues/1194) |
-| [CF&#8209;006](patch/450-CF-006-start-config-json/) | start.js uses hand-rolled YAML parser instead of config.json | Medium | [#1197](https://github.com/ruvnet/claude-flow/issues/1197) |
-| [CF&#8209;007](patch/460-CF-007-status-config-json/) | status.js isInitialized checks config.yaml instead of config.json | Medium | [#1198](https://github.com/ruvnet/claude-flow/issues/1198) |
-| [CF&#8209;008](patch/470-CF-008-init-display-config-json/) | init.js isInitialized and display strings reference config.yaml | Medium | [#1199](https://github.com/ruvnet/claude-flow/issues/1199) |
+| [CF&#8209;006](patch/450-CF-006-config-yaml-to-json/) | config.yaml -> config.json migration in start.js, status.js, init.js | Medium | [#1197](https://github.com/ruvnet/claude-flow/issues/1197) |
 | [CF&#8209;009](patch/500-CF-009-minimal-v3-defaults/) | Upgrade MINIMAL init preset to v3 runtime defaults | High | [#1203](https://github.com/ruvnet/claude-flow/issues/1203) |
 
 ### DM -- Daemon & Workers
@@ -197,8 +194,7 @@ claude-flow-patch/
 | [DM&#8209;001](patch/030-DM-001-daemon-log-zero/) | daemon.log always 0 bytes | Medium | [#1116](https://github.com/ruvnet/claude-flow/issues/1116) |
 | [DM&#8209;002](patch/040-DM-002-cpu-load-threshold/) | maxCpuLoad=2.0 blocks all workers on multi-core | Critical | [#1138](https://github.com/ruvnet/claude-flow/issues/1138) |
 | [DM&#8209;003](patch/050-DM-003-macos-freemem/) | macOS freemem() always ~0% — workers blocked | Critical | [#1077](https://github.com/ruvnet/claude-flow/issues/1077) |
-| [DM&#8209;004](patch/060-DM-004-preload-worker-stub/) | Preload worker stub + missing from defaults | Enhancement | [#1139](https://github.com/ruvnet/claude-flow/issues/1139) |
-| [DM&#8209;005](patch/070-DM-005-consolidation-worker-stub/) | Consolidation worker stub (no decay/rebuild) | Enhancement | [#1140](https://github.com/ruvnet/claude-flow/issues/1140) |
+| [DM&#8209;004](patch/060-DM-004-worker-stubs/) | Worker stubs — preload + consolidation | Enhancement | [#1139](https://github.com/ruvnet/claude-flow/issues/1139) |
 | [DM&#8209;006](patch/300-DM-006-log-rotation/) | No log rotation — logs grow unbounded | Medium | [#1114](https://github.com/ruvnet/claude-flow/issues/1114) |
 
 ### EM -- Embeddings & HNSW
@@ -297,8 +293,6 @@ claude-flow-patch/
 | [WM&#8209;002](patch/360-WM-002-config-respect/) | Neural config gating (neural.enabled not consumed at runtime) | Medium | [#1185](https://github.com/ruvnet/claude-flow/issues/1185) |
 | [WM&#8209;003](patch/370-WM-003-auto-memory-bridge/) | Activate AutoMemoryBridge in auto-memory-hook.mjs | High | [#1102](https://github.com/ruvnet/claude-flow/issues/1102) |
 | [WM&#8209;004](patch/390-WM-004-source-hook-fail-loud/) | Source hook silently falls back to JsonFileBackend | High | [#1190](https://github.com/ruvnet/claude-flow/issues/1190) |
-| [WM&#8209;005](patch/400-WM-005-memory-init-config-json/) | memory-initializer reads config.yaml with hand-rolled regex instead of config.json | Medium | [#1191](https://github.com/ruvnet/claude-flow/issues/1191) |
-| [WM&#8209;006](patch/410-WM-006-neural-config-json/) | intelligence.js reads neural.enabled from config.yaml regex instead of config.json | Medium | [#1192](https://github.com/ruvnet/claude-flow/issues/1192) |
 | [WM&#8209;007](patch/530-WM-007-wire-dead-config-keys/) | Wire dead config.json keys into runtime consumers | High | [#1204](https://github.com/ruvnet/claude-flow/issues/1204) |
 
 ### DOC -- Documentation
