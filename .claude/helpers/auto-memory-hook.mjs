@@ -236,7 +236,7 @@ function createBackend(config, memPkg) {
   try {
     const backend = new memPkg.HybridBackend({
       sqlite: { databasePath: join(swarmDir, 'hybrid-memory.db') },
-      agentdb: { dbPath: join(swarmDir, 'agentdb-memory.db') },
+      agentdb: { dbPath: join(swarmDir, 'agentdb-memory.rvf'), vectorBackend: 'rvf', enableLearning: config.agentdb?.enableLearning !== false },
       dualWrite: config.backend === 'hybrid',
     });
     return { backend, isHybrid: true };

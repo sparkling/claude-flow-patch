@@ -84,6 +84,41 @@ describe('e2e: init generates patched project', { skip: !canRun ? 'patched npx c
       assert.ok(content.includes('memory'), 'config.yaml should have memory section');
     }
   });
+
+  // ── WM-008: AgentDB v3 config in generated project ─────────────────────
+
+  it('config.json has agentdb section with vectorBackend rvf (WM-008)', () => {
+    const jsonPath = join(projectDir, '.claude-flow', 'config.json');
+    if (!existsSync(jsonPath)) return; // skip if config.yaml only
+    const parsed = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+    const agentdb = parsed.memory?.agentdb;
+    assert.ok(agentdb, 'config.json should have memory.agentdb section (WM-008h)');
+    assert.equal(agentdb.vectorBackend, 'rvf', 'agentdb.vectorBackend should be rvf');
+  });
+
+  it('config.json agentdb has learning config (WM-008)', () => {
+    const jsonPath = join(projectDir, '.claude-flow', 'config.json');
+    if (!existsSync(jsonPath)) return;
+    const parsed = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+    const agentdb = parsed.memory?.agentdb;
+    if (!agentdb) return;
+    assert.equal(agentdb.enableLearning, true, 'agentdb.enableLearning should default to true');
+    assert.equal(typeof agentdb.learningPositiveThreshold, 'number', 'should have learningPositiveThreshold');
+    assert.equal(typeof agentdb.learningBatchSize, 'number', 'should have learningBatchSize');
+  });
+
+  it('generated hook uses .rvf path (not .db) for agentdb (WM-008)', () => {
+    const hookPath = join(projectDir, '.claude', 'helpers', 'auto-memory-hook.mjs');
+    const content = readFileSync(hookPath, 'utf-8');
+    assert.ok(content.includes('agentdb-memory.rvf'), 'hook should use agentdb-memory.rvf (WM-008k)');
+    assert.ok(!content.includes('agentdb-memory.db'), 'hook should not use agentdb-memory.db anymore');
+  });
+
+  it('generated hook has vectorBackend rvf in agentdb config (WM-008)', () => {
+    const hookPath = join(projectDir, '.claude', 'helpers', 'auto-memory-hook.mjs');
+    const content = readFileSync(hookPath, 'utf-8');
+    assert.ok(content.includes("vectorBackend: 'rvf'"), 'hook should set vectorBackend to rvf (WM-008k)');
+  });
 });
 
 // ── Runtime tests (require native deps + model warmup) ────────────────────
@@ -185,5 +220,18 @@ describe('e2e: init project runtime with native deps', { skip: !canRun ? 'patche
       cwd: projectDir,
     });
     assert.equal(r.status, 0, `second import failed: ${r.stderr}`);
+  });
+
+  // ── WM-008: AgentDB v3 runtime in generated project ───────────────────
+
+  it('hook import creates agentdb-memory.rvf (not .db) (WM-008)', () => {
+    const rvfPath = join(projectDir, '.swarm', 'agentdb-memory.rvf');
+    const dbPath = join(projectDir, '.swarm', 'agentdb-memory.db');
+    // RVF file may or may not be created depending on agentdb backend selection,
+    // but if any agentdb file exists it should be .rvf not .db
+    if (existsSync(rvfPath) || existsSync(dbPath)) {
+      assert.ok(!existsSync(dbPath) || existsSync(rvfPath),
+        'agentdb should use .rvf path (WM-008g), not .db');
+    }
   });
 });

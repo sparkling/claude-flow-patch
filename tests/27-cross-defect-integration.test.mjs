@@ -719,6 +719,263 @@ describe('cross-defect: SG-008 config.json flow (6 consumers)', { skip: skipMsg 
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
+// Suite: cross-defect: WM-008 -> SG-008 (agentdb v3 + config.json flow)
+//
+// WM-008: Upgrades agentdb v2 → v3 (RVF, self-learning, witness chain)
+// SG-008: Generates config.json via init (used by WM-008h to embed agentdb section)
+// WM-001: Wires HybridBackend into memory-initializer (receives WM-008g .rvf config)
+// Together they ensure init produces a project with v3 agentdb config that flows
+// through config.json → memory-initializer → agentdb-backend → runtime.
+// ══════════════════════════════════════════════════════════════════════════════
+
+describe('cross-defect: WM-008 -> SG-008 -> WM-001 (agentdb v3 config chain)', { skip: skipMsg }, () => {
+  let executorSrc = '';
+  let memInitSrc = '';
+  let agentdbSrc = '';
+  let hookSrc = '';
+  let helpersGenSrc = '';
+
+  before(() => {
+    try { executorSrc = readFileSync(join(cliBase, 'init', 'executor.js'), 'utf-8'); } catch {}
+    try { memInitSrc = readFileSync(join(cliBase, 'memory', 'memory-initializer.js'), 'utf-8'); } catch {}
+    try { helpersGenSrc = readFileSync(join(cliBase, 'init', 'helpers-generator.js'), 'utf-8'); } catch {}
+    try {
+      const memDist = npxNmNative ? join(npxNmNative, '@claude-flow', 'memory', 'dist') : '';
+      if (memDist) agentdbSrc = readFileSync(join(memDist, 'agentdb-backend.js'), 'utf-8');
+    } catch {}
+    try { hookSrc = readFileSync(join(cliBase, '..', '..', '.claude', 'helpers', 'auto-memory-hook.mjs'), 'utf-8'); } catch {}
+  });
+
+  it('WM-008h: executor.js config.json template has agentdb section', () => {
+    assert.ok(executorSrc.includes("vectorBackend: 'rvf'"),
+      'executor.js should have vectorBackend rvf in config template (WM-008h)');
+    assert.ok(executorSrc.includes('enableLearning'),
+      'executor.js should have enableLearning in config template (WM-008h)');
+    assert.ok(executorSrc.includes('learningPositiveThreshold') || executorSrc.includes('agentdbPositiveThreshold'),
+      'executor.js should have learning threshold in config template (WM-008h)');
+  });
+
+  it('WM-008g: memory-initializer uses .rvf path', () => {
+    assert.ok(memInitSrc.includes('agentdb-memory.rvf'),
+      'memory-initializer should use agentdb-memory.rvf (WM-008g)');
+    assert.ok(!memInitSrc.includes("'agentdb-memory.db'"),
+      'memory-initializer should not use agentdb-memory.db anymore (WM-008g)');
+  });
+
+  it('WM-008g: memory-initializer has vectorBackend rvf', () => {
+    assert.ok(memInitSrc.includes("vectorBackend: 'rvf'"),
+      'memory-initializer should set vectorBackend to rvf (WM-008g)');
+  });
+
+  it('WM-008a: agentdb-backend default vectorBackend is rvf', () => {
+    if (!agentdbSrc) return; // skip if agentdb-backend.js not found
+    assert.ok(agentdbSrc.includes("vectorBackend: 'rvf'"),
+      'agentdb-backend.js should default vectorBackend to rvf (WM-008a)');
+    assert.ok(!agentdbSrc.includes("vectorBackend: 'auto'"),
+      'agentdb-backend.js should not have vectorBackend auto anymore (WM-008a)');
+  });
+
+  it('WM-008c: agentdb-backend imports SelfLearningRvfBackend', () => {
+    if (!agentdbSrc) return;
+    assert.ok(agentdbSrc.includes('SelfLearningRvfBackend'),
+      'agentdb-backend.js should import SelfLearningRvfBackend (WM-008c)');
+  });
+
+  it('WM-008ef: agentdb-backend has recordFeedback + witness chain methods', () => {
+    if (!agentdbSrc) return;
+    assert.ok(agentdbSrc.includes('recordFeedback'),
+      'agentdb-backend.js should have recordFeedback method (WM-008e)');
+    assert.ok(agentdbSrc.includes('getWitnessChain'),
+      'agentdb-backend.js should have getWitnessChain method (WM-008f)');
+    assert.ok(agentdbSrc.includes('verifyWitnessChain'),
+      'agentdb-backend.js should have verifyWitnessChain method (WM-008f)');
+  });
+
+  it('WM-008k: helpers-generator uses .rvf path + v3 config', () => {
+    assert.ok(helpersGenSrc.includes('agentdb-memory.rvf'),
+      'helpers-generator.js should use agentdb-memory.rvf (WM-008k)');
+    assert.ok(helpersGenSrc.includes("vectorBackend: 'rvf'"),
+      'helpers-generator.js should set vectorBackend to rvf (WM-008k)');
+  });
+
+  it('WM-008l: auto-memory-hook uses .rvf path', () => {
+    if (!hookSrc) return;
+    assert.ok(hookSrc.includes('agentdb-memory.rvf'),
+      'auto-memory-hook.mjs should use agentdb-memory.rvf (WM-008l)');
+    assert.ok(!hookSrc.includes('agentdb-memory.db'),
+      'auto-memory-hook.mjs should not use agentdb-memory.db anymore (WM-008l)');
+  });
+
+  it('SG-008 -> WM-008: full config chain from executor to agentdb-backend', () => {
+    // executor.js generates config.json with agentdb.vectorBackend = 'rvf'
+    const execHasRvf = executorSrc.includes("vectorBackend: 'rvf'");
+    // memory-initializer reads config.json and passes rvf to HybridBackend
+    const miHasRvf = memInitSrc.includes("vectorBackend: 'rvf'");
+    // agentdb-backend defaults to rvf
+    const abHasRvf = !agentdbSrc || agentdbSrc.includes("vectorBackend: 'rvf'");
+    // helpers-generator uses rvf in generated hook
+    const hgHasRvf = helpersGenSrc.includes("vectorBackend: 'rvf'");
+
+    assert.ok(execHasRvf && miHasRvf && abHasRvf && hgHasRvf,
+      'all 4 config chain files should use vectorBackend rvf (SG-008 → WM-008)');
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Suite: cross-defect: WM-008 cross-package consistency
+//
+// WM-008 patches span 4 packages:
+//   @claude-flow/memory (agentdb-backend.js, package.json)
+//   @claude-flow/cli (memory-initializer.js, executor.js, helpers-generator.js,
+//                     auto-memory-hook.mjs)
+//   @claude-flow/neural (reasoning-bank.js)
+//   @claude-flow/shared (defaults.js)
+// This suite verifies all packages are aligned on v3 config.
+// ══════════════════════════════════════════════════════════════════════════════
+
+describe('cross-defect: WM-008 cross-package consistency', { skip: skipMsg }, () => {
+  let memPkgJson = '';
+  let reasoningBankSrc = '';
+  let sharedDefaultsSrc = '';
+
+  before(() => {
+    if (!npxNmNative) return;
+    try { memPkgJson = readFileSync(join(npxNmNative, '@claude-flow', 'memory', 'package.json'), 'utf-8'); } catch {}
+    try { reasoningBankSrc = readFileSync(join(npxNmNative, '@claude-flow', 'neural', 'dist', 'reasoning-bank.js'), 'utf-8'); } catch {}
+    try { sharedDefaultsSrc = readFileSync(join(npxNmNative, '@claude-flow', 'shared', 'dist', 'defaults.js'), 'utf-8'); } catch {}
+  });
+
+  it('WM-008i: @claude-flow/memory depends on agentdb v3', () => {
+    if (!memPkgJson) return;
+    const pkg = JSON.parse(memPkgJson);
+    const agentdbDep = pkg.dependencies?.agentdb || '';
+    assert.ok(agentdbDep.includes('3.0.0'),
+      `@claude-flow/memory should depend on agentdb v3, got: ${agentdbDep} (WM-008i)`);
+  });
+
+  it('WM-008j: agentdb-backend header references v3', () => {
+    if (!npxNmNative) return;
+    let agentdbSrc = '';
+    try { agentdbSrc = readFileSync(join(npxNmNative, '@claude-flow', 'memory', 'dist', 'agentdb-backend.js'), 'utf-8'); } catch {}
+    if (!agentdbSrc) return;
+    assert.ok(agentdbSrc.includes('agentdb@3.0.0'),
+      'agentdb-backend.js header should reference agentdb@3.0.0 (WM-008j)');
+  });
+
+  it('WM-008m: @claude-flow/neural reasoning-bank uses vectorBackend rvf', () => {
+    if (!reasoningBankSrc) return;
+    assert.ok(reasoningBankSrc.includes("vectorBackend: 'rvf'"),
+      'reasoning-bank.js should use vectorBackend rvf (WM-008m)');
+    assert.ok(!reasoningBankSrc.includes("vectorBackend: 'auto'"),
+      'reasoning-bank.js should not use vectorBackend auto anymore (WM-008m)');
+  });
+
+  it('WM-008n: @claude-flow/shared defaults has vectorBackend rvf', () => {
+    if (!sharedDefaultsSrc) return;
+    assert.ok(sharedDefaultsSrc.includes("vectorBackend: 'rvf'"),
+      'shared defaults.js should have vectorBackend rvf (WM-008n)');
+  });
+
+  it('WM-008o: executor.js version table references agentdb v3', () => {
+    let executorSrc = '';
+    try { executorSrc = readFileSync(join(cliBase, 'init', 'executor.js'), 'utf-8'); } catch {}
+    if (!executorSrc) return;
+    assert.ok(executorSrc.includes('3.0.0-alpha.3'),
+      'executor.js version table should reference agentdb 3.0.0-alpha.3 (WM-008o)');
+    assert.ok(!executorSrc.includes('2.0.0-alpha.3.4'),
+      'executor.js should not reference agentdb v2 anymore (WM-008o)');
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Suite: cross-defect: WM-008 init → runtime (agentdb v3 e2e)
+//
+// End-to-end test: run init, verify the generated project has v3 agentdb
+// config in both config.json and the auto-memory-hook, then exercise the
+// HybridBackend with v3 agentdb config to verify runtime compatibility.
+// ══════════════════════════════════════════════════════════════════════════════
+
+describe('cross-defect: WM-008 init -> runtime (agentdb v3 e2e)', {
+  skip: skipMsg || !memPkg ? 'native deps (better-sqlite3, @claude-flow/memory) unavailable' : false,
+}, () => {
+  let project;
+
+  before(() => {
+    project = createProject('wm008-e2e');
+    const r = cli(['init', '--yes'], project.dir, 60000);
+    if (r.status !== 0) project = null;
+  });
+
+  after(() => {
+    if (project) project.cleanup();
+  });
+
+  it('init generates config.json with agentdb section (WM-008h)', (t) => {
+    if (!project) return t.skip('init failed');
+    const cfgPath = join(project.dir, '.claude-flow', 'config.json');
+    if (!existsSync(cfgPath)) return;
+    const cfg = JSON.parse(readFileSync(cfgPath, 'utf-8'));
+    const agentdb = cfg.memory?.agentdb;
+    assert.ok(agentdb, 'config.json should have memory.agentdb section (WM-008h)');
+    assert.equal(agentdb.vectorBackend, 'rvf',
+      'agentdb.vectorBackend should be rvf (WM-008h)');
+    assert.equal(agentdb.enableLearning, true,
+      'agentdb.enableLearning should default to true (WM-008h)');
+  });
+
+  it('init generates hook with .rvf agentdb config (WM-008k)', (t) => {
+    if (!project) return t.skip('init failed');
+    const hookPath = join(project.dir, '.claude', 'helpers', 'auto-memory-hook.mjs');
+    if (!existsSync(hookPath)) return;
+    const content = readFileSync(hookPath, 'utf-8');
+    assert.ok(content.includes('agentdb-memory.rvf'),
+      'hook should use agentdb-memory.rvf (WM-008k)');
+    assert.ok(content.includes("vectorBackend: 'rvf'"),
+      'hook should set vectorBackend to rvf (WM-008k)');
+  });
+
+  it('HybridBackend with v3 config works in initialized project (WM-008 runtime)', async (t) => {
+    if (!project) return t.skip('init failed');
+    if (!memPkg?.HybridBackend || !memPkg?.createDefaultEntry) return;
+
+    const backend = new memPkg.HybridBackend({
+      sqlite: { databasePath: join(project.dir, '.swarm', 'wm008-runtime.db') },
+      agentdb: {
+        dbPath: join(project.dir, '.swarm', 'wm008-runtime.rvf'),
+        vectorBackend: 'rvf',
+        enableLearning: true,
+      },
+      dualWrite: true,
+    });
+
+    try {
+      await backend.initialize();
+      assert.ok(true, 'HybridBackend should initialize with v3 config');
+
+      // Store and retrieve
+      const entry = memPkg.createDefaultEntry({
+        namespace: 'wm008-e2e',
+        key: 'v3-runtime-key',
+        content: 'agentdb v3 end-to-end runtime test',
+        tags: ['wm-008', 'v3', 'e2e'],
+      });
+      await backend.store(entry);
+
+      const found = await backend.getByKey('wm008-e2e', 'v3-runtime-key');
+      assert.ok(found, 'entry should be retrievable after store (WM-008 runtime)');
+      assert.equal(found.content, 'agentdb v3 end-to-end runtime test');
+
+      // Health check
+      const health = await backend.healthCheck();
+      assert.equal(health.status, 'healthy',
+        'healthCheck should pass with v3 config (WM-008 runtime)');
+    } finally {
+      try { await backend.shutdown(); } catch {}
+    }
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
 // Suite: cross-defect: syntax validation of all patched files
 //
 // Runs `node --check` on every patched JS file across ALL npx cache installs

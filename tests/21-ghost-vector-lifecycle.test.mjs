@@ -72,7 +72,7 @@ describe('ghost-vector: HNSW cleanup after delete', { skip: skipMsg }, () => {
     project = createProject('gv-cleanup');
     backend = new memPkg.HybridBackend({
       sqlite: { databasePath: join(project.dir, '.swarm', 'hybrid-memory.db') },
-      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.db') },
+      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.rvf'), vectorBackend: 'rvf' },
       dualWrite: true,
     });
     await backend.initialize();
@@ -145,7 +145,7 @@ describe('ghost-vector: HNSW metadata integrity', { skip: skipMsg }, () => {
     project = createProject('gv-metadata');
     backend = new memPkg.HybridBackend({
       sqlite: { databasePath: join(project.dir, '.swarm', 'hybrid-memory.db') },
-      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.db') },
+      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.rvf'), vectorBackend: 'rvf' },
       dualWrite: true,
     });
     await backend.initialize();
@@ -212,7 +212,7 @@ describe('ghost-vector: search quality after delete', { skip: skipMsg }, () => {
     project = createProject('gv-search');
     backend = new memPkg.HybridBackend({
       sqlite: { databasePath: join(project.dir, '.swarm', 'hybrid-memory.db') },
-      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.db') },
+      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.rvf'), vectorBackend: 'rvf' },
       dualWrite: true,
     });
     await backend.initialize();

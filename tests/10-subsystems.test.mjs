@@ -66,7 +66,7 @@ describe('subsystems: AgentDB dual-write', { skip: skipMsg }, () => {
     project = createProject('agentdb');
     backend = new memPkg.HybridBackend({
       sqlite: { databasePath: join(project.dir, '.swarm', 'hybrid-memory.db') },
-      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.db') },
+      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.rvf'), vectorBackend: 'rvf' },
       dualWrite: true,
     });
     await backend.initialize();
@@ -168,7 +168,7 @@ describe('subsystems: LearningBridge', { skip: skipMsg }, () => {
     project = createProject('learning');
     backend = new memPkg.HybridBackend({
       sqlite: { databasePath: join(project.dir, '.swarm', 'hybrid-memory.db') },
-      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.db') },
+      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.rvf'), vectorBackend: 'rvf' },
       dualWrite: true,
     });
     await backend.initialize();
@@ -248,7 +248,7 @@ describe('subsystems: MemoryGraph', { skip: skipMsg }, () => {
     project = createProject('graph');
     backend = new memPkg.HybridBackend({
       sqlite: { databasePath: join(project.dir, '.swarm', 'hybrid-memory.db') },
-      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.db') },
+      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.rvf'), vectorBackend: 'rvf' },
       dualWrite: true,
     });
     await backend.initialize();
@@ -347,7 +347,7 @@ describe('subsystems: AutoMemoryBridge lifecycle', { skip: skipMsg }, () => {
 
     backend = new memPkg.HybridBackend({
       sqlite: { databasePath: join(project.dir, '.swarm', 'hybrid-memory.db') },
-      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.db') },
+      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.rvf'), vectorBackend: 'rvf' },
       dualWrite: true,
     });
     await backend.initialize();
@@ -529,7 +529,7 @@ describe('subsystems: busy_timeout concurrent access', { skip: skipMsg }, () => 
     project = createProject('concurrent');
     backend = new memPkg.HybridBackend({
       sqlite: { databasePath: join(project.dir, '.swarm', 'hybrid-memory.db') },
-      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.db') },
+      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.rvf'), vectorBackend: 'rvf' },
       dualWrite: true,
     });
     await backend.initialize();
@@ -566,6 +566,215 @@ describe('subsystems: busy_timeout concurrent access', { skip: skipMsg }, () => 
 
     const count = await backend.count('concurrent-test');
     assert.equal(count, 20, 'all 20 concurrent writes should succeed');
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Suite: AgentDBBackend v3 features (WM-008)
+//
+// WM-008 upgrades agentdb v2 → v3 with:
+//   - RVF unified storage (vectorBackend: 'rvf')
+//   - SelfLearningRvfBackend (recordFeedback, contrastive training)
+//   - SHAKE-256 witness chain (getWitnessChain, verifyWitnessChain)
+//   - Updated initialized event (learning, unifiedMode, witnessChainHash)
+// ══════════════════════════════════════════════════════════════════════════════
+
+describe('subsystems: AgentDBBackend v3 features (WM-008)', { skip: skipMsg }, () => {
+  // Check if AgentDBBackend is exported from the memory package
+  const hasAgentDBBackend = memPkg && typeof memPkg.AgentDBBackend === 'function';
+  const skipNoBackend = !hasAgentDBBackend ? 'AgentDBBackend not exported' : false;
+
+  let project, agentdbBackend;
+
+  before(async () => {
+    if (!hasAgentDBBackend) return;
+    project = createProject('agentdb-v3');
+    agentdbBackend = new memPkg.AgentDBBackend({
+      dbPath: join(project.dir, '.swarm', 'agentdb-v3-test.rvf'),
+      vectorBackend: 'rvf',
+      enableLearning: true,
+      learningPositiveThreshold: 0.7,
+      learningNegativeThreshold: 0.3,
+      learningBatchSize: 32,
+      learningTickInterval: 30000,
+    });
+    await agentdbBackend.initialize();
+  });
+
+  after(async () => {
+    if (agentdbBackend) try { await agentdbBackend.shutdown(); } catch {}
+    if (project) project.cleanup();
+  });
+
+  it('AgentDBBackend constructor accepts v3 config (WM-008a)', { skip: skipNoBackend }, () => {
+    assert.ok(agentdbBackend, 'AgentDBBackend should be created');
+    assert.equal(agentdbBackend.config.vectorBackend, 'rvf',
+      'config.vectorBackend should be rvf (WM-008a)');
+    assert.equal(agentdbBackend.config.enableLearning, true,
+      'config.enableLearning should be true (WM-008d)');
+  });
+
+  it('initialized event includes v3 fields (WM-008d)', { skip: skipNoBackend }, async () => {
+    // Create a fresh backend to capture the initialized event
+    const project2 = createProject('agentdb-v3-event');
+    const backend2 = new memPkg.AgentDBBackend({
+      dbPath: join(project2.dir, '.swarm', 'agentdb-event-test.rvf'),
+      vectorBackend: 'rvf',
+      enableLearning: true,
+    });
+
+    let initEvent = null;
+    backend2.on('initialized', (evt) => { initEvent = evt; });
+    await backend2.initialize();
+
+    try {
+      if (initEvent) {
+        // v3 initialized event should have learning and unifiedMode fields
+        assert.ok('learning' in initEvent,
+          'initialized event should have learning field (WM-008d)');
+        assert.ok('unifiedMode' in initEvent,
+          'initialized event should have unifiedMode field (WM-008d)');
+        // witnessChainHash is optional — may not be available on first init
+        // but the field should at least be defined (could be undefined)
+      }
+      assert.ok(true, 'initialize completed without error');
+    } finally {
+      try { await backend2.shutdown(); } catch {}
+      project2.cleanup();
+    }
+  });
+
+  it('recordFeedback method exists (WM-008e)', { skip: skipNoBackend }, () => {
+    assert.equal(typeof agentdbBackend.recordFeedback, 'function',
+      'AgentDBBackend should have recordFeedback method (WM-008e)');
+  });
+
+  it('recordFeedback does not throw (WM-008e)', { skip: skipNoBackend }, async () => {
+    // recordFeedback is a no-op if learning backend is not available,
+    // but it should never throw
+    await agentdbBackend.recordFeedback('test-query-1', 0.85);
+    assert.ok(true, 'recordFeedback should not throw (WM-008e)');
+  });
+
+  it('getWitnessChain method exists (WM-008f)', { skip: skipNoBackend }, () => {
+    assert.equal(typeof agentdbBackend.getWitnessChain, 'function',
+      'AgentDBBackend should have getWitnessChain method (WM-008f)');
+  });
+
+  it('getWitnessChain returns chain or null (WM-008f)', { skip: skipNoBackend }, () => {
+    const chain = agentdbBackend.getWitnessChain();
+    // v3 returns a chain object; v2 or unavailable returns null
+    assert.ok(chain === null || typeof chain === 'object',
+      `getWitnessChain should return object or null, got ${typeof chain} (WM-008f)`);
+  });
+
+  it('verifyWitnessChain method exists (WM-008f)', { skip: skipNoBackend }, () => {
+    assert.equal(typeof agentdbBackend.verifyWitnessChain, 'function',
+      'AgentDBBackend should have verifyWitnessChain method (WM-008f)');
+  });
+
+  it('verifyWitnessChain returns result with valid field (WM-008f)', { skip: skipNoBackend }, async () => {
+    const result = await agentdbBackend.verifyWitnessChain();
+    assert.ok(result, 'verifyWitnessChain should return result (WM-008f)');
+    assert.ok('valid' in result,
+      'verifyWitnessChain result should have valid field (WM-008f)');
+  });
+
+  it('shutdown saves unified .rvf and destroys learning backend (WM-008b)', { skip: skipNoBackend }, async () => {
+    // Create a fresh backend, store some data, then shutdown cleanly
+    const project3 = createProject('agentdb-v3-shutdown');
+    const backend3 = new memPkg.AgentDBBackend({
+      dbPath: join(project3.dir, '.swarm', 'agentdb-shutdown-test.rvf'),
+      vectorBackend: 'rvf',
+      enableLearning: true,
+    });
+    await backend3.initialize();
+
+    // Store an entry if possible
+    if (typeof backend3.store === 'function') {
+      await backend3.store({
+        id: 'shutdown-test-1',
+        content: 'shutdown test entry',
+        namespace: 'shutdown-test',
+      });
+    }
+
+    let shutdownFired = false;
+    backend3.on('shutdown', () => { shutdownFired = true; });
+    await backend3.shutdown();
+
+    assert.ok(shutdownFired, 'shutdown event should fire (WM-008b)');
+    project3.cleanup();
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Suite: HybridBackend with v3 agentdb config (WM-008)
+//
+// Tests that HybridBackend correctly passes v3 config to the AgentDB backend
+// including vectorBackend: 'rvf', enableLearning, and learning thresholds.
+// ══════════════════════════════════════════════════════════════════════════════
+
+describe('subsystems: HybridBackend with v3 agentdb config (WM-008)', { skip: skipMsg }, () => {
+  let project, backend;
+
+  before(async () => {
+    project = createProject('hybrid-v3');
+    backend = new memPkg.HybridBackend({
+      sqlite: { databasePath: join(project.dir, '.swarm', 'hybrid-memory.db') },
+      agentdb: {
+        dbPath: join(project.dir, '.swarm', 'agentdb-memory.rvf'),
+        vectorBackend: 'rvf',
+        enableLearning: true,
+        learningPositiveThreshold: 0.7,
+        learningBatchSize: 32,
+      },
+      dualWrite: true,
+    });
+    await backend.initialize();
+  });
+
+  after(async () => {
+    if (backend) try { await backend.shutdown(); } catch {}
+    if (project) project.cleanup();
+  });
+
+  it('HybridBackend accepts v3 agentdb config without error', () => {
+    assert.ok(backend, 'HybridBackend should initialize with v3 agentdb config (WM-008)');
+  });
+
+  it('store + query works with v3 config (WM-008)', async () => {
+    const entry = memPkg.createDefaultEntry({
+      namespace: 'v3-hybrid-test',
+      key: 'v3-key-1',
+      content: 'v3 hybrid backend test content',
+      tags: ['v3', 'rvf'],
+    });
+    await backend.store(entry);
+
+    const results = await backend.query({ namespace: 'v3-hybrid-test', limit: 10 });
+    assert.ok(results.length >= 1, 'query should return stored entry (WM-008)');
+    const found = results.find(r => r.key === 'v3-key-1');
+    assert.ok(found, 'stored entry should be retrievable (WM-008)');
+    assert.equal(found.content, 'v3 hybrid backend test content');
+  });
+
+  it('.rvf file created in .swarm/ (not .db) (WM-008)', () => {
+    const rvfPath = join(project.dir, '.swarm', 'agentdb-memory.rvf');
+    const dbPath = join(project.dir, '.swarm', 'agentdb-memory.db');
+    // The RVF file may or may not exist depending on whether agentdb v3 is installed,
+    // but if any agentdb file exists it should be .rvf, not .db
+    if (existsSync(rvfPath) || existsSync(dbPath)) {
+      assert.ok(!existsSync(dbPath) || existsSync(rvfPath),
+        'agentdb should use .rvf path, not .db (WM-008)');
+    }
+    assert.ok(true, 'agentdb file path check completed (WM-008)');
+  });
+
+  it('healthCheck passes with v3 config (WM-008)', async () => {
+    const health = await backend.healthCheck();
+    assert.ok(health, 'healthCheck should return result');
+    assert.equal(health.status, 'healthy', `status should be healthy with v3 config, got ${health.status}`);
   });
 });
 

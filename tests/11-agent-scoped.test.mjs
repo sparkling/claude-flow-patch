@@ -103,7 +103,7 @@ describe('agent-scoped: createAgentBridge', { skip: skipMsg }, () => {
     project = createProject('agent-bridge');
     backend = new memPkg.HybridBackend({
       sqlite: { databasePath: join(project.dir, '.swarm', 'hybrid-memory.db') },
-      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.db') },
+      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.rvf'), vectorBackend: 'rvf' },
       dualWrite: true,
     });
     await backend.initialize();
@@ -158,14 +158,14 @@ describe('agent-scoped: transferKnowledge', { skip: skipMsg }, () => {
 
     sourceBackend = new memPkg.HybridBackend({
       sqlite: { databasePath: join(project.dir, '.swarm', 'source-memory.db') },
-      agentdb: { dbPath: join(project.dir, '.swarm', 'source-agentdb.db') },
+      agentdb: { dbPath: join(project.dir, '.swarm', 'source-agentdb.rvf'), vectorBackend: 'rvf' },
       dualWrite: true,
     });
     await sourceBackend.initialize();
 
     targetBackend = new memPkg.HybridBackend({
       sqlite: { databasePath: join(project.dir, '.swarm', 'target-memory.db') },
-      agentdb: { dbPath: join(project.dir, '.swarm', 'target-agentdb.db') },
+      agentdb: { dbPath: join(project.dir, '.swarm', 'target-agentdb.rvf'), vectorBackend: 'rvf' },
       dualWrite: true,
     });
     await targetBackend.initialize();
