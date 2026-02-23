@@ -15,4 +15,17 @@ export const MINIMAL_INIT_OPTIONS = {
     skills: {
         core: true,
     },
+    agents: {
+        all: false,
+    },
+    runtime: {
+        topology: 'mesh',
+        maxAgents: 5,
+        memoryBackend: 'memory',
+        enableHNSW: false,
+        enableNeural: false,
+        enableLearningBridge: false,
+        enableMemoryGraph: false,
+        enableAgentScopes: false,
+    },
 };

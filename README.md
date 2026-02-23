@@ -174,7 +174,7 @@ claude-flow-patch/
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-51 defects across 15 categories.
+53 defects across 15 categories.
 
 ### CF -- Config & Doctor
 
@@ -188,6 +188,7 @@ claude-flow-patch/
 | [CF&#8209;006](patch/450-CF-006-start-config-json/) | start.js uses hand-rolled YAML parser instead of config.json | Medium | [#1197](https://github.com/ruvnet/claude-flow/issues/1197) |
 | [CF&#8209;007](patch/460-CF-007-status-config-json/) | status.js isInitialized checks config.yaml instead of config.json | Medium | [#1198](https://github.com/ruvnet/claude-flow/issues/1198) |
 | [CF&#8209;008](patch/470-CF-008-init-display-config-json/) | init.js isInitialized and display strings reference config.yaml | Medium | [#1199](https://github.com/ruvnet/claude-flow/issues/1199) |
+| [CF&#8209;009](patch/500-CF-009-minimal-v3-defaults/) | Upgrade MINIMAL init preset to v3 runtime defaults | High | [#1203](https://github.com/ruvnet/claude-flow/issues/1203) |
 
 ### DM -- Daemon & Workers
 
@@ -277,6 +278,7 @@ claude-flow-patch/
 | [SG&#8209;006](patch/340-SG-006-wizard-capture/) | Wizard captures permissionRequest hook but never assigns it + topology hardcoded | Medium | [#1184](https://github.com/ruvnet/claude-flow/issues/1184) |
 | [SG&#8209;007](patch/385-SG-007-init-shallow-copy/) | --skip-claude / --only-claude mutate shared init options via shallow copy | Medium | [#1188](https://github.com/ruvnet/claude-flow/issues/1188) |
 | [SG&#8209;008](patch/440-SG-008-init-config-json/) | init should generate .claude-flow/config.json (not config.yaml) | Enhancement | [#1195](https://github.com/ruvnet/claude-flow/issues/1195) |
+| [SG&#8209;009](patch/490-SG-009-remove-v3-mode/) | Remove --v3-mode from swarm init, make v3 the default | High | [#1202](https://github.com/ruvnet/claude-flow/issues/1202) |
 
 ### UI -- Display & Cosmetic
 

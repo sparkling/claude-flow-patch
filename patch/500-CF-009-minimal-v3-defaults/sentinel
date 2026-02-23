@@ -1,0 +1,2 @@
+absent "maxAgents: 5" init/types.js
+absent "memoryBackend: 'memory'" init/types.js

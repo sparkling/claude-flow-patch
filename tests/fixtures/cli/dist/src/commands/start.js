@@ -90,6 +90,14 @@ const quickCommand = {
     }
 };
 
+// start all swarm init call
+const swarmResult = await callMCPTool('swarm_init', {
+            topology: finalTopology,
+            maxAgents,
+            autoScaling: swarmConfig.autoScale !== false,
+            v3Mode: true
+        });
+
 export const startCommand = {
     name: 'start',
     description: 'Start the Claude Flow orchestration system',

@@ -44,6 +44,14 @@ describe('patch idempotency', () => {
     { id: 'CF-008', file: 'commands/init.js' },
     // DOC-001: upstream README.md documentation corrections
     { id: 'DOC-001', file: '../../README.md' },
+    // SG-009: remove --v3-mode from swarm init
+    { id: 'SG-009', file: 'commands/swarm.js' },
+    { id: 'SG-009', file: 'index.js' },
+    { id: 'SG-009', file: 'init/claudemd-generator.js' },
+    { id: 'SG-009', file: 'commands/start.js' },
+    { id: 'SG-009', file: 'commands/config.js' },
+    // CF-009: upgrade MINIMAL init preset to v3 runtime defaults
+    { id: 'CF-009', file: 'init/types.js' },
   ];
 
   for (const { id, file } of PATCHES) {

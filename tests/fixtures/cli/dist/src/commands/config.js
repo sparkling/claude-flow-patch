@@ -8,6 +8,27 @@ import { confirm } from '../prompt.js';
 const initCommand = {
     name: 'init',
     description: 'Initialize configuration',
+    action: async (ctx) => {
+        const config = {
+            version: '3.0.0',
+            v3Mode: v3,
+            sparc: sparc,
+            agents: {},
+            swarm: {
+                topology: 'hybrid',
+                maxAgents: 15,
+                autoScale: true,
+                coordinationStrategy: 'consensus'
+            },
+        };
+        output.printTable({
+            data: [
+                { setting: 'Version', value: config.version },
+                { setting: 'V3 Mode', value: config.v3Mode ? 'Enabled' : 'Disabled' },
+                { setting: 'SPARC Mode', value: config.sparc ? 'Enabled' : 'Disabled' },
+            ]
+        });
+    }
 };
 // getCommand
 const getCommand = {

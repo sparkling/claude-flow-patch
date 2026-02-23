@@ -1,0 +1,8 @@
+absent "name: 'v3-mode'" commands/swarm.js
+absent "const v3Mode" commands/swarm.js
+absent "'claude-flow swarm init --v3-mode'" commands/swarm.js
+absent "swarm init --v3-mode" index.js
+absent "swarm init --v3-mode" init/claudemd-generator.js
+absent "v3Mode" commands/start.js
+absent "v3Mode" commands/config.js
+grep "topology: 'hierarchical-mesh'" commands/config.js

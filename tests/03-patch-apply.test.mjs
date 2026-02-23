@@ -307,6 +307,86 @@ describe('individual patch application', () => {
       sentinel: '(project directory)',
       absent: null,
     },
+    // SG-009: remove --v3-mode from swarm init, make v3 the default
+    {
+      id: 'SG-009',
+      file: 'commands/swarm.js',
+      sentinel: "default: 'hierarchical-mesh'",
+      absent: "name: 'v3-mode'",
+    },
+    {
+      id: 'SG-009',
+      file: 'commands/swarm.js',
+      sentinel: "strategy: ctx.flags.strategy || 'development',\n                },",
+      absent: "const v3Mode",
+    },
+    {
+      id: 'SG-009',
+      file: 'commands/swarm.js',
+      sentinel: "'claude-flow swarm init', description: 'Initialize V3 swarm'",
+      absent: "'claude-flow swarm init --v3-mode'",
+    },
+    {
+      id: 'SG-009',
+      file: 'index.js',
+      sentinel: "swarm init                        # Initialize V3 swarm",
+      absent: "swarm init --v3-mode",
+    },
+    {
+      id: 'SG-009',
+      file: 'init/claudemd-generator.js',
+      sentinel: "swarm init\nnpx",
+      absent: "swarm init --v3-mode",
+    },
+    {
+      id: 'SG-009',
+      file: 'commands/start.js',
+      sentinel: "autoScaling: swarmConfig.autoScale !== false\n",
+      absent: "v3Mode: true",
+    },
+    {
+      id: 'SG-009',
+      file: 'commands/config.js',
+      sentinel: "version: '3.0.0',\n            sparc: sparc,",
+      absent: "v3Mode: v3,",
+    },
+    {
+      id: 'SG-009',
+      file: 'commands/config.js',
+      sentinel: "{ setting: 'Version', value: config.version },\n                { setting: 'SPARC Mode'",
+      absent: "V3 Mode",
+    },
+    {
+      id: 'SG-009',
+      file: 'commands/config.js',
+      sentinel: "'version': '3.0.0',\n            'swarm.topology'",
+      absent: "'v3Mode': true",
+    },
+    {
+      id: 'SG-009',
+      file: 'commands/config.js',
+      sentinel: "topology: 'hierarchical-mesh',\n                maxAgents: 15,\n                autoScale: true",
+      absent: null,
+    },
+    {
+      id: 'SG-009',
+      file: 'commands/config.js',
+      sentinel: "'swarm.topology': 'hierarchical-mesh'",
+      absent: "'swarm.topology': 'hybrid'",
+    },
+    {
+      id: 'SG-009',
+      file: 'commands/config.js',
+      sentinel: "swarm: { topology: 'hierarchical-mesh', maxAgents: 15 }",
+      absent: "swarm: { topology: 'hybrid', maxAgents: 15 }",
+    },
+    // CF-009: upgrade MINIMAL init preset to v3 runtime defaults
+    {
+      id: 'CF-009',
+      file: 'init/types.js',
+      sentinel: "maxAgents: 15",
+      absent: "maxAgents: 5",
+    },
   ];
 
   for (const { id, file, sentinel, absent, deps } of TESTS) {
