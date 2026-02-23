@@ -499,6 +499,35 @@ describe('individual patch application', () => {
       sentinel: 'hierarchical-mesh',
       absent: 'topology="hierarchical"',
     },
+    // WM-010: witness chain verification at session start
+    {
+      id: 'WM-010',
+      file: 'init/helpers-generator.js',
+      sentinel: 'WM-010a',
+      absent: null,
+      deps: ['WM-003'],
+    },
+    {
+      id: 'WM-010',
+      file: 'init/helpers-generator.js',
+      sentinel: 'verifyWitnessChain',
+      absent: null,
+      deps: ['WM-003'],
+    },
+    {
+      id: 'WM-010',
+      file: '../../.claude/helpers/auto-memory-hook.mjs',
+      sentinel: 'WM-010b',
+      absent: null,
+      deps: ['WM-003', 'WM-004'],
+    },
+    {
+      id: 'WM-010',
+      file: '../../.claude/helpers/auto-memory-hook.mjs',
+      sentinel: 'verifyWitnessChain',
+      absent: null,
+      deps: ['WM-003', 'WM-004'],
+    },
     // WM-008: AgentDB v3 upgrade (RVF, self-learning, witness chain)
     {
       id: 'WM-008',
@@ -609,6 +638,52 @@ describe('individual patch application', () => {
       sentinel: '3.0.0-alpha.3',
       absent: '2.0.0-alpha.3.4',
       deps: ['SG-008'],
+    },
+    // WM-009: AgentDB learning loop (recordFeedback)
+    {
+      id: 'WM-009',
+      file: 'memory/memory-initializer.js',
+      sentinel: 'recordSearchFeedback',
+      absent: null,
+    },
+    {
+      id: 'WM-009',
+      file: 'mcp-tools/memory-tools.js',
+      sentinel: '_recentSearchHits',
+      absent: null,
+    },
+    {
+      id: 'WM-009',
+      file: 'mcp-tools/memory-tools.js',
+      sentinel: 'WM-009d',
+      absent: null,
+    },
+    // WM-011: ReasoningBank controller instantiation
+    {
+      id: 'WM-011',
+      file: 'memory/memory-initializer.js',
+      sentinel: '_reasoningBank',
+      absent: null,
+      deps: ['WM-001'],
+    },
+    {
+      id: 'WM-011',
+      file: 'memory/memory-initializer.js',
+      sentinel: 'getReasoningBank',
+      absent: null,
+      deps: ['WM-001', 'WM-009'],
+    },
+    {
+      id: 'WM-011',
+      file: 'mcp-tools/hooks-tools.js',
+      sentinel: 'getReasoningBankInstance',
+      absent: null,
+    },
+    {
+      id: 'WM-011',
+      file: 'mcp-tools/hooks-tools.js',
+      sentinel: 'reasoning-bank',
+      absent: null,
     },
   ];
 

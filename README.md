@@ -174,7 +174,7 @@ claude-flow-patch/
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-57 defects across 15 categories.
+60 defects across 15 categories.
 
 ### CF -- Config & Doctor
 
@@ -301,6 +301,9 @@ claude-flow-patch/
 | [WM&#8209;006](patch/410-WM-006-neural-config-json/) | intelligence.js reads neural.enabled from config.yaml regex instead of config.json | Medium | [#1192](https://github.com/ruvnet/claude-flow/issues/1192) |
 | [WM&#8209;007](patch/530-WM-007-wire-dead-config-keys/) | Wire dead config.json keys into runtime consumers | High | [#1204](https://github.com/ruvnet/claude-flow/issues/1204) |
 | [WM&#8209;008](patch/560-WM-008-agentdb-v3-upgrade/) | Upgrade AgentDB v2 to v3 (RVF backend, self-learning, witness chain) | High | [#1207](https://github.com/ruvnet/claude-flow/issues/1207) |
+| [WM&#8209;009](patch/570-WM-009-agentdb-learning-loop/) | Wire AgentDB learning loop (recordFeedback) | High | [#1209](https://github.com/ruvnet/claude-flow/issues/1209) |
+| [WM&#8209;010](patch/580-WM-010-witness-chain-verify/) | Wire witness chain verification at session start | High | [#1208](https://github.com/ruvnet/claude-flow/issues/1208) |
+| [WM&#8209;011](patch/590-WM-011-reasoning-bank-controller/) | Instantiate ReasoningBank controller | High | [#1210](https://github.com/ruvnet/claude-flow/issues/1210) |
 
 ### DOC -- Documentation
 

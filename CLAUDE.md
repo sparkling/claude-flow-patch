@@ -158,10 +158,10 @@ Save the returned GitHub issue number for the defect README.md.
 | RV | RuVector Intelligence | 3 |
 | SG | Settings Generator | 10 |
 | UI | Display & Cosmetic | 2 |
-| WM | Wiring / Memory Integration | 8 |
+| WM | Wiring / Memory Integration | 11 |
 | DOC | Documentation | 1 |
 
-## All 57 Defects
+## All 60 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -222,6 +222,9 @@ Save the returned GitHub issue number for the defect README.md.
 | SG-010 | [#1205 Add CLI options to init for all config.json settings](https://github.com/ruvnet/claude-flow/issues/1205) | Enhancement |
 | SG-011 | [#1206 Fix stale --topology hierarchical references](https://github.com/ruvnet/claude-flow/issues/1206) | Medium |
 | WM-008 | [#1207 Upgrade AgentDB v2 to v3 (RVF backend, self-learning, witness chain)](https://github.com/ruvnet/claude-flow/issues/1207) | High |
+| WM-009 | [#1209 Wire AgentDB learning loop (recordFeedback)](https://github.com/ruvnet/claude-flow/issues/1209) | High |
+| WM-010 | [#1208 Wire witness chain verification at session start](https://github.com/ruvnet/claude-flow/issues/1208) | High |
+| WM-011 | [#1210 Instantiate ReasoningBank controller](https://github.com/ruvnet/claude-flow/issues/1210) | High |
 <!-- GENERATED:defect-tables:end -->
 
 ---

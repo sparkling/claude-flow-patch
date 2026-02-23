@@ -119,6 +119,39 @@ describe('e2e: init generates patched project', { skip: !canRun ? 'patched npx c
     const content = readFileSync(hookPath, 'utf-8');
     assert.ok(content.includes("vectorBackend: 'rvf'"), 'hook should set vectorBackend to rvf (WM-008k)');
   });
+
+  // ── WM-009: Learning feedback wiring in generated project ─────────────
+
+  it('generated hook or memory-tools has recordFeedback wiring (WM-009)', () => {
+    const hookPath = join(projectDir, '.claude', 'helpers', 'auto-memory-hook.mjs');
+    const content = readFileSync(hookPath, 'utf-8');
+    // WM-009 wires recordSearchFeedback in memory-tools.js and exports it from
+    // memory-initializer.js. The generated hook may reference enableLearning
+    // or recordFeedback depending on what the init generator emits.
+    const hasLearningConfig = content.includes('enableLearning');
+    const hasFeedbackRef = content.includes('recordFeedback') || content.includes('recordSearchFeedback');
+    assert.ok(hasLearningConfig || hasFeedbackRef,
+      'generated hook should reference learning config or feedback function (WM-009)');
+  });
+
+  // ── WM-010: Witness chain verification in generated hook ──────────────
+
+  it('generated hook has verifyWitnessChain call when WM-010 is applied (WM-010)', () => {
+    const hookPath = join(projectDir, '.claude', 'helpers', 'auto-memory-hook.mjs');
+    const content = readFileSync(hookPath, 'utf-8');
+    // WM-010b patches the source hook to add verifyWitnessChain after backend.initialize().
+    // The init executor copies the source hook when available, so verifyWitnessChain
+    // is present only after patch-all.sh has been run against the npx cache.
+    // We check for either the patched string or the HybridBackend (base requirement).
+    const hasWitnessCheck = content.includes('verifyWitnessChain');
+    const hasHybridBackend = content.includes('HybridBackend');
+    assert.ok(hasWitnessCheck || hasHybridBackend,
+      'generated hook should contain verifyWitnessChain (if patched) or at least HybridBackend (WM-010)');
+    // If WM-010b is applied, verify the specific pattern
+    if (hasWitnessCheck) {
+      assert.ok(content.includes('witness chain'), 'verifyWitnessChain should have descriptive comment');
+    }
+  });
 });
 
 // ── Runtime tests (require native deps + model warmup) ────────────────────

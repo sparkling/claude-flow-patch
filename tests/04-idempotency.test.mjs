@@ -65,6 +65,9 @@ describe('patch idempotency', () => {
     { id: 'SG-011', file: 'commands/init.js' },
     { id: 'SG-011', file: 'init/claudemd-generator.js' },
     { id: 'SG-011', file: 'init/executor.js' },
+    // WM-010: witness chain verification at session start
+    { id: 'WM-010', file: 'init/helpers-generator.js' },
+    { id: 'WM-010', file: '../../.claude/helpers/auto-memory-hook.mjs' },
     // WM-008: AgentDB v3 upgrade (all patched packages)
     { id: 'WM-008', file: '../../../memory/dist/agentdb-backend.js' },
     { id: 'WM-008', file: '../../../memory/package.json' },
@@ -74,6 +77,12 @@ describe('patch idempotency', () => {
     { id: 'WM-008', file: 'init/executor.js' },
     { id: 'WM-008', file: 'init/helpers-generator.js' },
     { id: 'WM-008', file: '../../.claude/helpers/auto-memory-hook.mjs' },
+    // WM-009: AgentDB learning loop (recordFeedback)
+    { id: 'WM-009', file: 'memory/memory-initializer.js' },
+    { id: 'WM-009', file: 'mcp-tools/memory-tools.js' },
+    // WM-011: ReasoningBank controller instantiation
+    { id: 'WM-011', file: 'memory/memory-initializer.js' },
+    { id: 'WM-011', file: 'mcp-tools/hooks-tools.js' },
   ];
 
   for (const { id, file } of PATCHES) {
