@@ -1,28 +1,12 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, mkdtempSync, rmSync, readdirSync, mkdirSync, symlinkSync } from 'node:fs';
+import { existsSync, readFileSync, mkdtempSync, rmSync, mkdirSync, symlinkSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { tmpdir, homedir } from 'node:os';
+import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
+import { findNpxNmWithHook } from './helpers/integration-setup.mjs';
 
-// Find the npx cache node_modules that has both patched CLI and native deps
-function findPatchedNpxNm() {
-  const npxDir = join(homedir(), '.npm', '_npx');
-  if (!existsSync(npxDir)) return null;
-  for (const hash of readdirSync(npxDir)) {
-    const nm = join(npxDir, hash, 'node_modules');
-    const hookPath = join(nm, '@claude-flow', 'cli', '.claude', 'helpers', 'auto-memory-hook.mjs');
-    const memPkg = join(nm, '@claude-flow', 'memory', 'dist', 'index.js');
-    const bsql = join(nm, 'better-sqlite3');
-    if (existsSync(hookPath) && existsSync(memPkg) && existsSync(bsql)) {
-      const content = readFileSync(hookPath, 'utf-8');
-      if (content.includes('HybridBackend') && content.includes('busy_timeout')) return nm;
-    }
-  }
-  return null;
-}
-
-const npxNm = findPatchedNpxNm();
+const npxNm = findNpxNmWithHook();
 const canRun = !!npxNm;
 
 // ── Static content tests ──────────────────────────────────────────────────

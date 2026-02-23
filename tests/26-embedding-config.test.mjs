@@ -6,20 +6,12 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir, homedir } from 'node:os';
+import { findNpxNmWithCliFile, findCliBase as resolveCliBase } from './helpers/integration-setup.mjs';
 
 // ── Find npx cache with CLI ────────────────────────────────────────────────
 
-function findCliBase() {
-  const npxDir = join(homedir(), '.npm', '_npx');
-  if (!existsSync(npxDir)) return null;
-  for (const hash of readdirSync(npxDir)) {
-    const base = join(npxDir, hash, 'node_modules', '@claude-flow', 'cli', 'dist', 'src');
-    if (existsSync(join(base, 'memory', 'memory-initializer.js'))) return base;
-  }
-  return null;
-}
-
-const cliBase = findCliBase();
+const _npxNm26 = findNpxNmWithCliFile('memory/memory-initializer.js');
+const cliBase = _npxNm26 ? resolveCliBase(_npxNm26) : null;
 const miPath = cliBase ? join(cliBase, 'memory', 'memory-initializer.js') : '';
 
 let mi = null;

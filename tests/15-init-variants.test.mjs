@@ -5,27 +5,17 @@ import {
   mkdtempSync, rmSync, mkdirSync, readdirSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import { tmpdir, homedir } from 'node:os';
+import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
+
+import { findNpxNmWithCliFile, findCliBase } from './helpers/integration-setup.mjs';
 
 // ── Find patched npx cache ──────────────────────────────────────────────────
 
-function findPatchedNpxNm() {
-  const npxDir = join(homedir(), '.npm', '_npx');
-  if (!existsSync(npxDir)) return null;
-  for (const hash of readdirSync(npxDir)) {
-    const nm = join(npxDir, hash, 'node_modules');
-    const cliBase = join(nm, '@claude-flow', 'cli', 'dist', 'src');
-    const typesPath = join(cliBase, 'init', 'types.js');
-    if (existsSync(typesPath)) return nm;
-  }
-  return null;
-}
-
-const npxNm = findPatchedNpxNm();
+const npxNm = findNpxNmWithCliFile('init/types.js');
 const canRun = !!npxNm;
 const skipMsg = !canRun ? 'patched npx cache not found' : false;
-const cliBase = npxNm ? join(npxNm, '@claude-flow', 'cli', 'dist', 'src') : '';
+const cliBase = npxNm ? findCliBase(npxNm) ?? '' : '';
 
 // ── Module-level imports ────────────────────────────────────────────────────
 
@@ -108,20 +98,20 @@ describe('init-variants: option presets', { skip: skipMsg || noTypes }, () => {
     assert.equal(c.statusline, false, 'statusline should be disabled');
   });
 
-  it('MINIMAL_INIT_OPTIONS uses simpler topology and backend', () => {
+  it('MINIMAL_INIT_OPTIONS uses v3 runtime defaults (CF-009)', () => {
     const r = types.MINIMAL_INIT_OPTIONS.runtime;
-    assert.equal(r.topology, 'mesh', 'topology should be mesh');
-    assert.equal(r.memoryBackend, 'memory', 'backend should be memory');
-    assert.equal(r.maxAgents, 5, 'maxAgents should be 5');
+    assert.equal(r.topology, 'hierarchical-mesh', 'topology should be hierarchical-mesh');
+    assert.equal(r.memoryBackend, 'hybrid', 'backend should be hybrid');
+    assert.equal(r.maxAgents, 15, 'maxAgents should be 15');
   });
 
-  it('MINIMAL_INIT_OPTIONS disables all advanced memory features', () => {
+  it('MINIMAL_INIT_OPTIONS enables all runtime memory features (CF-009)', () => {
     const r = types.MINIMAL_INIT_OPTIONS.runtime;
-    assert.equal(r.enableHNSW, false, 'HNSW should be disabled');
-    assert.equal(r.enableNeural, false, 'neural should be disabled');
-    assert.equal(r.enableLearningBridge, false, 'learning bridge should be disabled');
-    assert.equal(r.enableMemoryGraph, false, 'memory graph should be disabled');
-    assert.equal(r.enableAgentScopes, false, 'agent scopes should be disabled');
+    assert.equal(r.enableHNSW, true, 'HNSW should be enabled');
+    assert.equal(r.enableNeural, true, 'neural should be enabled');
+    assert.equal(r.enableLearningBridge, true, 'learning bridge should be enabled');
+    assert.equal(r.enableMemoryGraph, true, 'memory graph should be enabled');
+    assert.equal(r.enableAgentScopes, true, 'agent scopes should be enabled');
   });
 
   it('FULL_INIT_OPTIONS has all components enabled', () => {
@@ -184,16 +174,16 @@ describe('init-variants: --minimal flag', { skip: skipMsg }, () => {
     assert.ok(commandFiles.length <= 3, `minimal should have few/no commands, got ${commandFiles.length}`);
   });
 
-  it('config uses mesh topology', () => {
+  it('config uses hierarchical-mesh topology (CF-009)', () => {
     const jsonPath = join(dir, '.claude-flow', 'config.json');
     const yamlPath = join(dir, '.claude-flow', 'config.yaml');
     if (existsSync(jsonPath)) {
       const parsed = JSON.parse(readFileSync(jsonPath, 'utf-8'));
       const json = JSON.stringify(parsed);
-      assert.ok(json.includes('mesh'), `config.json should contain mesh topology, got: ${json.substring(0, 200)}`);
+      assert.ok(json.includes('hierarchical-mesh'), `config.json should contain hierarchical-mesh topology, got: ${json.substring(0, 200)}`);
     } else {
       const content = readFileSync(yamlPath, 'utf-8');
-      assert.ok(content.includes('mesh'), `config.yaml should contain mesh topology, got: ${content.substring(0, 200)}`);
+      assert.ok(content.includes('hierarchical-mesh'), `config.yaml should contain hierarchical-mesh topology, got: ${content.substring(0, 200)}`);
     }
   });
 
@@ -212,22 +202,21 @@ describe('init-variants: --minimal flag', { skip: skipMsg }, () => {
       `config.json should have memory, neural, or hooks keys, got: ${Object.keys(parsed).join(', ')}`);
   });
 
-  it('config.json uses non-hybrid backend for minimal', () => {
+  it('config.json uses hybrid backend for minimal (CF-009)', () => {
     const cfgPath = join(dir, '.claude-flow', 'config.json');
     if (!existsSync(cfgPath)) return;
     const parsed = JSON.parse(readFileSync(cfgPath, 'utf-8'));
     const backend = parsed.memory?.backend;
-    // Minimal should use a lighter backend (memory or json), not hybrid
-    assert.ok(backend === 'memory' || backend === 'json',
-      `--minimal config.json memory.backend should be memory or json, got: ${backend}`);
+    assert.equal(backend, 'hybrid',
+      `--minimal config.json memory.backend should be hybrid (CF-009), got: ${backend}`);
   });
 
-  it('config.json disables neural for minimal', () => {
+  it('config.json enables neural for minimal (CF-009)', () => {
     const cfgPath = join(dir, '.claude-flow', 'config.json');
     if (!existsSync(cfgPath)) return;
     const parsed = JSON.parse(readFileSync(cfgPath, 'utf-8'));
-    assert.equal(parsed.neural?.enabled, false,
-      `--minimal config.json neural.enabled should be false, got: ${parsed.neural?.enabled}`);
+    assert.equal(parsed.neural?.enabled, true,
+      `--minimal config.json neural.enabled should be true (CF-009), got: ${parsed.neural?.enabled}`);
   });
 
   it('produces fewer files than full', () => {
@@ -473,26 +462,26 @@ describe('init-variants: generateSettings option combos', { skip: skipMsg || noS
     assert.ok(parsed.claudeFlow?.neural?.enabled === true, 'neural should be enabled in default');
   });
 
-  it('MINIMAL options produce different topology', () => {
+  it('MINIMAL options use hierarchical-mesh topology (CF-009)', () => {
     const opts = { ...types.MINIMAL_INIT_OPTIONS };
     const json = settingsGen.generateSettingsJson(opts);
     const parsed = JSON.parse(json);
-    assert.equal(parsed.claudeFlow?.swarm?.topology, 'mesh',
-      'minimal should use mesh topology');
+    assert.equal(parsed.claudeFlow?.swarm?.topology, 'hierarchical-mesh',
+      'minimal should use hierarchical-mesh topology (CF-009)');
   });
 
-  it('MINIMAL options disable neural', () => {
+  it('MINIMAL options enable neural (CF-009)', () => {
     const opts = { ...types.MINIMAL_INIT_OPTIONS };
     const json = settingsGen.generateSettingsJson(opts);
     const parsed = JSON.parse(json);
-    assert.equal(parsed.claudeFlow?.neural?.enabled, false, 'neural should be disabled in minimal');
+    assert.equal(parsed.claudeFlow?.neural?.enabled, true, 'neural should be enabled in minimal (CF-009)');
   });
 
-  it('MINIMAL options disable HNSW', () => {
+  it('MINIMAL options enable HNSW (CF-009)', () => {
     const opts = { ...types.MINIMAL_INIT_OPTIONS };
     const json = settingsGen.generateSettingsJson(opts);
     const parsed = JSON.parse(json);
-    assert.equal(parsed.claudeFlow?.memory?.enableHNSW, false, 'HNSW should be disabled in minimal');
+    assert.equal(parsed.claudeFlow?.memory?.enableHNSW, true, 'HNSW should be enabled in minimal (CF-009)');
   });
 
   it('custom topology option flows through to settings', () => {
@@ -674,12 +663,12 @@ describe('init-variants: MCP config generator', { skip: skipMsg || !mcpGen || no
 // ══════════════════════════════════════════════════════════════════════════════
 
 describe('init-variants: SG-004 wizard parity checks', { skip: skipMsg || noTypes }, () => {
-  it('MINIMAL and DEFAULT produce different runtime configs', () => {
+  it('MINIMAL and DEFAULT share same v3 runtime config (CF-009)', () => {
     const def = types.DEFAULT_INIT_OPTIONS.runtime;
     const min = types.MINIMAL_INIT_OPTIONS.runtime;
-    assert.notEqual(def.topology, min.topology, 'topologies should differ');
-    assert.notEqual(def.maxAgents, min.maxAgents, 'maxAgents should differ');
-    assert.notEqual(def.memoryBackend, min.memoryBackend, 'backends should differ');
+    assert.equal(def.topology, min.topology, 'topologies should match (CF-009)');
+    assert.equal(def.maxAgents, min.maxAgents, 'maxAgents should match (CF-009)');
+    assert.equal(def.memoryBackend, min.memoryBackend, 'backends should match (CF-009)');
   });
 
   it('all three presets have required component keys', () => {

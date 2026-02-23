@@ -1,1 +1,1 @@
-grep "config.yaml" commands/doctor.js
+grep "configPath.endsWith('.json')" commands/doctor.js

@@ -157,22 +157,46 @@ for entry in "${INSTALLS[@]}"; do
     any_failed=true
     break  # One failure is enough to trigger reapply
   fi
+done
 
-  # ── Syntax validation: node --check on patched JS files ──
+# ── Syntax validation: node --check on ALL patched JS files ──
+# Runs independently of sentinel checks so SyntaxErrors are always caught.
+
+syntax_failed=false
+for entry in "${INSTALLS[@]}"; do
+  IFS=$'\t' read -r dist_src version rv_cli rs_root writable <<< "$entry"
+
   SYNTAX_FILES=(
-    "$dist_src/memory/memory-initializer.js"
+    "$dist_src/commands/config.js"
+    "$dist_src/commands/start.js"
     "$dist_src/commands/init.js"
-    "$dist_src/memory/intelligence.js"
-    "$dist_src/init/helpers-generator.js"
     "$dist_src/commands/doctor.js"
+    "$dist_src/commands/status.js"
+    "$dist_src/commands/swarm.js"
+    "$dist_src/commands/daemon.js"
+    "$dist_src/commands/hooks.js"
+    "$dist_src/commands/memory.js"
+    "$dist_src/commands/neural.js"
+    "$dist_src/memory/memory-initializer.js"
+    "$dist_src/memory/intelligence.js"
+    "$dist_src/init/executor.js"
+    "$dist_src/init/helpers-generator.js"
+    "$dist_src/init/settings-generator.js"
+    "$dist_src/init/types.js"
+    "$dist_src/init/claudemd-generator.js"
+    "$dist_src/mcp-tools/hooks-tools.js"
+    "$dist_src/mcp-tools/memory-tools.js"
+    "$dist_src/mcp-tools/embeddings-tools.js"
+    "$dist_src/services/worker-daemon.js"
+    "$dist_src/services/headless-worker-executor.js"
+    "$dist_src/index.js"
   )
   for js_file in "${SYNTAX_FILES[@]}"; do
     [ -f "$js_file" ] || continue
-    if node --check "$js_file" 2>/tmp/syntax-check-err.$$; then
-      echo "[PATCHES] SYNTAX OK: $(basename "$js_file")"
-    else
-      echo "[PATCHES] SYNTAX ERROR: $(basename "$js_file")"
+    if ! node --check "$js_file" 2>/tmp/syntax-check-err.$$; then
+      echo "[PATCHES] SYNTAX ERROR: $js_file"
       cat /tmp/syntax-check-err.$$
+      syntax_failed=true
       any_failed=true
     fi
     rm -f /tmp/syntax-check-err.$$

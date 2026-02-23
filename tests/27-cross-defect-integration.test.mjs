@@ -2,43 +2,19 @@ import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   existsSync, readFileSync, writeFileSync,
-  mkdtempSync, rmSync, mkdirSync, readdirSync, symlinkSync,
+  mkdtempSync, rmSync, mkdirSync, symlinkSync,
 } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { tmpdir, homedir } from 'node:os';
+import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
+import { findNpxNmWithCliFile, findNpxNmWithNativeDeps, findCliBase, findAllCliInstalls } from './helpers/integration-setup.mjs';
 
 // ── Find npx cache with generators + memory deps ──────────────────────────
 
-function findNpxNm() {
-  const npxDir = join(homedir(), '.npm', '_npx');
-  if (!existsSync(npxDir)) return null;
-  for (const hash of readdirSync(npxDir)) {
-    const nm = join(npxDir, hash, 'node_modules');
-    const cliBase = join(nm, '@claude-flow', 'cli', 'dist', 'src');
-    const initTypes = join(cliBase, 'init', 'types.js');
-    const helpersGen = join(cliBase, 'init', 'helpers-generator.js');
-    if (existsSync(initTypes) && existsSync(helpersGen)) return nm;
-  }
-  return null;
-}
-
-function findNpxNmWithNativeDeps() {
-  const npxDir = join(homedir(), '.npm', '_npx');
-  if (!existsSync(npxDir)) return null;
-  for (const hash of readdirSync(npxDir)) {
-    const nm = join(npxDir, hash, 'node_modules');
-    const memPkg = join(nm, '@claude-flow', 'memory', 'dist', 'index.js');
-    const bsql = join(nm, 'better-sqlite3');
-    if (existsSync(memPkg) && existsSync(bsql)) return nm;
-  }
-  return null;
-}
-
-const npxNm = findNpxNm();
+const npxNm = findNpxNmWithCliFile('init/types.js');
 const npxNmNative = findNpxNmWithNativeDeps();
 const canRun = !!npxNm;
-const cliBase = npxNm ? join(npxNm, '@claude-flow', 'cli', 'dist', 'src') : '';
+const cliBase = npxNm ? findCliBase(npxNm) ?? '' : '';
 const skipMsg = !canRun ? 'patched npx cache not found' : false;
 
 // Attempt to import generators and memory package
@@ -740,4 +716,65 @@ describe('cross-defect: SG-008 config.json flow (6 consumers)', { skip: skipMsg 
     assert.equal(missing.length, 0,
       `all 6 consumers should reference config.json, missing in: ${missing.map(s => s.name).join(', ')}`);
   });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Suite: cross-defect: syntax validation of all patched files
+//
+// Runs `node --check` on every patched JS file across ALL npx cache installs
+// (both direct and umbrella layouts). This catches SyntaxErrors like duplicate
+// declarations that would crash at runtime but go undetected by grep sentinels.
+// ══════════════════════════════════════════════════════════════════════════════
+
+const allInstalls = findAllCliInstalls();
+const hasSyntaxTargets = allInstalls.length > 0;
+
+// All files that patches touch (relative to dist/src/)
+const PATCHED_FILES = [
+  'commands/config.js',
+  'commands/start.js',
+  'commands/init.js',
+  'commands/doctor.js',
+  'commands/status.js',
+  'commands/swarm.js',
+  'commands/daemon.js',
+  'commands/hooks.js',
+  'commands/memory.js',
+  'commands/neural.js',
+  'memory/memory-initializer.js',
+  'memory/intelligence.js',
+  'init/executor.js',
+  'init/helpers-generator.js',
+  'init/settings-generator.js',
+  'init/types.js',
+  'init/claudemd-generator.js',
+  'mcp-tools/hooks-tools.js',
+  'mcp-tools/memory-tools.js',
+  'mcp-tools/embeddings-tools.js',
+  'services/worker-daemon.js',
+  'services/headless-worker-executor.js',
+  'index.js',
+];
+
+describe('cross-defect: syntax validation of all patched files', {
+  skip: !hasSyntaxTargets ? 'no CLI installs found in npx cache' : false,
+}, () => {
+  for (const { cliBase: base, layout, hash } of allInstalls) {
+    const shortHash = hash.slice(0, 8);
+
+    for (const relPath of PATCHED_FILES) {
+      const fullPath = join(base, relPath);
+      const label = `syntax OK: ${relPath} (${layout}@${shortHash})`;
+
+      it(label, () => {
+        if (!existsSync(fullPath)) return; // file may not exist in this install
+        const r = spawnSync('node', ['--check', fullPath], {
+          encoding: 'utf-8',
+          timeout: 10000,
+        });
+        assert.equal(r.status, 0,
+          `node --check failed for ${relPath} (${layout}@${shortHash}):\n${r.stderr}`);
+      });
+    }
+  }
 });

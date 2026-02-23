@@ -1,30 +1,20 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  existsSync, readFileSync, writeFileSync, mkdtempSync, rmSync, mkdirSync, readdirSync,
+  existsSync, readFileSync, writeFileSync, mkdtempSync, rmSync, mkdirSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import { tmpdir, homedir } from 'node:os';
+import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
+
+import { findNpxNmWithCliFile, findCliBase } from './helpers/integration-setup.mjs';
 
 // ── Find patched npx cache ──────────────────────────────────────────────────
 
-function findPatchedNpxNm() {
-  const npxDir = join(homedir(), '.npm', '_npx');
-  if (!existsSync(npxDir)) return null;
-  for (const hash of readdirSync(npxDir)) {
-    const nm = join(npxDir, hash, 'node_modules');
-    const cliBase = join(nm, '@claude-flow', 'cli', 'dist', 'src');
-    const settingsGen = join(cliBase, 'init', 'settings-generator.js');
-    if (existsSync(settingsGen)) return nm;
-  }
-  return null;
-}
-
-const npxNm = findPatchedNpxNm();
+const npxNm = findNpxNmWithCliFile('init/settings-generator.js');
 const canRun = !!npxNm;
 const skipMsg = !canRun ? 'patched npx cache not found' : false;
-const cliBase = npxNm ? join(npxNm, '@claude-flow', 'cli', 'dist', 'src') : '';
+const cliBase = npxNm ? findCliBase(npxNm) ?? '' : '';
 
 // ── Module-level imports (so skip works at registration time) ────────────────
 

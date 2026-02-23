@@ -1,29 +1,17 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, writeFileSync, mkdtempSync, rmSync, mkdirSync, readdirSync, symlinkSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdtempSync, rmSync, mkdirSync, symlinkSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { tmpdir, homedir } from 'node:os';
+import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { createFixtureTree } from './helpers/fixture-factory.mjs';
 import { runPatch } from './helpers/run-python.mjs';
+import { findNpxNmWithNativeDeps } from './helpers/integration-setup.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Check if native deps are available from npx cache
-function findNpxNodeModules() {
-  const npxDir = join(homedir(), '.npm', '_npx');
-  if (!existsSync(npxDir)) return null;
-  for (const hash of readdirSync(npxDir)) {
-    const nm = join(npxDir, hash, 'node_modules');
-    const memPkg = join(nm, '@claude-flow', 'memory', 'dist', 'index.js');
-    const bsql = join(nm, 'better-sqlite3');
-    if (existsSync(memPkg) && existsSync(bsql)) return nm;
-  }
-  return null;
-}
-
-const npxNm = findNpxNodeModules();
+const npxNm = findNpxNmWithNativeDeps();
 let depsAvailable = false;
 if (npxNm) {
   try {

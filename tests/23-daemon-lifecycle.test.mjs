@@ -2,30 +2,19 @@ import { describe, it, before } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   existsSync, readFileSync, writeFileSync, mkdtempSync, rmSync,
-  mkdirSync, readdirSync,
+  mkdirSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import { tmpdir, homedir } from 'node:os';
+import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
+import { findNpxNmWithCliFile, findCliBase } from './helpers/integration-setup.mjs';
 
 // ── Find patched npx cache ──────────────────────────────────────────────────
 
-function findPatchedNpxNm() {
-  const npxDir = join(homedir(), '.npm', '_npx');
-  if (!existsSync(npxDir)) return null;
-  for (const hash of readdirSync(npxDir)) {
-    const nm = join(npxDir, hash, 'node_modules');
-    const cliBase = join(nm, '@claude-flow', 'cli', 'dist', 'src');
-    const daemonJs = join(cliBase, 'commands', 'daemon.js');
-    if (existsSync(daemonJs)) return nm;
-  }
-  return null;
-}
-
-const npxNm = findPatchedNpxNm();
+const npxNm = findNpxNmWithCliFile('commands/daemon.js');
 const canRun = !!npxNm;
 const skipMsg = !canRun ? 'patched npx cache not found' : false;
-const cliBase = npxNm ? join(npxNm, '@claude-flow', 'cli', 'dist', 'src') : '';
+const cliBase = npxNm ? findCliBase(npxNm) ?? '' : '';
 
 function cli(args, cwd, timeout = 30000) {
   return spawnSync('npx', ['@claude-flow/cli', ...args], {

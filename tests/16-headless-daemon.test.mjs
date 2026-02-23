@@ -1,27 +1,15 @@
 import { describe, it, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { homedir } from 'node:os';
+import { findNpxNmWithCliFile, findCliBase } from './helpers/integration-setup.mjs';
 
 // ── Find patched npx cache ──────────────────────────────────────────────────
 
-function findPatchedNpxNm() {
-  const npxDir = join(homedir(), '.npm', '_npx');
-  if (!existsSync(npxDir)) return null;
-  for (const hash of readdirSync(npxDir)) {
-    const nm = join(npxDir, hash, 'node_modules');
-    const cliBase = join(nm, '@claude-flow', 'cli', 'dist', 'src');
-    const hwe = join(cliBase, 'services', 'headless-worker-executor.js');
-    if (existsSync(hwe)) return nm;
-  }
-  return null;
-}
-
-const npxNm = findPatchedNpxNm();
+const npxNm = findNpxNmWithCliFile('services/headless-worker-executor.js');
 const canRun = !!npxNm;
 const skipMsg = !canRun ? 'patched npx cache not found' : false;
-const cliBase = npxNm ? join(npxNm, '@claude-flow', 'cli', 'dist', 'src') : '';
+const cliBase = npxNm ? findCliBase(npxNm) ?? '' : '';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // Suite: HW (Headless Worker) sentinel checks

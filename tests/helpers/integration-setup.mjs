@@ -1,30 +1,142 @@
 // integration-setup.mjs — Shared setup/teardown for integration tests
 // Creates a temporary project with symlinked deps from the npx cache.
+// Searches both direct and umbrella npx layouts:
+//   direct:   nm/@claude-flow/cli/dist/src
+//   umbrella: nm/claude-flow/v3/@claude-flow/cli/dist/src
 import {
   existsSync, mkdtempSync, mkdirSync, rmSync,
   symlinkSync, writeFileSync, readdirSync,
 } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, resolve, basename } from 'node:path';
+
+// Both layouts for @claude-flow/cli inside a node_modules dir
+const CLI_LAYOUTS = [
+  ['direct',   '@claude-flow/cli/dist/src'],
+  ['umbrella', 'claude-flow/v3/@claude-flow/cli/dist/src'],
+];
+
+/**
+ * Given a node_modules dir, return the cliBase (dist/src) path if the CLI
+ * is installed in either layout, or null.
+ */
+export function findCliBase(npxNm) {
+  for (const [, rel] of CLI_LAYOUTS) {
+    const candidate = join(npxNm, rel);
+    if (existsSync(candidate)) return candidate;
+  }
+  return null;
+}
+
+/**
+ * Enumerate ALL @claude-flow/cli installs across every npx cache hash.
+ * Returns [{ cliBase, npxNodeModules, layout, hash }] — may be empty.
+ */
+export function findAllCliInstalls() {
+  const npxDir = join(homedir(), '.npm', '_npx');
+  if (!existsSync(npxDir)) return [];
+
+  const results = [];
+  const seen = new Set();
+
+  for (const hash of readdirSync(npxDir)) {
+    const nm = join(npxDir, hash, 'node_modules');
+    if (!existsSync(nm)) continue;
+
+    for (const [layout, rel] of CLI_LAYOUTS) {
+      const candidate = join(nm, rel);
+      if (!existsSync(candidate)) continue;
+      // Deduplicate by realpath
+      let real;
+      try { real = resolve(candidate); } catch { real = candidate; }
+      if (seen.has(real)) continue;
+      seen.add(real);
+      results.push({ cliBase: candidate, npxNodeModules: nm, layout, hash });
+    }
+  }
+  return results;
+}
+
+/**
+ * Find the first npxNm (node_modules) that has @claude-flow/memory + better-sqlite3.
+ * Searches both direct and umbrella layouts.
+ */
+export function findNpxNmWithNativeDeps() {
+  const npxDir = join(homedir(), '.npm', '_npx');
+  if (!existsSync(npxDir)) return null;
+  for (const hash of readdirSync(npxDir)) {
+    const nm = join(npxDir, hash, 'node_modules');
+    const memPkg = join(nm, '@claude-flow', 'memory', 'dist', 'index.js');
+    const bsql = join(nm, 'better-sqlite3');
+    if (existsSync(memPkg) && existsSync(bsql)) return nm;
+  }
+  return null;
+}
+
+/**
+ * Find the first npxNm that has auto-memory-hook.mjs + better-sqlite3.
+ * Searches both direct and umbrella layouts.
+ */
+export function findNpxNmWithHook() {
+  const npxDir = join(homedir(), '.npm', '_npx');
+  if (!existsSync(npxDir)) return null;
+  for (const hash of readdirSync(npxDir)) {
+    const nm = join(npxDir, hash, 'node_modules');
+    const bsql = join(nm, 'better-sqlite3');
+    if (!existsSync(bsql)) continue;
+    // Check hook in both layouts
+    for (const [, rel] of CLI_LAYOUTS) {
+      const hookPath = join(nm, rel, '..', '..', '.claude', 'helpers', 'auto-memory-hook.mjs');
+      if (existsSync(hookPath)) return nm;
+    }
+  }
+  return null;
+}
+
+/**
+ * Find the first npxNm where dist/src/{relPath} exists.
+ * Prefers direct layout over umbrella to maintain backward compatibility
+ * (direct installs have all peripheral files like .claude/helpers/).
+ * @param {string} relPath - path relative to dist/src/ (e.g. 'init/settings-generator.js')
+ */
+export function findNpxNmWithCliFile(relPath) {
+  const npxDir = join(homedir(), '.npm', '_npx');
+  if (!existsSync(npxDir)) return null;
+  const hashes = readdirSync(npxDir);
+  // Prefer direct layout: scan all hashes for direct first, then umbrella
+  for (const [, rel] of CLI_LAYOUTS) {
+    for (const hash of hashes) {
+      const nm = join(npxDir, hash, 'node_modules');
+      const target = join(nm, rel, relPath);
+      if (existsSync(target)) return nm;
+    }
+  }
+  return null;
+}
 
 /**
  * Find the patched npx cache install of @claude-flow/cli.
  * Returns { cliBase, npxNodeModules } or null.
+ * Searches both direct and umbrella layouts, preferring direct.
  */
 export function findPatchedInstall() {
   const npxDir = join(homedir(), '.npm', '_npx');
   if (!existsSync(npxDir)) return null;
 
-  for (const hash of readdirSync(npxDir)) {
-    const cliBase = join(npxDir, hash, 'node_modules', '@claude-flow', 'cli', 'dist', 'src');
-    if (!existsSync(cliBase)) continue;
+  const hashes = readdirSync(npxDir);
+  // Prefer direct layout over umbrella
+  for (const [, rel] of CLI_LAYOUTS) {
+    for (const hash of hashes) {
+      const nm = join(npxDir, hash, 'node_modules');
+      const cliBase = join(nm, rel);
+      if (!existsSync(cliBase)) continue;
 
-    // Check sentinel: HybridBackend in memory-initializer.js means patches are applied
-    const miPath = join(cliBase, 'memory', 'memory-initializer.js');
-    if (!existsSync(miPath)) continue;
+      // Check sentinel: memory-initializer.js means patches are applied
+      const miPath = join(cliBase, 'memory', 'memory-initializer.js');
+      if (!existsSync(miPath)) continue;
 
-    const npxNodeModules = join(npxDir, hash, 'node_modules');
-    return { cliBase, npxNodeModules };
+      return { cliBase, npxNodeModules: nm };
+    }
   }
   return null;
 }

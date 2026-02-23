@@ -2,26 +2,15 @@ import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   existsSync, writeFileSync,
-  mkdtempSync, rmSync, mkdirSync, readdirSync, symlinkSync,
+  mkdtempSync, rmSync, mkdirSync, symlinkSync,
 } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { tmpdir, homedir } from 'node:os';
+import { tmpdir } from 'node:os';
+import { findNpxNmWithNativeDeps } from './helpers/integration-setup.mjs';
 
 // ── Find npx cache with @claude-flow/memory + better-sqlite3 ────────────────
 
-function findNpxNm() {
-  const npxDir = join(homedir(), '.npm', '_npx');
-  if (!existsSync(npxDir)) return null;
-  for (const hash of readdirSync(npxDir)) {
-    const nm = join(npxDir, hash, 'node_modules');
-    const memPkg = join(nm, '@claude-flow', 'memory', 'dist', 'index.js');
-    const bsql = join(nm, 'better-sqlite3');
-    if (existsSync(memPkg) && existsSync(bsql)) return nm;
-  }
-  return null;
-}
-
-const npxNm = findNpxNm();
+const npxNm = findNpxNmWithNativeDeps();
 let canRun = false;
 let memPkg = null;
 
