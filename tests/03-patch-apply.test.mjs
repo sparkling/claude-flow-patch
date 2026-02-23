@@ -270,6 +270,43 @@ describe('individual patch application', () => {
       sentinel: 'CF-008: Check if project is already initialized',
       absent: "const claudeFlowPath = path.join(cwd, '.claude-flow', 'config.yaml');",
     },
+    // DOC-001: upstream README.md documentation corrections
+    {
+      id: 'DOC-001',
+      file: '../../README.md',
+      sentinel: 'Valid JSON |',
+      absent: 'Valid JSON/YAML',
+    },
+    {
+      id: 'DOC-001',
+      file: '../../README.md',
+      sentinel: 'doctor --install',
+      absent: null,
+    },
+    {
+      id: 'DOC-001',
+      file: '../../README.md',
+      sentinel: 'Mem Backend',
+      absent: null,
+    },
+    {
+      id: 'DOC-001',
+      file: '../../README.md',
+      sentinel: '"backend": "hybrid"',
+      absent: '"type": "hybrid"',
+    },
+    {
+      id: 'DOC-001',
+      file: '../../README.md',
+      sentinel: 'disables SONA',
+      absent: null,
+    },
+    {
+      id: 'DOC-001',
+      file: '../../README.md',
+      sentinel: '(project directory)',
+      absent: null,
+    },
   ];
 
   for (const { id, file, sentinel, absent, deps } of TESTS) {

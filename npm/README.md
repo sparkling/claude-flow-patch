@@ -13,7 +13,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruv-swarm`
 
 <!-- GENERATED:npm-defects:begin -->
-50 tracked defects across 14 categories.
+51 tracked defects across 15 categories.
 
 | Defect | Description | GitHub Issue |
 |--------|-------------|-------------|
@@ -67,6 +67,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [WM-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/390-WM-004-source-hook-fail-loud) | Source hook silently falls back to JsonFileBackend | [#1190](https://github.com/ruvnet/claude-flow/issues/1190) |
 | [WM-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/400-WM-005-memory-init-config-json) | memory-initializer reads config.yaml with hand-rolled regex instead of config.json | [#1191](https://github.com/ruvnet/claude-flow/issues/1191) |
 | [WM-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/410-WM-006-neural-config-json) | intelligence.js reads neural.enabled from config.yaml regex instead of config.json | [#1192](https://github.com/ruvnet/claude-flow/issues/1192) |
+| [DOC-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/480-DOC-001-readme-docs) | Update upstream README.md to match patched CLI behavior | [#1201](https://github.com/ruvnet/claude-flow/issues/1201) |
 <!-- GENERATED:npm-defects:end -->
 
 ## Quick Start

@@ -1,0 +1,8 @@
+grep "Valid JSON |" ../../README.md
+grep "doctor --install" ../../README.md
+grep "Mem Backend" ../../README.md
+grep ".claude-flow/config.json" ../../README.md
+grep "\"backend\": \"hybrid\"" ../../README.md
+grep "disables SONA" ../../README.md
+absent "Valid JSON/YAML" ../../README.md
+absent "\"type\": \"hybrid\"" ../../README.md

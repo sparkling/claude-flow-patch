@@ -174,7 +174,7 @@ claude-flow-patch/
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-50 defects across 14 categories.
+51 defects across 15 categories.
 
 ### CF -- Config & Doctor
 
@@ -295,6 +295,12 @@ claude-flow-patch/
 | [WM&#8209;004](patch/390-WM-004-source-hook-fail-loud/) | Source hook silently falls back to JsonFileBackend | High | [#1190](https://github.com/ruvnet/claude-flow/issues/1190) |
 | [WM&#8209;005](patch/400-WM-005-memory-init-config-json/) | memory-initializer reads config.yaml with hand-rolled regex instead of config.json | Medium | [#1191](https://github.com/ruvnet/claude-flow/issues/1191) |
 | [WM&#8209;006](patch/410-WM-006-neural-config-json/) | intelligence.js reads neural.enabled from config.yaml regex instead of config.json | Medium | [#1192](https://github.com/ruvnet/claude-flow/issues/1192) |
+
+### DOC -- Documentation
+
+| ID | Description <img width="500" height="1" /> | Severity | GitHub&nbsp;Issue |
+|----|-------------|----------|--------------|
+| [DOC&#8209;001](patch/480-DOC-001-readme-docs/) | Update upstream README.md to match patched CLI behavior | Enhancement | [#1201](https://github.com/ruvnet/claude-flow/issues/1201) |
 <!-- GENERATED:defect-index:end -->
 
 <a id="init-script-patches"></a>

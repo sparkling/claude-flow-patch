@@ -5,8 +5,9 @@ import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const FIXTURES_SRC = resolve(__dirname, '..', 'fixtures', 'cli', 'dist', 'src');
-const FIXTURES_HELPERS = resolve(__dirname, '..', 'fixtures', 'cli', '.claude', 'helpers');
+const FIXTURES_CLI_ROOT = resolve(__dirname, '..', 'fixtures', 'cli');
+const FIXTURES_SRC = resolve(FIXTURES_CLI_ROOT, 'dist', 'src');
+const FIXTURES_HELPERS = resolve(FIXTURES_CLI_ROOT, '.claude', 'helpers');
 
 /** Copy the fixture tree into a fresh temp dir. Returns { base, cleanup }. */
 export function createFixtureTree() {
@@ -18,6 +19,11 @@ export function createFixtureTree() {
     const helpersDir = join(dir, '.claude', 'helpers');
     mkdirSync(helpersDir, { recursive: true });
     cpSync(FIXTURES_HELPERS, helpersDir, { recursive: true });
+  }
+  // Copy README.md fixture to temp dir root (package root level for README_MD path var)
+  const readmeFixture = join(FIXTURES_CLI_ROOT, 'README.md');
+  if (existsSync(readmeFixture)) {
+    cpSync(readmeFixture, join(dir, 'README.md'));
   }
   return {
     dir,

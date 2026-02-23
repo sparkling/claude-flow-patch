@@ -42,6 +42,8 @@ describe('patch idempotency', () => {
     { id: 'CF-006', file: 'commands/start.js' },
     { id: 'CF-007', file: 'commands/status.js' },
     { id: 'CF-008', file: 'commands/init.js' },
+    // DOC-001: upstream README.md documentation corrections
+    { id: 'DOC-001', file: '../../README.md' },
   ];
 
   for (const { id, file } of PATCHES) {
