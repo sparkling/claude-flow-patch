@@ -48,17 +48,17 @@ describe('config-ui-misc: CF-001 doctor YAML config detection', { skip: skipMsg 
     doctorContent = readFileSync(join(cliBase, 'commands', 'doctor.js'), 'utf-8');
   });
 
-  it('CF-001a: searches for config.yaml', () => {
+  it('CF-001a: config.yaml stripped from checkConfigFile (CF-003z)', () => {
     assert.ok(
-      doctorContent.includes('config.yaml'),
-      'doctor.js should search for config.yaml',
+      !doctorContent.includes("'.claude-flow/config.yaml'"),
+      'doctor.js should NOT search for config.yaml after CF-003z',
     );
   });
 
-  it('CF-001b: searches for config.yml', () => {
+  it('CF-001b: config.yml stripped from checkConfigFile (CF-003z)', () => {
     assert.ok(
-      doctorContent.includes('config.yml'),
-      'doctor.js should search for config.yml',
+      !doctorContent.includes("'.claude-flow/config.yml'"),
+      'doctor.js should NOT search for config.yml after CF-003z',
     );
   });
 
@@ -407,7 +407,7 @@ describe('config-ui-misc: CF-004 config export reads config.json', { skip: skipM
     );
   });
 
-  it('CF-004b: duplicate readYamlConfig removed', () => {
+  it('CF-004b: exactly one readYamlConfig function', () => {
     const matches = configContent.match(/function readYamlConfig/g) || [];
     assert.equal(matches.length, 1,
       `config.js should have exactly 1 readYamlConfig function, found ${matches.length}`);

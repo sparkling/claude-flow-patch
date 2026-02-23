@@ -1,15 +1,15 @@
-# SG-008: init should generate .claude-flow/config.json
+# SG-008: init should generate .claude-flow/config.json (not config.yaml)
 
 **Severity**: Enhancement
-**GitHub**: [#1195](https://github.com/ruvnet/claude-flow/issues/1195)
+**GitHub**: [#1195](https://github.com/ruvnet/claude-flow/issues/1195), [#1200](https://github.com/ruvnet/claude-flow/issues/1200)
 
 ## Root Cause
 
-`writeRuntimeConfig()` in `executor.js` generates `.claude-flow/config.yaml` as the project config file, but the MCP config tools (`config_get`, `config_set`, `config_list`, `config_export`) all operate on `.claude-flow/config.json`. This means init creates a file that the config CRUD tools don't read.
+`writeRuntimeConfig()` in `executor.js` generates `.claude-flow/config.yaml` as the project config file using a YAML template string, but all MCP config tools and runtime consumers now read `.claude-flow/config.json`. The YAML file is dead code after config-consolidation patches (WM-001, WM-002, CF-003, CF-004).
 
 ## Fix
 
-Add config.json generation after the existing config.yaml write in `writeRuntimeConfig()`. The JSON file mirrors the same values from `options.runtime` in a structured JSON format that `JSON.parse` can read directly.
+Replace the entire YAML template generation in `writeRuntimeConfig()` with JSON generation. The config.json includes all sections that were in config.yaml (`swarm`, `memory`, `neural`, `hooks`, `mcp`) plus structured `learningBridge`, `memoryGraph`, and `agentScopes` subsections.
 
 ## Files Patched
 
@@ -17,4 +17,4 @@ Add config.json generation after the existing config.yaml write in `writeRuntime
 
 ## Ops
 
-1 op in fix.py
+2 ops in fix.py

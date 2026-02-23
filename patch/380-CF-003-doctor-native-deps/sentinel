@@ -1,2 +1,4 @@
 grep "checkMemoryBackend" commands/doctor.js
 grep "better-sqlite3" commands/doctor.js
+absent "config.yaml" commands/doctor.js
+absent "config.yml" commands/doctor.js

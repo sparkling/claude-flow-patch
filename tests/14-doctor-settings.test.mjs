@@ -243,28 +243,37 @@ describe('doctor-settings: generateHelpers functions', { skip: skipMsg || noHelp
 // Suite: Config YAML handling
 // ══════════════════════════════════════════════════════════════════════════════
 
-describe('doctor-settings: config YAML handling', { skip: skipMsg }, () => {
-  it('init creates config.yaml', () => {
+describe('doctor-settings: config file handling', { skip: skipMsg }, () => {
+  it('init creates config file (json or yaml)', () => {
     const dir = mkdtempSync(join(tmpdir(), 'cfp-config-'));
     try {
       const r = cli(['init', '--yes'], dir, 60000);
       assert.equal(r.status, 0, `init failed: ${r.stderr}`);
-      const configPath = join(dir, '.claude-flow', 'config.yaml');
-      assert.ok(existsSync(configPath), 'config.yaml should exist after init');
+      const jsonPath = join(dir, '.claude-flow', 'config.json');
+      const yamlPath = join(dir, '.claude-flow', 'config.yaml');
+      assert.ok(existsSync(jsonPath) || existsSync(yamlPath),
+        'config.json or config.yaml should exist after init');
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
   });
 
-  it('config.yaml contains expected sections', () => {
+  it('config file contains expected sections', () => {
     const dir = mkdtempSync(join(tmpdir(), 'cfp-cfgchk-'));
     try {
       const r = cli(['init', '--yes'], dir, 60000);
       assert.equal(r.status, 0, `init failed: ${r.stderr}`);
-      const configPath = join(dir, '.claude-flow', 'config.yaml');
-      const content = readFileSync(configPath, 'utf-8');
-      const hasSections = content.includes('memory') || content.includes('swarm') || content.includes('agents');
-      assert.ok(hasSections, `config.yaml should contain standard sections, got: ${content.substring(0, 200)}`);
+      const jsonPath = join(dir, '.claude-flow', 'config.json');
+      const yamlPath = join(dir, '.claude-flow', 'config.yaml');
+      if (existsSync(jsonPath)) {
+        const parsed = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+        const hasSections = 'memory' in parsed || 'swarm' in parsed || 'agents' in parsed;
+        assert.ok(hasSections, `config.json should contain standard sections, got keys: ${Object.keys(parsed).join(', ')}`);
+      } else {
+        const content = readFileSync(yamlPath, 'utf-8');
+        const hasSections = content.includes('memory') || content.includes('swarm') || content.includes('agents');
+        assert.ok(hasSections, `config.yaml should contain standard sections, got: ${content.substring(0, 200)}`);
+      }
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -284,7 +293,7 @@ describe('doctor-settings: config YAML handling', { skip: skipMsg }, () => {
     }
   });
 
-  it('doctor detects config.yaml in initialized project', () => {
+  it('doctor detects config in initialized project', () => {
     const dir = mkdtempSync(join(tmpdir(), 'cfp-docconfig-'));
     try {
       cli(['init', '--yes'], dir, 60000);

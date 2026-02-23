@@ -480,8 +480,9 @@ describe('cross-defect: SG-007 + init flags (shallow copy fix)', { skip: skipMsg
       // Verify second init produced all components (not corrupted by first run)
       assert.ok(existsSync(join(dir2, '.claude', 'settings.json')),
         'second init should still generate settings.json (SG-007 prevents corruption)');
-      assert.ok(existsSync(join(dir2, '.claude-flow', 'config.yaml')),
-        'second init should still generate config.yaml (SG-007 prevents corruption)');
+      assert.ok(existsSync(join(dir2, '.claude-flow', 'config.json')) ||
+                existsSync(join(dir2, '.claude-flow', 'config.yaml')),
+        'second init should still generate runtime config (SG-007 prevents corruption)');
     } finally {
       rmSync(dir1, { recursive: true, force: true });
       rmSync(dir2, { recursive: true, force: true });
@@ -498,7 +499,8 @@ describe('cross-defect: SG-007 + init flags (shallow copy fix)', { skip: skipMsg
       const r2 = cli(['init', '--yes'], dir2, 60000);
       assert.equal(r2.status, 0, 'second init should succeed after --only-claude');
 
-      assert.ok(existsSync(join(dir2, '.claude-flow', 'config.yaml')),
+      assert.ok(existsSync(join(dir2, '.claude-flow', 'config.json')) ||
+                existsSync(join(dir2, '.claude-flow', 'config.yaml')),
         'second init should still generate runtime config (SG-007 prevents corruption)');
     } finally {
       rmSync(dir1, { recursive: true, force: true });

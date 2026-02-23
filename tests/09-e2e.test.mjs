@@ -87,11 +87,18 @@ describe('e2e: init generates patched project', { skip: !canRun ? 'patched npx c
     assert.ok(hasAutoMemory, 'SessionStart should include auto-memory-hook');
   });
 
-  it('config.yaml has memory backend setting', () => {
-    const configPath = join(projectDir, '.claude-flow', 'config.yaml');
-    assert.ok(existsSync(configPath), 'config.yaml should exist');
-    const content = readFileSync(configPath, 'utf-8');
-    assert.ok(content.includes('memory'), 'config should have memory section');
+  it('config file has memory backend setting', () => {
+    const jsonPath = join(projectDir, '.claude-flow', 'config.json');
+    const yamlPath = join(projectDir, '.claude-flow', 'config.yaml');
+    assert.ok(existsSync(jsonPath) || existsSync(yamlPath),
+      'config.json or config.yaml should exist');
+    if (existsSync(jsonPath)) {
+      const parsed = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+      assert.ok(parsed.memory, 'config.json should have memory section');
+    } else {
+      const content = readFileSync(yamlPath, 'utf-8');
+      assert.ok(content.includes('memory'), 'config.yaml should have memory section');
+    }
   });
 });
 

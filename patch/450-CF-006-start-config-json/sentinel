@@ -1,0 +1,3 @@
+grep "CF-006: Load configuration from config.json" commands/start.js
+absent "parseSimpleYaml" commands/start.js
+absent "config.yaml" commands/start.js

@@ -39,6 +39,9 @@ describe('patch idempotency', () => {
     { id: 'CF-004', file: 'commands/config.js' },
     // CF-005: absorbed into CF-003 (no-op, skip)
     { id: 'SG-008', file: 'init/executor.js' },
+    { id: 'CF-006', file: 'commands/start.js' },
+    { id: 'CF-007', file: 'commands/status.js' },
+    { id: 'CF-008', file: 'commands/init.js' },
   ];
 
   for (const { id, file } of PATCHES) {

@@ -1,0 +1,2 @@
+grep "CF-007: Check if project is initialized" commands/status.js
+absent "config.yaml" commands/status.js

@@ -145,7 +145,7 @@ Save the returned GitHub issue number for the defect README.md.
 <!-- GENERATED:defect-tables:begin -->
 | Prefix | Category | Count |
 |--------|----------|-------|
-| CF | Config & Doctor | 5 |
+| CF | Config & Doctor | 8 |
 | DM | Daemon & Workers | 6 |
 | EM | Embeddings & HNSW | 2 |
 | GV | Ghost Vectors | 1 |
@@ -160,7 +160,7 @@ Save the returned GitHub issue number for the defect README.md.
 | UI | Display & Cosmetic | 2 |
 | WM | Wiring / Memory Integration | 6 |
 
-## All 47 Defects
+## All 50 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -210,7 +210,10 @@ Save the returned GitHub issue number for the defect README.md.
 | WM-006 | [#1192 intelligence.js reads neural.enabled from config.yaml regex instead of config.json](https://github.com/ruvnet/claude-flow/issues/1192) | Medium |
 | CF-004 | [#1193 config get/export uses hand-rolled YAML parser instead of config.json](https://github.com/ruvnet/claude-flow/issues/1193) | Medium |
 | CF-005 | [#1194 Doctor checkMemoryBackend reads env var + config.yaml instead of config.json](https://github.com/ruvnet/claude-flow/issues/1194) | Medium |
-| SG-008 | [#1195 init should generate .claude-flow/config.json](https://github.com/ruvnet/claude-flow/issues/1195) | Enhancement |
+| SG-008 | [#1195 init should generate .claude-flow/config.json (not config.yaml)](https://github.com/ruvnet/claude-flow/issues/1195) | Enhancement |
+| CF-006 | [#1197 start.js uses hand-rolled YAML parser instead of config.json](https://github.com/ruvnet/claude-flow/issues/1197) | Medium |
+| CF-007 | [#1198 status.js isInitialized checks config.yaml instead of config.json](https://github.com/ruvnet/claude-flow/issues/1198) | Medium |
+| CF-008 | [#1199 init.js isInitialized and display strings reference config.yaml](https://github.com/ruvnet/claude-flow/issues/1199) | Medium |
 <!-- GENERATED:defect-tables:end -->
 
 ---

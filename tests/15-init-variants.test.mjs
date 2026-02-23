@@ -162,8 +162,11 @@ describe('init-variants: --minimal flag', { skip: skipMsg }, () => {
     assert.ok(existsSync(join(dir, '.claude', 'settings.json')));
   });
 
-  it('creates config.yaml', () => {
-    assert.ok(existsSync(join(dir, '.claude-flow', 'config.yaml')));
+  it('creates config file (json or yaml)', () => {
+    assert.ok(
+      existsSync(join(dir, '.claude-flow', 'config.json')) ||
+      existsSync(join(dir, '.claude-flow', 'config.yaml')),
+      'config.json or config.yaml should exist');
   });
 
   it('creates CLAUDE.md', () => {
@@ -181,9 +184,17 @@ describe('init-variants: --minimal flag', { skip: skipMsg }, () => {
     assert.ok(commandFiles.length <= 3, `minimal should have few/no commands, got ${commandFiles.length}`);
   });
 
-  it('config.yaml uses mesh topology', () => {
-    const config = readFileSync(join(dir, '.claude-flow', 'config.yaml'), 'utf-8');
-    assert.ok(config.includes('mesh'), `config should contain mesh topology, got: ${config.substring(0, 200)}`);
+  it('config uses mesh topology', () => {
+    const jsonPath = join(dir, '.claude-flow', 'config.json');
+    const yamlPath = join(dir, '.claude-flow', 'config.yaml');
+    if (existsSync(jsonPath)) {
+      const parsed = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+      const json = JSON.stringify(parsed);
+      assert.ok(json.includes('mesh'), `config.json should contain mesh topology, got: ${json.substring(0, 200)}`);
+    } else {
+      const content = readFileSync(yamlPath, 'utf-8');
+      assert.ok(content.includes('mesh'), `config.yaml should contain mesh topology, got: ${content.substring(0, 200)}`);
+    }
   });
 
   it('creates config.json (SG-008)', () => {
@@ -275,10 +286,19 @@ describe('init-variants: --full flag', { skip: skipMsg }, () => {
     assert.ok(settings.hooks, 'full mode settings should have hooks');
   });
 
-  it('config.yaml uses hierarchical-mesh topology', () => {
-    const config = readFileSync(join(dir, '.claude-flow', 'config.yaml'), 'utf-8');
-    assert.ok(config.includes('hierarchical-mesh') || config.includes('hierarchical'),
-      `full config should use hierarchical-mesh topology`);
+  it('config uses hierarchical-mesh topology', () => {
+    const jsonPath = join(dir, '.claude-flow', 'config.json');
+    const yamlPath = join(dir, '.claude-flow', 'config.yaml');
+    if (existsSync(jsonPath)) {
+      const parsed = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+      const json = JSON.stringify(parsed);
+      assert.ok(json.includes('hierarchical-mesh') || json.includes('hierarchical'),
+        `full config.json should use hierarchical-mesh topology`);
+    } else {
+      const content = readFileSync(yamlPath, 'utf-8');
+      assert.ok(content.includes('hierarchical-mesh') || content.includes('hierarchical'),
+        `full config.yaml should use hierarchical-mesh topology`);
+    }
   });
 
   it('creates config.json (SG-008)', () => {
@@ -335,10 +355,12 @@ describe('init-variants: --skip-claude flag', { skip: skipMsg }, () => {
 
   after(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
 
-  it('creates runtime config.yaml', () => {
+  it('creates runtime config file', () => {
     // --skip-claude should still create runtime (.claude-flow/)
-    assert.ok(existsSync(join(dir, '.claude-flow', 'config.yaml')),
-      '.claude-flow/config.yaml should exist (runtime not skipped)');
+    assert.ok(
+      existsSync(join(dir, '.claude-flow', 'config.json')) ||
+      existsSync(join(dir, '.claude-flow', 'config.yaml')),
+      '.claude-flow/config.json or config.yaml should exist (runtime not skipped)');
   });
 
   it('creates config.json (SG-008)', () => {
@@ -386,21 +408,22 @@ describe('init-variants: --only-claude flag', { skip: skipMsg }, () => {
       '.claude/settings.json should exist');
   });
 
-  it('should skip .claude-flow/config.yaml (known bug: may still create it)', () => {
-    const configExists = existsSync(join(dir, '.claude-flow', 'config.yaml'));
-    if (configExists) {
-      assert.ok(true, 'BUG: --only-claude did not prevent config.yaml creation (shallow copy issue)');
+  it('should skip .claude-flow/ runtime config (known bug: may still create it)', () => {
+    const yamlExists = existsSync(join(dir, '.claude-flow', 'config.yaml'));
+    const jsonExists = existsSync(join(dir, '.claude-flow', 'config.json'));
+    if (yamlExists || jsonExists) {
+      assert.ok(true, 'BUG: --only-claude did not prevent runtime config creation (shallow copy issue)');
     } else {
       assert.ok(true, '--only-claude correctly skipped runtime config');
     }
   });
 
-  it('config.json follows config.yaml (SG-008)', () => {
-    // --only-claude should skip runtime; config.json should follow config.yaml behavior
+  it('config.json consistent with config.yaml if both created (SG-008)', () => {
+    // --only-claude should skip runtime; config files should follow same behavior
     const yamlExists = existsSync(join(dir, '.claude-flow', 'config.yaml'));
     const jsonExists = existsSync(join(dir, '.claude-flow', 'config.json'));
-    if (yamlExists && jsonExists) {
-      // Both created (known shallow-copy bug)
+    if (jsonExists) {
+      // Validate config.json is well-formed
       const parsed = JSON.parse(readFileSync(join(dir, '.claude-flow', 'config.json'), 'utf-8'));
       assert.ok(parsed && typeof parsed === 'object', 'config.json should be valid JSON');
     } else if (!yamlExists && !jsonExists) {

@@ -227,3 +227,35 @@ patch("WM-003f: source hook doStatus() — Active label",
     SRC_AUTO_MEMORY_HOOK,
     """console.log(`  Package:        ${memPkg ? '\u2705 Available' : '\u274c Not found'}`);""",
     """console.log(`  Package:        ${memPkg?.AutoMemoryBridge ? 'Active (AutoMemoryBridge)' : memPkg ? '\u2705 Available' : '\u274c Not found'}`);""")
+
+# ── Ops 7-8: busy_timeout for upstream source hook that integrated WM-004 ──
+# The upstream v3.1.0-alpha.44 source hook now ships with createBackend() (from WM-004)
+# but omits busy_timeout.  These ops add it after backend.initialize() in both commands.
+
+# Op 7: doImport — add busy_timeout (createBackend variant)
+# Unique context: "const bridgeConfig = {" follows (only in doImport)
+patch("WM-003g: source hook doImport() busy_timeout (createBackend variant)",
+    SRC_AUTO_MEMORY_HOOK,
+    """  const { backend, isHybrid } = createBackend(config, memPkg);
+  await backend.initialize();
+
+  const bridgeConfig = {""",
+    """  const { backend, isHybrid } = createBackend(config, memPkg);
+  await backend.initialize();
+  if (isHybrid) { try { const sb = backend.getSQLiteBackend?.(); if (sb?.db) sb.db.pragma('busy_timeout = 5000'); } catch {} }
+
+  const bridgeConfig = {""")
+
+# Op 8: doSync — add busy_timeout (createBackend variant)
+# Unique context: "const entryCount = await backend.count();" follows (only in doSync)
+patch("WM-003h: source hook doSync() busy_timeout (createBackend variant)",
+    SRC_AUTO_MEMORY_HOOK,
+    """  const { backend, isHybrid } = createBackend(config, memPkg);
+  await backend.initialize();
+
+  const entryCount = await backend.count();""",
+    """  const { backend, isHybrid } = createBackend(config, memPkg);
+  await backend.initialize();
+  if (isHybrid) { try { const sb = backend.getSQLiteBackend?.(); if (sb?.db) sb.db.pragma('busy_timeout = 5000'); } catch {} }
+
+  const entryCount = await backend.count();""")

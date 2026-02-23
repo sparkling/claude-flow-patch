@@ -42,7 +42,7 @@ function readConfig() {
   }
 }""",
     """// ============================================================================
-// Read config from .claude-flow/config.json (YAML fallback for migration)
+// Read config from .claude-flow/config.json
 // ============================================================================
 
 function readConfig() {
@@ -55,53 +55,21 @@ function readConfig() {
     minConfidence: 0.7,
   };
 
-  // Primary: read .claude-flow/config.json
   const jsonPath = join(PROJECT_ROOT, '.claude-flow', 'config.json');
-  if (existsSync(jsonPath)) {
-    try {
-      const cfg = JSON.parse(readFileSync(jsonPath, 'utf-8'));
-      const mem = cfg.memory || {};
-      if (['hybrid', 'json', 'sqlite', 'agentdb'].includes(mem.backend)) defaults.backend = mem.backend;
-      if (mem.learningBridge) Object.assign(defaults.learningBridge, mem.learningBridge);
-      if (mem.memoryGraph) Object.assign(defaults.memoryGraph, mem.memoryGraph);
-      if (mem.agentScopes) Object.assign(defaults.agentScopes, mem.agentScopes);
-      if (mem.syncMode) defaults.syncMode = mem.syncMode;
-      if (typeof mem.minConfidence === 'number') defaults.minConfidence = mem.minConfidence;
-      return defaults;
-    } catch (err) {
-      dim(`[config:error] Failed to parse config.json: ${err.message}`);
-    }
+  if (!existsSync(jsonPath)) return defaults;
+  try {
+    const cfg = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+    const mem = cfg.memory || {};
+    if (['hybrid', 'json', 'sqlite', 'agentdb'].includes(mem.backend)) defaults.backend = mem.backend;
+    if (mem.learningBridge) Object.assign(defaults.learningBridge, mem.learningBridge);
+    if (mem.memoryGraph) Object.assign(defaults.memoryGraph, mem.memoryGraph);
+    if (mem.agentScopes) Object.assign(defaults.agentScopes, mem.agentScopes);
+    if (mem.syncMode) defaults.syncMode = mem.syncMode;
+    if (typeof mem.minConfidence === 'number') defaults.minConfidence = mem.minConfidence;
+    return defaults;
+  } catch (err) {
+    dim(`[config:error] Failed to parse config.json: ${err.message}`);
   }
-
-  // Fallback: read config.yaml for backward compat
-  const yamlPath = join(PROJECT_ROOT, '.claude-flow', 'config.yaml');
-  if (existsSync(yamlPath)) {
-    try {
-      const yaml = readFileSync(yamlPath, 'utf-8');
-      const getBool = (key) => {
-        const match = yaml.match(new RegExp(`${key}:\\\\s*(true|false)`, 'i'));
-        return match ? match[1] === 'true' : undefined;
-      };
-      const getStr = (key) => {
-        const match = yaml.match(new RegExp(`${key}:\\\\s*([\\\\w-]+)`, 'i'));
-        return match ? match[1] : undefined;
-      };
-      const parsedBackend = getStr('backend');
-      if (parsedBackend && ['hybrid', 'json', 'sqlite', 'agentdb'].includes(parsedBackend)) defaults.backend = parsedBackend;
-      const lbEnabled = getBool('learningBridge[\\\\s\\\\S]*?enabled');
-      if (lbEnabled !== undefined) defaults.learningBridge.enabled = lbEnabled;
-      const mgEnabled = getBool('memoryGraph[\\\\s\\\\S]*?enabled');
-      if (mgEnabled !== undefined) defaults.memoryGraph.enabled = mgEnabled;
-      const asEnabled = getBool('agentScopes[\\\\s\\\\S]*?enabled');
-      if (asEnabled !== undefined) defaults.agentScopes.enabled = asEnabled;
-      defaults.syncMode = getStr('syncMode') || defaults.syncMode;
-      dim('[config] Read from config.yaml (legacy).');
-      return defaults;
-    } catch {
-      return defaults;
-    }
-  }
-
   return defaults;
 }
 

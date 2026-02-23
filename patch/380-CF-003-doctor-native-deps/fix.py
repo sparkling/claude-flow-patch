@@ -1,6 +1,23 @@
 # CF-003: Doctor --install native dependency resolution
 # GitHub: #1186
 
+# CF-003z: Remove config.yaml/yml from checkConfigFile discovery paths
+# After our patches, config.json is canonical — yaml should not be discovered
+patch("CF-003z: strip yaml from checkConfigFile",
+    DOC,
+    """    const configPaths = [
+        '.claude-flow/config.json',
+        'claude-flow.config.json',
+        '.claude-flow.json',
+        '.claude-flow/config.yaml',
+        '.claude-flow/config.yml'
+    ];""",
+    """    const configPaths = [
+        '.claude-flow/config.json',
+        'claude-flow.config.json',
+        '.claude-flow.json'
+    ];""")
+
 # CF-003a: Add checkMemoryBackend() diagnostic function
 # Insert after checkMemoryDatabase, before checkApiKeys
 patch("CF-003a: checkMemoryBackend diagnostic (absorbs CF-005)",

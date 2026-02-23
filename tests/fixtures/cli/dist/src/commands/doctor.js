@@ -7,7 +7,9 @@ async function checkConfigFile() {
     const configPaths = [
         '.claude-flow/config.json',
         'claude-flow.config.json',
-        '.claude-flow.json'
+        '.claude-flow.json',
+        '.claude-flow/config.yaml',
+        '.claude-flow/config.yml'
     ];
     for (const configPath of configPaths) {
         if (existsSync(configPath)) {

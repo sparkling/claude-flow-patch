@@ -146,6 +146,12 @@ describe('individual patch application', () => {
       absent: 'CLAUDE_FLOW_MEMORY_BACKEND',
     },
     {
+      id: 'CF-003',
+      file: 'commands/doctor.js',
+      sentinel: '.claude-flow.json',
+      absent: 'config.yaml',
+    },
+    {
       id: 'WM-002',
       file: 'memory/intelligence.js',
       sentinel: 'neuralEnabled',
@@ -211,7 +217,7 @@ describe('individual patch application', () => {
     {
       id: 'WM-004',
       file: '../../.claude/helpers/auto-memory-hook.mjs',
-      sentinel: 'config.json (YAML fallback for migration)',
+      sentinel: 'Read config from .claude-flow/config.json',
       absent: null,
     },
     {
@@ -222,26 +228,47 @@ describe('individual patch application', () => {
     },
     // WM-005: absorbed into WM-001 — WM-001a now writes config.json reader directly
     // WM-006: absorbed into WM-002 — WM-002c now writes config.json reader directly
-    // CF-004: config export reads config.json + removes duplicate
+    // CF-004: inject readYamlConfig that reads config.json
     {
       id: 'CF-004',
       file: 'commands/config.js',
-      sentinel: 'CF-004: Read config.json (canonical)',
-      absent: null,
-    },
-    {
-      id: 'CF-004',
-      file: 'commands/config.js',
-      sentinel: 'CF-004b: removed duplicate readYamlConfig',
+      sentinel: 'CF-004: Read project config from .claude-flow/config.json',
       absent: null,
     },
     // CF-005: absorbed into CF-003 — CF-003a now writes config.json reader directly
-    // SG-008: init generates config.json
+    // SG-008: init generates config.json (replaces yaml)
     {
       id: 'SG-008',
       file: 'init/executor.js',
-      sentinel: 'SG-008: Also generate config.json',
+      sentinel: 'SG-008: Generate config.json (canonical runtime config',
+      absent: 'const config = `# Claude Flow V3 Runtime Configuration',
+    },
+    {
+      id: 'SG-008',
+      file: 'init/executor.js',
+      sentinel: 'config.json      # Runtime configuration',
       absent: null,
+    },
+    // CF-006: start.js config.json reader (replaces parseSimpleYaml)
+    {
+      id: 'CF-006',
+      file: 'commands/start.js',
+      sentinel: 'CF-006: Load configuration from config.json',
+      absent: 'parseSimpleYaml',
+    },
+    // CF-007: status.js isInitialized checks config.json
+    {
+      id: 'CF-007',
+      file: 'commands/status.js',
+      sentinel: 'CF-007: Check if project is initialized',
+      absent: "const configPath = path.join(cwd, '.claude-flow', 'config.yaml')",
+    },
+    // CF-008: init.js isInitialized + display strings use config.json
+    {
+      id: 'CF-008',
+      file: 'commands/init.js',
+      sentinel: 'CF-008: Check if project is already initialized',
+      absent: "const claudeFlowPath = path.join(cwd, '.claude-flow', 'config.yaml');",
     },
   ];
 

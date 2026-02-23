@@ -174,7 +174,7 @@ claude-flow-patch/
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-47 defects across 14 categories.
+50 defects across 14 categories.
 
 ### CF -- Config & Doctor
 
@@ -185,6 +185,9 @@ claude-flow-patch/
 | [CF&#8209;003](patch/380-CF-003-doctor-native-deps/) | Doctor --install native dependency resolution | Medium | [#1186](https://github.com/ruvnet/claude-flow/issues/1186) |
 | [CF&#8209;004](patch/420-CF-004-config-export-json/) | config get/export uses hand-rolled YAML parser instead of config.json | Medium | [#1193](https://github.com/ruvnet/claude-flow/issues/1193) |
 | [CF&#8209;005](patch/430-CF-005-doctor-config-json/) | Doctor checkMemoryBackend reads env var + config.yaml instead of config.json | Medium | [#1194](https://github.com/ruvnet/claude-flow/issues/1194) |
+| [CF&#8209;006](patch/450-CF-006-start-config-json/) | start.js uses hand-rolled YAML parser instead of config.json | Medium | [#1197](https://github.com/ruvnet/claude-flow/issues/1197) |
+| [CF&#8209;007](patch/460-CF-007-status-config-json/) | status.js isInitialized checks config.yaml instead of config.json | Medium | [#1198](https://github.com/ruvnet/claude-flow/issues/1198) |
+| [CF&#8209;008](patch/470-CF-008-init-display-config-json/) | init.js isInitialized and display strings reference config.yaml | Medium | [#1199](https://github.com/ruvnet/claude-flow/issues/1199) |
 
 ### DM -- Daemon & Workers
 
@@ -273,7 +276,7 @@ claude-flow-patch/
 | [SG&#8209;005](patch/330-SG-005-start-all-subcommand/) | add 'start all' subcommand to start everything at once | Enhancement | [#1177](https://github.com/ruvnet/claude-flow/issues/1177) |
 | [SG&#8209;006](patch/340-SG-006-wizard-capture/) | Wizard captures permissionRequest hook but never assigns it + topology hardcoded | Medium | [#1184](https://github.com/ruvnet/claude-flow/issues/1184) |
 | [SG&#8209;007](patch/385-SG-007-init-shallow-copy/) | --skip-claude / --only-claude mutate shared init options via shallow copy | Medium | [#1188](https://github.com/ruvnet/claude-flow/issues/1188) |
-| [SG&#8209;008](patch/440-SG-008-init-config-json/) | init should generate .claude-flow/config.json | Enhancement | [#1195](https://github.com/ruvnet/claude-flow/issues/1195) |
+| [SG&#8209;008](patch/440-SG-008-init-config-json/) | init should generate .claude-flow/config.json (not config.yaml) | Enhancement | [#1195](https://github.com/ruvnet/claude-flow/issues/1195) |
 
 ### UI -- Display & Cosmetic
 

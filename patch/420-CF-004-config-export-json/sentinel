@@ -1,2 +1,2 @@
-grep "CF-004: Read config.json (canonical)" commands/config.js
-grep "CF-004b: removed duplicate readYamlConfig" commands/config.js
+grep "CF-004: Read project config from .claude-flow/config.json" commands/config.js
+grep "function readYamlConfig" commands/config.js

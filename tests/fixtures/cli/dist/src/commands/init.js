@@ -1,5 +1,17 @@
-// Minimal fixture for SG-003 / SG-004 / SG-007 testing
+// Minimal fixture for SG-003 / SG-004 / SG-007 / CF-008 testing
 import { executeInit, DEFAULT_INIT_OPTIONS, MINIMAL_INIT_OPTIONS, FULL_INIT_OPTIONS } from '../init/index.js';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Check if project is already initialized
+function isInitialized(cwd) {
+    const claudePath = path.join(cwd, '.claude', 'settings.json');
+    const claudeFlowPath = path.join(cwd, '.claude-flow', 'config.yaml');
+    return {
+        claude: fs.existsSync(claudePath),
+        claudeFlow: fs.existsSync(claudeFlowPath),
+    };
+}
 
 const initAction = async (ctx) => {
     const codexMode = ctx.flags.codex;
@@ -84,3 +96,9 @@ const wizardCommand = {
             else if (preset === 'full') {
                 Object.assign(options, FULL_INIT_OPTIONS);
             }
+
+// CF-008 fixture: display strings referencing config.yaml
+            output.printInfo('  Found: .claude-flow/config.yaml');
+                `Config:      .claude-flow/config.yaml`,
+                claudeFlowConfig: initialized.claudeFlow ? path.join(ctx.cwd, '.claude-flow', 'config.yaml') : null,
+                output.printInfo(`  V3 Runtime: .claude-flow/config.yaml`);

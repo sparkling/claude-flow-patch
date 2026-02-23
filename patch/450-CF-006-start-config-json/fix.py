@@ -1,9 +1,10 @@
-// Minimal fixture for SG-005, CF-006 testing
-import { output } from '../output.js';
-import * as fs from 'fs';
-import * as path from 'path';
+# CF-006: start.js uses hand-rolled YAML parser instead of config.json
+# GitHub: #1197
 
-// Check if project is initialized
+# ── Op 1: Replace isInitialized + parseSimpleYaml + loadConfig with config.json readers ──
+patch("CF-006a: replace YAML parser with config.json reader in start.js",
+    START_CMD,
+    """// Check if project is initialized
 function isInitialized(cwd) {
     const configPath = path.join(cwd, '.claude-flow', 'config.yaml');
     return fs.existsSync(configPath);
@@ -11,7 +12,7 @@ function isInitialized(cwd) {
 // Simple YAML parser for config (basic implementation)
 function parseSimpleYaml(content) {
     const result = {};
-    const lines = content.split('\n');
+    const lines = content.split('\\n');
     const stack = [
         { indent: -1, obj: result }
     ];
@@ -19,7 +20,7 @@ function parseSimpleYaml(content) {
         // Skip comments and empty lines
         if (line.trim().startsWith('#') || line.trim() === '')
             continue;
-        const match = line.match(/^(\s*)(\w+):\s*(.*)$/);
+        const match = line.match(/^(\\s*)(\\w+):\\s*(.*)$/);
         if (!match)
             continue;
         const indent = match[1].length;
@@ -71,33 +72,19 @@ function loadConfig(cwd) {
     catch {
         return null;
     }
+}""",
+    """// CF-006: Check if project is initialized
+function isInitialized(cwd) {
+    const jsonPath = path.join(cwd, '.claude-flow', 'config.json');
+    return fs.existsSync(jsonPath);
 }
-// Main start action
-const startAction = async (ctx) => {
-    return { success: true };
-};
-
-const stopCommand = { name: 'stop' };
-const restartCommand = { name: 'restart' };
-
-// Quick start subcommand
-const quickCommand = {
-    name: 'quick',
-    aliases: ['q'],
-    description: 'Quick start with default settings',
-    action: async (ctx) => {
-        return startAction(ctx);
+// CF-006: Load configuration from config.json
+function loadConfig(cwd) {
+    const jsonPath = path.join(cwd, '.claude-flow', 'config.json');
+    if (!fs.existsSync(jsonPath)) return null;
+    try {
+        return JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
+    } catch {
+        return null;
     }
-};
-
-export const startCommand = {
-    name: 'start',
-    description: 'Start the Claude Flow orchestration system',
-    subcommands: [stopCommand, restartCommand, quickCommand],
-    options: [],
-    examples: [
-        { command: 'claude-flow start', description: 'Start with configuration defaults' },
-        { command: 'claude-flow start stop', description: 'Stop the running system' }
-    ],
-    action: startAction
-};
+}""")

@@ -5,14 +5,15 @@
 
 ## Root Cause
 
-`readYamlConfig()` in `config.js` implements a 30-line hand-rolled YAML parser that handles sections via indentation detection. It disagrees with the regex-based parsers in WM-001 and CF-003 on values containing colons, quoted strings, and multi-line values. Additionally, the TypeScript bundler emits this function twice with duplicate import statements, causing a `SyntaxError` if the first copy is replaced without removing the second.
+The upstream bundler removed the `readYamlConfig()` function definitions from `config.js`
+but CF-002 (order 020) added call-sites that depend on it. Without the definition,
+`config get` and `config export` crash with `readYamlConfig is not defined`.
 
 ## Fix
 
 | Op | Description |
 |----|-------------|
-| CF-004a | Replace first `readYamlConfig()` with JSON reader (config.json primary, config.yaml fallback) |
-| CF-004b | Remove duplicate `readYamlConfig()` + its import statements (bundler artifact) |
+| CF-004a | Inject `readYamlConfig()` function + `fs`/`path` imports (reads config.json primary, config.yaml fallback) |
 
 ## Files Patched
 
@@ -20,4 +21,4 @@
 
 ## Ops
 
-2 ops in fix.py
+1 op in fix.py

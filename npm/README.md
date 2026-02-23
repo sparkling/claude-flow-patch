@@ -13,7 +13,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruv-swarm`
 
 <!-- GENERATED:npm-defects:begin -->
-47 tracked defects across 14 categories.
+50 tracked defects across 14 categories.
 
 | Defect | Description | GitHub Issue |
 |--------|-------------|-------------|
@@ -22,6 +22,9 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [CF-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/380-CF-003-doctor-native-deps) | Doctor --install native dependency resolution | [#1186](https://github.com/ruvnet/claude-flow/issues/1186) |
 | [CF-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/420-CF-004-config-export-json) | config get/export uses hand-rolled YAML parser instead of config.json | [#1193](https://github.com/ruvnet/claude-flow/issues/1193) |
 | [CF-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/430-CF-005-doctor-config-json) | Doctor checkMemoryBackend reads env var + config.yaml instead of config.json | [#1194](https://github.com/ruvnet/claude-flow/issues/1194) |
+| [CF-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/450-CF-006-start-config-json) | start.js uses hand-rolled YAML parser instead of config.json | [#1197](https://github.com/ruvnet/claude-flow/issues/1197) |
+| [CF-007](https://github.com/sparkling/claude-flow-patch/tree/master/patch/460-CF-007-status-config-json) | status.js isInitialized checks config.yaml instead of config.json | [#1198](https://github.com/ruvnet/claude-flow/issues/1198) |
+| [CF-008](https://github.com/sparkling/claude-flow-patch/tree/master/patch/470-CF-008-init-display-config-json) | init.js isInitialized and display strings reference config.yaml | [#1199](https://github.com/ruvnet/claude-flow/issues/1199) |
 | [DM-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/030-DM-001-daemon-log-zero) | daemon.log always 0 bytes | [#1116](https://github.com/ruvnet/claude-flow/issues/1116) |
 | [DM-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/040-DM-002-cpu-load-threshold) | maxCpuLoad=2.0 blocks all workers on multi-core | [#1138](https://github.com/ruvnet/claude-flow/issues/1138) |
 | [DM-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/050-DM-003-macos-freemem) | macOS freemem() always ~0% — workers blocked | [#1077](https://github.com/ruvnet/claude-flow/issues/1077) |
@@ -55,7 +58,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [SG-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/330-SG-005-start-all-subcommand) | add 'start all' subcommand to start everything at once | [#1177](https://github.com/ruvnet/claude-flow/issues/1177) |
 | [SG-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/340-SG-006-wizard-capture) | Wizard captures permissionRequest hook but never assigns it + topology hardcoded | [#1184](https://github.com/ruvnet/claude-flow/issues/1184) |
 | [SG-007](https://github.com/sparkling/claude-flow-patch/tree/master/patch/385-SG-007-init-shallow-copy) | --skip-claude / --only-claude mutate shared init options via shallow copy | [#1188](https://github.com/ruvnet/claude-flow/issues/1188) |
-| [SG-008](https://github.com/sparkling/claude-flow-patch/tree/master/patch/440-SG-008-init-config-json) | init should generate .claude-flow/config.json | [#1195](https://github.com/ruvnet/claude-flow/issues/1195) |
+| [SG-008](https://github.com/sparkling/claude-flow-patch/tree/master/patch/440-SG-008-init-config-json) | init should generate .claude-flow/config.json (not config.yaml) | [#1195](https://github.com/ruvnet/claude-flow/issues/1195) |
 | [UI-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/280-UI-001-intelligence-stats-crash) | intelligence stats crashes on .toFixed() | [#1145](https://github.com/ruvnet/claude-flow/issues/1145) |
 | [UI-002](https://github.com/sparkling/claude-flow-patch/tree/master/patch/290-UI-002-neural-status-not-loaded) | neural status shows "Not loaded" | [#1146](https://github.com/ruvnet/claude-flow/issues/1146) |
 | [WM-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/350-WM-001-memory-wiring) | Wire @claude-flow/memory HybridBackend into CLI | [#829](https://github.com/ruvnet/claude-flow/issues/829) |
