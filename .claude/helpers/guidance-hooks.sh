@@ -54,8 +54,8 @@ case "$COMMAND" in
         [[ -z "$TASK" ]] && exit 0
         if [[ "$TASK" =~ (security|CVE|vulnerability) ]]; then
             echo -e "${DIM}[Route] security-architect${RESET}"
-        elif [[ "$TASK" =~ (memory|AgentDB|HNSW|vector) ]]; then
-            echo -e "${DIM}[Route] memory-specialist${RESET}"
+        elif [[ "$TASK" =~ (memory|AgentDB|HNSW|vector|RVF|rvf|self-learning|witness.chain) ]]; then
+            echo -e "${DIM}[Route] memory-specialist (AgentDB v3: RVF, self-learning, witness chain)${RESET}"
         elif [[ "$TASK" =~ (performance|optimize|benchmark) ]]; then
             echo -e "${DIM}[Route] performance-engineer${RESET}"
         elif [[ "$TASK" =~ (test|TDD|spec) ]]; then

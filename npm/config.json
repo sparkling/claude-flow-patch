@@ -18,10 +18,11 @@
   "targets": {
     "@claude-flow/cli": "3.1.0-alpha.41",
     "ruv-swarm": "1.0.20",
-    "ruvector": "bundled"
+    "ruvector": "bundled",
+    "agentdb": "3.0.0-alpha.3"
   },
   "defects": {
-    "total": 56,
+    "total": 57,
     "categories": 15
   }
 }

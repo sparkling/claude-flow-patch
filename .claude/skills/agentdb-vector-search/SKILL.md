@@ -12,7 +12,7 @@ Implements vector-based semantic search using AgentDB's high-performance vector 
 ## Prerequisites
 
 - Node.js 18+
-- AgentDB v1.0.7+ (via agentic-flow or standalone)
+- AgentDB v3.0.0+ (RVF unified storage with vectors + relational in single .rvf file)
 - OpenAI API key (for embeddings) or custom embedding model
 
 ## Quick Start with CLI

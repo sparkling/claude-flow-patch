@@ -499,6 +499,117 @@ describe('individual patch application', () => {
       sentinel: 'hierarchical-mesh',
       absent: 'topology="hierarchical"',
     },
+    // WM-008: AgentDB v3 upgrade (RVF, self-learning, witness chain)
+    {
+      id: 'WM-008',
+      file: '../../../memory/dist/agentdb-backend.js',
+      sentinel: "vectorBackend: 'rvf'",
+      absent: "vectorBackend: 'auto'",
+    },
+    {
+      id: 'WM-008',
+      file: '../../../memory/dist/agentdb-backend.js',
+      sentinel: 'SelfLearningRvfBackend',
+      absent: null,
+    },
+    {
+      id: 'WM-008',
+      file: '../../../memory/dist/agentdb-backend.js',
+      sentinel: 'recordFeedback',
+      absent: null,
+    },
+    {
+      id: 'WM-008',
+      file: '../../../memory/dist/agentdb-backend.js',
+      sentinel: 'getWitnessChain',
+      absent: null,
+    },
+    {
+      id: 'WM-008',
+      file: '../../../memory/dist/agentdb-backend.js',
+      sentinel: 'isUnifiedMode',
+      absent: null,
+    },
+    {
+      id: 'WM-008',
+      file: 'memory/memory-initializer.js',
+      sentinel: 'agentdb-memory.rvf',
+      absent: 'agentdb-memory.db',
+      deps: ['WM-001', 'WM-007'],
+    },
+    {
+      id: 'WM-008',
+      file: 'memory/memory-initializer.js',
+      sentinel: "vectorBackend: 'rvf'",
+      absent: "indexType: enableHNSW ? 'hnsw' : 'flat'",
+      deps: ['WM-001', 'WM-007'],
+    },
+    {
+      id: 'WM-008',
+      file: 'init/executor.js',
+      sentinel: 'WM-008h',
+      absent: null,
+      deps: ['SG-008', 'SG-010'],
+    },
+    {
+      id: 'WM-008',
+      file: 'init/executor.js',
+      sentinel: 'enableAgentdbLearning',
+      absent: null,
+      deps: ['SG-008', 'SG-010'],
+    },
+    // WM-008i: memory package.json agentdb version
+    {
+      id: 'WM-008',
+      file: '../../../memory/package.json',
+      sentinel: '3.0.0-alpha.3',
+      absent: '2.0.0-alpha.3.7',
+    },
+    // WM-008j: agentdb-backend.js header comment
+    {
+      id: 'WM-008',
+      file: '../../../memory/dist/agentdb-backend.js',
+      sentinel: 'agentdb@3.0.0-alpha.3',
+      absent: 'agentdb@2.0.0-alpha.3.4',
+    },
+    // WM-008k: helpers-generator.js .db -> .rvf
+    {
+      id: 'WM-008',
+      file: 'init/helpers-generator.js',
+      sentinel: 'agentdb-memory.rvf',
+      absent: 'agentdb-memory.db',
+      deps: ['WM-003'],
+    },
+    // WM-008l: auto-memory-hook.mjs .db -> .rvf
+    {
+      id: 'WM-008',
+      file: '../../.claude/helpers/auto-memory-hook.mjs',
+      sentinel: 'agentdb-memory.rvf',
+      absent: 'agentdb-memory.db',
+      deps: ['WM-003', 'WM-004'],
+    },
+    // WM-008m: neural reasoning-bank.js vectorBackend
+    {
+      id: 'WM-008',
+      file: '../../../neural/dist/reasoning-bank.js',
+      sentinel: "vectorBackend: 'rvf'",
+      absent: "vectorBackend: 'auto'",
+    },
+    // WM-008n: shared defaults.js vectorBackend
+    {
+      id: 'WM-008',
+      file: '../../../shared/dist/core/config/defaults.js',
+      sentinel: "vectorBackend: 'rvf'",
+      absent: null,
+    },
+    // WM-008o: executor.js version table
+    {
+      id: 'WM-008',
+      file: 'init/executor.js',
+      sentinel: '3.0.0-alpha.3',
+      absent: '2.0.0-alpha.3.4',
+      deps: ['SG-008'],
+    },
   ];
 
   for (const { id, file, sentinel, absent, deps } of TESTS) {

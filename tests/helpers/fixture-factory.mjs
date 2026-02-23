@@ -8,22 +8,40 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const FIXTURES_CLI_ROOT = resolve(__dirname, '..', 'fixtures', 'cli');
 const FIXTURES_SRC = resolve(FIXTURES_CLI_ROOT, 'dist', 'src');
 const FIXTURES_HELPERS = resolve(FIXTURES_CLI_ROOT, '.claude', 'helpers');
+const FIXTURES_MEMORY = resolve(__dirname, '..', 'fixtures', 'memory');
+const FIXTURES_NEURAL = resolve(__dirname, '..', 'fixtures', 'neural');
+const FIXTURES_SHARED = resolve(__dirname, '..', 'fixtures', 'shared');
 
 /** Copy the fixture tree into a fresh temp dir. Returns { base, cleanup }. */
 export function createFixtureTree() {
   const dir = mkdtempSync(join(tmpdir(), 'cfp-test-'));
-  const base = join(dir, 'dist', 'src');
+  // Create @claude-flow scope structure so sibling package paths resolve correctly
+  // (e.g. AGENTDB_BACKEND = _cf_scope + /memory/dist/agentdb-backend.js)
+  const cliRoot = join(dir, '@claude-flow', 'cli');
+  const base = join(cliRoot, 'dist', 'src');
   cpSync(FIXTURES_SRC, base, { recursive: true });
   // Also copy source helpers fixtures (.claude/helpers/) if they exist
   if (existsSync(FIXTURES_HELPERS)) {
-    const helpersDir = join(dir, '.claude', 'helpers');
+    const helpersDir = join(cliRoot, '.claude', 'helpers');
     mkdirSync(helpersDir, { recursive: true });
     cpSync(FIXTURES_HELPERS, helpersDir, { recursive: true });
   }
-  // Copy README.md fixture to temp dir root (package root level for README_MD path var)
+  // Copy README.md fixture to cli root (package root level for README_MD path var)
   const readmeFixture = join(FIXTURES_CLI_ROOT, 'README.md');
   if (existsSync(readmeFixture)) {
-    cpSync(readmeFixture, join(dir, 'README.md'));
+    cpSync(readmeFixture, join(cliRoot, 'README.md'));
+  }
+  // Copy sibling @claude-flow/* package fixtures (WM-008 patches cross-package)
+  for (const [fixtureDir, pkgName] of [
+    [FIXTURES_MEMORY, 'memory'],
+    [FIXTURES_NEURAL, 'neural'],
+    [FIXTURES_SHARED, 'shared'],
+  ]) {
+    if (existsSync(fixtureDir)) {
+      const pkgRoot = join(dir, '@claude-flow', pkgName);
+      mkdirSync(pkgRoot, { recursive: true });
+      cpSync(fixtureDir, pkgRoot, { recursive: true });
+    }
   }
   return {
     dir,

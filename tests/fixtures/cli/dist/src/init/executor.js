@@ -84,6 +84,17 @@ async function executeUpgrade(targetDir, result) {
 npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
 npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8
 
+// WM-008o fixture: version table in CLAUDE.md template
+const claudeMdVersionTable = `
+### Integrated Packages
+| Package | Version | Purpose |
+|---------|---------|---------|
+| agentic-flow | 2.0.1-alpha | Core coordination |
+| agentdb | 2.0.0-alpha.3.4 | Vector database |
+| @ruvector/attention | 0.1.3 | Flash attention |
+| @ruvector/sona | 0.1.5 | Neural learning |
+`;
+
 // SG-008b fixture: CAPABILITIES.md template with config.yaml reference
 const capabilitiesTemplate = `
 .claude-flow/

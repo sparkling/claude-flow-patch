@@ -174,7 +174,7 @@ claude-flow-patch/
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-56 defects across 15 categories.
+57 defects across 15 categories.
 
 ### CF -- Config & Doctor
 
@@ -300,6 +300,7 @@ claude-flow-patch/
 | [WM&#8209;005](patch/400-WM-005-memory-init-config-json/) | memory-initializer reads config.yaml with hand-rolled regex instead of config.json | Medium | [#1191](https://github.com/ruvnet/claude-flow/issues/1191) |
 | [WM&#8209;006](patch/410-WM-006-neural-config-json/) | intelligence.js reads neural.enabled from config.yaml regex instead of config.json | Medium | [#1192](https://github.com/ruvnet/claude-flow/issues/1192) |
 | [WM&#8209;007](patch/530-WM-007-wire-dead-config-keys/) | Wire dead config.json keys into runtime consumers | High | [#1204](https://github.com/ruvnet/claude-flow/issues/1204) |
+| [WM&#8209;008](patch/560-WM-008-agentdb-v3-upgrade/) | Upgrade AgentDB v2 to v3 (RVF backend, self-learning, witness chain) | High | [#1207](https://github.com/ruvnet/claude-flow/issues/1207) |
 
 ### DOC -- Documentation
 

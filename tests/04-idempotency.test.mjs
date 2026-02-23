@@ -65,6 +65,15 @@ describe('patch idempotency', () => {
     { id: 'SG-011', file: 'commands/init.js' },
     { id: 'SG-011', file: 'init/claudemd-generator.js' },
     { id: 'SG-011', file: 'init/executor.js' },
+    // WM-008: AgentDB v3 upgrade (all patched packages)
+    { id: 'WM-008', file: '../../../memory/dist/agentdb-backend.js' },
+    { id: 'WM-008', file: '../../../memory/package.json' },
+    { id: 'WM-008', file: '../../../neural/dist/reasoning-bank.js' },
+    { id: 'WM-008', file: '../../../shared/dist/core/config/defaults.js' },
+    { id: 'WM-008', file: 'memory/memory-initializer.js' },
+    { id: 'WM-008', file: 'init/executor.js' },
+    { id: 'WM-008', file: 'init/helpers-generator.js' },
+    { id: 'WM-008', file: '../../.claude/helpers/auto-memory-hook.mjs' },
   ];
 
   for (const { id, file } of PATCHES) {

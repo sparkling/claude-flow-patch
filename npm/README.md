@@ -13,7 +13,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruv-swarm`
 
 <!-- GENERATED:npm-defects:begin -->
-56 tracked defects across 15 categories.
+57 tracked defects across 15 categories.
 
 | Defect | Description | GitHub Issue |
 |--------|-------------|-------------|
@@ -72,6 +72,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [WM-005](https://github.com/sparkling/claude-flow-patch/tree/master/patch/400-WM-005-memory-init-config-json) | memory-initializer reads config.yaml with hand-rolled regex instead of config.json | [#1191](https://github.com/ruvnet/claude-flow/issues/1191) |
 | [WM-006](https://github.com/sparkling/claude-flow-patch/tree/master/patch/410-WM-006-neural-config-json) | intelligence.js reads neural.enabled from config.yaml regex instead of config.json | [#1192](https://github.com/ruvnet/claude-flow/issues/1192) |
 | [WM-007](https://github.com/sparkling/claude-flow-patch/tree/master/patch/530-WM-007-wire-dead-config-keys) | Wire dead config.json keys into runtime consumers | [#1204](https://github.com/ruvnet/claude-flow/issues/1204) |
+| [WM-008](https://github.com/sparkling/claude-flow-patch/tree/master/patch/560-WM-008-agentdb-v3-upgrade) | Upgrade AgentDB v2 to v3 (RVF backend, self-learning, witness chain) | [#1207](https://github.com/ruvnet/claude-flow/issues/1207) |
 | [DOC-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/480-DOC-001-readme-docs) | Update upstream README.md to match patched CLI behavior | [#1201](https://github.com/ruvnet/claude-flow/issues/1201) |
 <!-- GENERATED:npm-defects:end -->
 

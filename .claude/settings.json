@@ -191,23 +191,47 @@
     },
     "swarm": {
       "topology": "hierarchical-mesh",
-      "maxAgents": 15
+      "maxAgents": 15,
+      "autoScale": true,
+      "coordinationStrategy": "consensus"
     },
     "memory": {
       "backend": "hybrid",
       "enableHNSW": true,
+      "cacheSize": 256,
       "learningBridge": {
-        "enabled": true
+        "enabled": true,
+        "sonaMode": "balanced",
+        "confidenceDecayRate": 0.005,
+        "accessBoostAmount": 0.03,
+        "consolidationThreshold": 10
       },
       "memoryGraph": {
-        "enabled": true
+        "enabled": true,
+        "pageRankDamping": 0.85,
+        "maxNodes": 5000,
+        "similarityThreshold": 0.8
       },
       "agentScopes": {
-        "enabled": true
+        "enabled": true,
+        "defaultScope": "project"
+      },
+      "agentdb": {
+        "vectorBackend": "rvf",
+        "enableLearning": true,
+        "learningPositiveThreshold": 0.7,
+        "learningNegativeThreshold": 0.3,
+        "learningBatchSize": 32,
+        "learningTickInterval": 30000
       }
     },
     "neural": {
-      "enabled": true
+      "enabled": true,
+      "modelPath": ".claude-flow/neural"
+    },
+    "hooks": {
+      "enabled": true,
+      "autoExecute": true
     },
     "daemon": {
       "autoStart": true,

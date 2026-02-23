@@ -198,16 +198,16 @@ patch("SG-010c: wire options into config.json template, fix cacheSize 100→256"
             },
             agentScopes: {
                 enabled: !!(options.runtime.enableAgentScopes ?? true),
-                defaultScope: 'project',
+                defaultScope: options.runtime.defaultScope || 'project',
             },
         },
         neural: {
             enabled: !!options.runtime.enableNeural,
-            modelPath: '.claude-flow/neural',
+            modelPath: options.runtime.modelPath || '.claude-flow/neural',
         },
         hooks: {
-            enabled: true,
-            autoExecute: true,
+            enabled: options.hooks?.enabled !== false,
+            autoExecute: options.hooks?.autoExecute !== false,
         },
         mcp: {
             autoStart: options.mcp.autoStart !== false,

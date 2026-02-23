@@ -14,7 +14,7 @@ Provides access to 9 reinforcement learning algorithms via AgentDB's plugin syst
 ## Prerequisites
 
 - Node.js 18+
-- AgentDB v1.0.7+ (via agentic-flow)
+- AgentDB v3.0.0+ (SelfLearningRvfBackend for contrastive training, LoRA adapters, feedback loops)
 - Basic understanding of reinforcement learning (recommended)
 
 ---

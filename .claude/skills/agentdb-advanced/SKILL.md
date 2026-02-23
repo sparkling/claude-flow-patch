@@ -14,7 +14,7 @@ Covers advanced AgentDB capabilities for distributed systems, multi-database coo
 ## Prerequisites
 
 - Node.js 18+
-- AgentDB v1.0.7+ (via agentic-flow)
+- AgentDB v3.0.0+ (RVF unified storage, self-learning via SelfLearningRvfBackend, SHAKE-256 witness chain)
 - Understanding of distributed systems (for QUIC sync)
 - Vector search fundamentals
 

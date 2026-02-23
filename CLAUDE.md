@@ -158,10 +158,10 @@ Save the returned GitHub issue number for the defect README.md.
 | RV | RuVector Intelligence | 3 |
 | SG | Settings Generator | 10 |
 | UI | Display & Cosmetic | 2 |
-| WM | Wiring / Memory Integration | 7 |
+| WM | Wiring / Memory Integration | 8 |
 | DOC | Documentation | 1 |
 
-## All 56 Defects
+## All 57 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -221,6 +221,7 @@ Save the returned GitHub issue number for the defect README.md.
 | WM-007 | [#1204 Wire dead config.json keys into runtime consumers](https://github.com/ruvnet/claude-flow/issues/1204) | High |
 | SG-010 | [#1205 Add CLI options to init for all config.json settings](https://github.com/ruvnet/claude-flow/issues/1205) | Enhancement |
 | SG-011 | [#1206 Fix stale --topology hierarchical references](https://github.com/ruvnet/claude-flow/issues/1206) | Medium |
+| WM-008 | [#1207 Upgrade AgentDB v2 to v3 (RVF backend, self-learning, witness chain)](https://github.com/ruvnet/claude-flow/issues/1207) | High |
 <!-- GENERATED:defect-tables:end -->
 
 ---
