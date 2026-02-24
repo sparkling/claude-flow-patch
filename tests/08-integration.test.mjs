@@ -73,7 +73,7 @@ describe('integration: memory wiring runtime', { skip: !depsAvailable ? 'native 
 
       backend = new memPkg.HybridBackend({
         sqlite: { databasePath: join(project.dir, '.swarm', 'hybrid-memory.db') },
-        agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.db'), vectorDimension: 384 },
+        agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.rvf'), vectorBackend: 'rvf', vectorDimension: 384 },
         dualWrite: true,
         defaultNamespace: 'default',
       });

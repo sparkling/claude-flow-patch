@@ -90,3 +90,13 @@ export async function deleteEntry(options) {
         return { success: false };
     }
 }
+
+// WM-009 old_string: export default block
+export default {
+    initializeMemoryDatabase,
+    storeEntry,
+    searchEntries,
+    listEntries,
+    getEntry,
+    deleteEntry,
+};

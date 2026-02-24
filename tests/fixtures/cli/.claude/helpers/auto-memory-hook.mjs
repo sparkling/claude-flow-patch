@@ -64,6 +64,7 @@ async function doImport() {
 
   const bridgeConfig = {
     workingDir: PROJECT_ROOT,
+    syncMode: 'on-session-end',
   };
 }
 

@@ -1,0 +1,13 @@
+grep "agentdb-memory.rvf" memory/memory-initializer.js
+grep "vectorBackend: 'rvf'" memory/memory-initializer.js
+grep "enableAgentdbLearning" init/executor.js
+grep "agentdb-memory.rvf" init/helpers-generator.js
+grep "agentdb-memory.rvf" .claude/helpers/auto-memory-hook.mjs
+package: @claude-flow/memory
+grep "SelfLearningRvfBackend" agentdb-backend.js
+grep "vectorBackend: 'rvf'" agentdb-backend.js
+grep "3.0.0-alpha.3" package.json
+package: @claude-flow/neural
+grep "vectorBackend: 'rvf'" dist/reasoning-bank.js
+package: @claude-flow/shared
+grep "vectorBackend: 'rvf'" dist/core/config/defaults.js

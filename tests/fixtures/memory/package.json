@@ -1,0 +1,17 @@
+{
+  "name": "@claude-flow/memory",
+  "version": "3.0.0-alpha.11",
+  "description": "Memory subsystem for claude-flow",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "agentdb": "2.0.0-alpha.3.7",
+    "sql.js": "^1.10.3"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^11.0.0"
+  }
+}

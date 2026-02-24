@@ -93,9 +93,17 @@ CMDS_INDEX = commands + "/index.js" if commands else ""
 
 # Source helpers (shipped with package, copied by writeHelpers when source dir found)
 _pkg_root = os.path.dirname(os.path.dirname(base)) if base else ""
+_cf_scope = os.path.dirname(_pkg_root) if _pkg_root else ""
+AGENTDB_BACKEND = os.path.join(_cf_scope, "memory", "dist", "agentdb-backend.js") if _cf_scope else ""
+MEMORY_PKG_JSON = os.path.join(_cf_scope, "memory", "package.json") if _cf_scope else ""
 SRC_HOOK_HANDLER = os.path.join(_pkg_root, ".claude", "helpers", "hook-handler.cjs") if _pkg_root else ""
 SRC_AUTO_MEMORY_HOOK = os.path.join(_pkg_root, ".claude", "helpers", "auto-memory-hook.mjs") if _pkg_root else ""
 README_MD = os.path.join(_pkg_root, "README.md") if _pkg_root else ""
+
+# Cross-package targets (sibling packages under node_modules/)
+_nm_root = os.path.dirname(_cf_scope) if _cf_scope else ""
+NEURAL_REASONING_BANK = os.path.join(_cf_scope, "neural", "dist", "reasoning-bank.js") if _cf_scope else ""
+SHARED_DEFAULTS = os.path.join(_cf_scope, "shared", "dist", "core", "config", "defaults.js") if _cf_scope else ""
 
 # RuVector (separate package, path set by patch-all.sh)
 ruvector_cli = os.environ.get("RUVECTOR_CLI", "")

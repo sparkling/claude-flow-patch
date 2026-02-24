@@ -13,7 +13,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruv-swarm`
 
 <!-- GENERATED:npm-defects:begin -->
-50 tracked defects across 15 categories.
+54 tracked defects across 15 categories.
 
 | Defect | Description | GitHub Issue |
 |--------|-------------|-------------|
@@ -66,6 +66,10 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [WM-003](https://github.com/sparkling/claude-flow-patch/tree/master/patch/370-WM-003-auto-memory-bridge) | Activate AutoMemoryBridge in auto-memory-hook.mjs | [#1102](https://github.com/ruvnet/claude-flow/issues/1102) |
 | [WM-004](https://github.com/sparkling/claude-flow-patch/tree/master/patch/390-WM-004-source-hook-fail-loud) | Source hook silently falls back to JsonFileBackend | [#1190](https://github.com/ruvnet/claude-flow/issues/1190) |
 | [WM-007](https://github.com/sparkling/claude-flow-patch/tree/master/patch/530-WM-007-wire-dead-config-keys) | Wire dead config.json keys into runtime consumers | [#1204](https://github.com/ruvnet/claude-flow/issues/1204) |
+| [WM-008](https://github.com/sparkling/claude-flow-patch/tree/master/patch/560-WM-008-agentdb-v3-upgrade) | Upgrade AgentDB v2 to v3 (RVF backend, self-learning, witness chain) | [#1207](https://github.com/ruvnet/claude-flow/issues/1207) |
+| [WM-009](https://github.com/sparkling/claude-flow-patch/tree/master/patch/570-WM-009-agentdb-learning-loop) | Wire AgentDB learning loop (recordFeedback) | [#1209](https://github.com/ruvnet/claude-flow/issues/1209) |
+| [WM-010](https://github.com/sparkling/claude-flow-patch/tree/master/patch/580-WM-010-witness-chain-verify) | Wire witness chain verification at session start | [#1208](https://github.com/ruvnet/claude-flow/issues/1208) |
+| [WM-011](https://github.com/sparkling/claude-flow-patch/tree/master/patch/590-WM-011-reasoning-bank-controller) | Instantiate ReasoningBank controller | [#1210](https://github.com/ruvnet/claude-flow/issues/1210) |
 | [DOC-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/480-DOC-001-readme-docs) | Update upstream README.md to match patched CLI behavior | [#1201](https://github.com/ruvnet/claude-flow/issues/1201) |
 <!-- GENERATED:npm-defects:end -->
 

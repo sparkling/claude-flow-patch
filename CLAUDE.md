@@ -6,7 +6,7 @@ Runtime patches for `@claude-flow/cli` **v3.1.0-alpha.41**, `ruvector`, and `ruv
 
 | Term | Meaning | Example |
 |------|---------|---------|
-| **Defect** | A tracked problem (bug or missing feature). Each defect has its own directory under `patch/` with a README.md and fix.py. | "Defect HW-001", "29 defects across 13 categories" |
+| **Defect** | A tracked problem (bug or missing feature). Each defect has its own directory under `patch/` with a README.md and fix.py. | "Defect HW-001", "60 defects across 15 categories" |
 | **Patch** | The code change that addresses a defect. Implemented as `fix.py` (or `fix.sh`) using `patch()`/`patch_all()` calls. We patch because we can't fix upstream. | "fix.py contains 3 patch ops" |
 | **GitHub issue** | The upstream issue on github.com/ruvnet/claude-flow. Always say "GitHub issue", never just "issue". | "GitHub issue #1111" |
 | **Defect ID** | The unique identifier for a defect: `{PREFIX}-{NNN}`. | HW-001, NS-003, RS-001 |
@@ -158,10 +158,10 @@ Save the returned GitHub issue number for the defect README.md.
 | RV | RuVector Intelligence | 3 |
 | SG | Settings Generator | 10 |
 | UI | Display & Cosmetic | 2 |
-| WM | Wiring / Memory Integration | 5 |
+| WM | Wiring / Memory Integration | 9 |
 | DOC | Documentation | 1 |
 
-## All 50 Defects
+## All 54 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -215,6 +215,10 @@ Save the returned GitHub issue number for the defect README.md.
 | WM-007 | [#1204 Wire dead config.json keys into runtime consumers](https://github.com/ruvnet/claude-flow/issues/1204) | High |
 | SG-010 | [#1205 Add CLI options to init for all config.json settings](https://github.com/ruvnet/claude-flow/issues/1205) | Enhancement |
 | SG-011 | [#1206 Fix stale --topology hierarchical references](https://github.com/ruvnet/claude-flow/issues/1206) | Medium |
+| WM-008 | [#1207 Upgrade AgentDB v2 to v3 (RVF backend, self-learning, witness chain)](https://github.com/ruvnet/claude-flow/issues/1207) | High |
+| WM-009 | [#1209 Wire AgentDB learning loop (recordFeedback)](https://github.com/ruvnet/claude-flow/issues/1209) | High |
+| WM-010 | [#1208 Wire witness chain verification at session start](https://github.com/ruvnet/claude-flow/issues/1208) | High |
+| WM-011 | [#1210 Instantiate ReasoningBank controller](https://github.com/ruvnet/claude-flow/issues/1210) | High |
 <!-- GENERATED:defect-tables:end -->
 
 ---
@@ -493,23 +497,17 @@ All other patches are independent.
 
 ### Absorbed Patches
 
-Three patches were absorbed into their parent patches (directories removed,
-GitHub issues closed):
+Three patches have been absorbed into their parent patches to eliminate dead YAML
+regex code that was immediately replaced by later config.json readers:
 
 | Absorbed | Into | Reason |
 |----------|------|--------|
-| WM-005 (#1191) | WM-001 | WM-001a now writes config.json reader directly |
-| WM-006 (#1192) | WM-002 | WM-002c now writes config.json reader directly |
-| CF-005 (#1194) | CF-003 | CF-003a now writes config.json reader directly |
+| WM-005 | WM-001 | WM-001a now writes config.json reader directly |
+| WM-006 | WM-002 | WM-002c now writes config.json reader directly; WM-002d deleted (regex fix for removed code) |
+| CF-005 | CF-003 | CF-003a now writes config.json reader and updated error messages directly |
 
-### Merged Patches
-
-Two merges consolidated small related defects:
-
-| Merged | Into | Reason |
-|--------|------|--------|
-| CF-007 (#1198), CF-008 (#1199) | CF-006 (#1197) | All fix config.yaml → config.json in different command files |
-| DM-005 (#1140) | DM-004 (#1139) | Both implement worker stubs in same file |
+These patches retain their directories and README files for GitHub issue tracking
+but their `fix.py` files are empty (no ops) and sentinels are set to `none`.
 
 ## Preflight & Pre-Commit Hook
 

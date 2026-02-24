@@ -14,7 +14,7 @@ Provides ReasoningBank adaptive learning patterns using AgentDB's high-performan
 ## Prerequisites
 
 - Node.js 18+
-- AgentDB v1.0.7+ (via agentic-flow)
+- AgentDB v3.0.0+ (RVF backend, SelfLearningRvfBackend for adaptive learning)
 - Understanding of reinforcement learning concepts (optional)
 
 ---

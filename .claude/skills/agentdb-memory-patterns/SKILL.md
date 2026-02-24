@@ -14,7 +14,7 @@ Provides memory management patterns for AI agents using AgentDB's persistent sto
 ## Prerequisites
 
 - Node.js 18+
-- AgentDB v1.0.7+ (via agentic-flow or standalone)
+- AgentDB v3.0.0+ (RVF unified storage, witness chain for tamper detection)
 - Understanding of agent architectures
 
 ## Quick Start with CLI

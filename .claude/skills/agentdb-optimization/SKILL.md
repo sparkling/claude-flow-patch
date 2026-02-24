@@ -14,7 +14,7 @@ Provides comprehensive performance optimization techniques for AgentDB vector da
 ## Prerequisites
 
 - Node.js 18+
-- AgentDB v1.0.7+ (via agentic-flow)
+- AgentDB v3.0.0+ (5 deps, zero native, sql.js WASM fallback, 4.4 MB package)
 - Existing AgentDB database or application
 
 ---

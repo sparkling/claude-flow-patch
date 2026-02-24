@@ -79,7 +79,7 @@ describe('roundtrip: MEMORY.md import → DB → sync → files', { skip: skipMs
 
     backend = new memPkg.HybridBackend({
       sqlite: { databasePath: join(project.dir, '.swarm', 'hybrid-memory.db') },
-      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.db') },
+      agentdb: { dbPath: join(project.dir, '.swarm', 'agentdb-memory.rvf'), vectorBackend: 'rvf' },
       dualWrite: true,
     });
     await backend.initialize();

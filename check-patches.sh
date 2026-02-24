@@ -59,6 +59,13 @@ resolve_path() {
   case "$pkg" in
     ruvector)  echo "$rv_base/$relpath" ;;
     ruv-swarm) echo "$rs_base/$relpath" ;;
+    @claude-flow/*)
+      # base is <nm>/@claude-flow/cli/dist/src → derive <nm>/@claude-flow/<pkg>
+      local cf_scope
+      cf_scope="$(cd "$base/../../../.." 2>/dev/null && pwd)"
+      local subpkg="${pkg#@claude-flow/}"
+      echo "$cf_scope/@claude-flow/$subpkg/$relpath"
+      ;;
     *)         echo "$base/$relpath" ;;
   esac
 }
@@ -93,27 +100,39 @@ check_sentinels_for_install() {
       continue
     fi
 
-    # Read package line (default: claude-flow)
+    # Default package context (can be switched by "package:" directives in the file)
     local pkg="claude-flow"
-    local pkg_line
-    pkg_line=$(grep -m1 '^package:' "$sentinel_file" 2>/dev/null || true)
-    if [ -n "$pkg_line" ]; then
-      pkg="${pkg_line#package:}"
-      pkg="${pkg#"${pkg%%[![:space:]]*}"}"  # trim leading whitespace
-      pkg="${pkg%%[[:space:]]*}"            # trim trailing whitespace
+
+    # Check if first package: line is for an optional package we don't have
+    local first_pkg_line
+    first_pkg_line=$(grep -m1 '^package:' "$sentinel_file" 2>/dev/null || true)
+    if [ -n "$first_pkg_line" ]; then
+      local first_pkg="${first_pkg_line#package:}"
+      first_pkg="${first_pkg#"${first_pkg%%[![:space:]]*}"}"
+      first_pkg="${first_pkg%%[[:space:]]*}"
+      # Only skip the whole file if ALL lines are for a single unavailable package
+      local has_non_pkg_default=false
+      grep -v '^package:' "$sentinel_file" | grep -v '^$' | grep -v '^none$' | head -1 | grep -q '.' && has_non_pkg_default=true
+      if ! $has_non_pkg_default; then
+        case "$first_pkg" in
+          ruvector)  [ -z "$rv_cli" ] && continue ;;
+          ruv-swarm) [ -z "$rs_root" ] && continue ;;
+        esac
+      fi
     fi
 
-    # Skip if required package not installed
-    case "$pkg" in
-      ruvector)  [ -z "$rv_cli" ] && continue ;;
-      ruv-swarm) [ -z "$rs_root" ] && continue ;;
-    esac
-
-    # Process each line
+    # Process each line — "package:" switches the current package context
     while IFS= read -r line; do
       line="${line#"${line%%[![:space:]]*}"}"  # trim leading whitespace
       [[ -z "$line" ]] && continue
-      [[ "$line" == package:* ]] && continue
+
+      # package: directive switches context for subsequent grep/absent lines
+      if [[ "$line" == package:* ]]; then
+        pkg="${line#package:}"
+        pkg="${pkg#"${pkg%%[![:space:]]*}"}"  # trim leading whitespace
+        pkg="${pkg%%[[:space:]]*}"            # trim trailing whitespace
+        continue
+      fi
 
       if [[ "$line" == "none" ]]; then
         continue
@@ -166,7 +185,11 @@ syntax_failed=false
 for entry in "${INSTALLS[@]}"; do
   IFS=$'\t' read -r dist_src version rv_cli rs_root writable <<< "$entry"
 
+  # Derive @claude-flow scope from dist/src path
+  cf_scope="$(cd "$dist_src/../../../.." 2>/dev/null && pwd)"
+
   SYNTAX_FILES=(
+    # @claude-flow/cli
     "$dist_src/commands/config.js"
     "$dist_src/commands/start.js"
     "$dist_src/commands/init.js"
@@ -190,6 +213,12 @@ for entry in "${INSTALLS[@]}"; do
     "$dist_src/services/worker-daemon.js"
     "$dist_src/services/headless-worker-executor.js"
     "$dist_src/index.js"
+    # @claude-flow/memory (WM-008)
+    "$cf_scope/@claude-flow/memory/dist/agentdb-backend.js"
+    # @claude-flow/neural (WM-008)
+    "$cf_scope/@claude-flow/neural/dist/reasoning-bank.js"
+    # @claude-flow/shared (WM-008)
+    "$cf_scope/@claude-flow/shared/dist/core/config/defaults.js"
   )
   for js_file in "${SYNTAX_FILES[@]}"; do
     [ -f "$js_file" ] || continue
