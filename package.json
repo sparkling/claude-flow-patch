@@ -82,5 +82,8 @@
     "ruv-swarm",
     "automation"
   ],
-  "packageManager": "npm@10"
+  "packageManager": "npm@10",
+  "dependencies": {
+    "@sparkleideas/claude-flow-guidance": "file:../../claude-flow-guidance-implementation"
+  }
 }

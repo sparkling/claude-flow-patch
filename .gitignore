@@ -5,6 +5,9 @@
 .claude-flow/sessions/
 .claude-flow/neural/
 .claude-flow/metrics/
+.claude-flow/security/
+.claude-flow/learning/
+.claude-flow/guidance/
 .claude-flow/*.log
 .claude-flow/*.tmp
 .claude-flow/daemon.pid

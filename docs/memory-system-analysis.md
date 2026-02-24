@@ -500,59 +500,55 @@ const explainable = db.getController('explainable'); // ExplainableRecall
 
 ---
 
-## 3. Proposed Patches
+## 3. Patches (Implemented)
 
-### 3.1 Priority 1: Wire AgentDB Learning Loop (WM-009)
+### 3.1 Wire AgentDB Learning Loop (WM-009) -- Implemented
 
-**Problem**: `recordFeedback()` exists but has zero callers. AgentDB's self-learning is dormant.
+**Problem**: `recordFeedback()` existed but had zero callers. AgentDB's self-learning was dormant.
 
-**Patch target**: `mcp-tools/memory-tools.js` (MCP_MEMORY path variable)
+**Patch**: [WM-009](../patch/570-WM-009-agentdb-learning-loop/) (4 ops in `memory-initializer.js` + `memory-tools.js`)
 
-**What to patch**: After `memory_search` returns results, if the agent uses a result (detected by subsequent `memory_retrieve` on same key), call `recordFeedback(entryId, 1.0)`. If results are ignored, call `recordFeedback(entryId, -0.5)`.
-
-**Also patch**: `SelfLearningRvfBackend` constructor in `@claude-flow/memory/agentdb-backend.js` to pass `{ enableLearning: true, learningConfig: { positiveThreshold: 0.7, negativeThreshold: 0.3, batchSize: 32, tickInterval: 30000 } }`.
+**What it does**: After `memory_search` returns results, their IDs are tracked in `_recentSearchHits`. When `memory_retrieve` fetches a tracked ID, the system calls `recordFeedback(id, 1.0)` -- positive signal. Also exports `recordSearchFeedback()` from memory-initializer for direct use.
 
 **Impact**: Search quality improves ~36% over time (per AgentDB benchmarks). Zero cost if not used.
 
-### 3.2 Priority 2: Witness Chain Verification at Session Start (WM-010)
+### 3.2 Witness Chain Verification at Session Start (WM-010) -- Implemented
 
-**Problem**: `getWitnessChain()` and `verifyWitnessChain()` exist but are never called. Tamper detection is wired but inert.
+**Problem**: `getWitnessChain()` and `verifyWitnessChain()` existed but were never called. Tamper detection was wired but inert.
 
-**Patch target**: `auto-memory-hook.mjs` (source hook in `.claude/helpers/`) and `init/helpers-generator.js` (HELPERS_GEN for generated version)
+**Patch**: [WM-010](../patch/580-WM-010-witness-chain-verify/) (2 ops in `helpers-generator.js` + source `auto-memory-hook.mjs`)
 
-**What to patch**: In `doImport()`, after `backend.init()`, call `backend.verifyWitnessChain()`. If invalid, log warning and optionally rebuild from SQLite backup.
+**What it does**: In `doImport()`, after `backend.initialize()`, calls `backend.verifyWitnessChain()`. If invalid, logs a warning. Wrapped in try/catch -- non-fatal, never blocks a session.
 
 **Impact**: Detects corrupted or tampered memory databases. Important for adversarial defense.
 
-### 3.3 Priority 3: Instantiate ReasoningBank Controller (WM-011)
+### 3.3 Instantiate ReasoningBank Controller (WM-011) -- Implemented
 
-**Problem**: AgentDB's ReasoningBank could store and retrieve successful reasoning patterns, complementing Intelligence.cjs's PageRank. Currently not instantiated.
+**Problem**: AgentDB's ReasoningBank could store and retrieve successful reasoning patterns, complementing Intelligence.cjs's PageRank. Was not instantiated.
 
-**Patch target**: `memory/memory-initializer.js` (MI path variable)
+**Patch**: [WM-011](../patch/590-WM-011-reasoning-bank-controller/) (6 ops in `memory-initializer.js` + `hooks-tools.js`)
 
-**What to patch**: After AgentDB backend initialization, call `db.getController('reasoning')` and expose `storePattern()` / `searchPatterns()` / `recordOutcome()` through the existing MCP hooks tools (`hooks_intelligence_pattern_store`, `hooks_intelligence_pattern_search`).
+**What it does**: After AgentDB backend initialization, imports `ReasoningBank` from `@claude-flow/neural`, instantiates it, and exports `getReasoningBank()`. Replaces `hooksPatternStore` with ReasoningBank trajectory distillation and `hooksPatternSearch` with MMR-diverse semantic retrieval.
 
 **Impact**: Agents can store and retrieve reasoning patterns with RL-optimized search. Complements PageRank (which ranks by graph centrality) with a semantic similarity approach.
 
-### 3.4 Priority 4: Guidance IEmbeddingProvider (GD-001)
+### 3.4 Guidance IEmbeddingProvider (GD-001) -- Implemented
 
-**Problem**: Guidance's shard retrieval uses a hash-based test provider for embeddings. Real semantic search would improve shard selection.
+**Problem**: Guidance's shard retrieval used a hash-based test provider for embeddings. Real semantic search would improve shard selection.
 
 **Repo**: `@sparkleideas/claude-flow-guidance` ([claude-flow-guidance-implementation](https://github.com/sparkling/claude-flow-guidance-implementation)) -- **NOT a patch in this repo**. Guidance is a separate package; changes go directly in its source.
 
-**What to change**: Replace `HashEmbeddingProvider` instantiation with an `AgentDBEmbeddingProvider` that wraps AgentDB's embedding service. Must handle the case where AgentDB is not available (fall back to hash provider).
-
-**Constraint**: Guidance is loaded separately from CLI Memory. The embedding provider must lazily init its own AgentDB instance or share one via a singleton.
+**What was done**: Added `AgentDBEmbeddingProvider` that wraps AgentDB's `EmbeddingService`. Falls back to `HashEmbeddingProvider` when AgentDB is unavailable. Exported as `./embeddings` from the guidance package.
 
 **Impact**: Better shard selection when intent classification is ambiguous. Guidance selects more relevant rules for the task.
 
-### 3.5 Priority 5: MemoryWriteGate Pre-Write Hook (GD-002)
+### 3.5 MemoryWriteGate Pre-Write Hook (GD-002) -- Implemented
 
-**Problem**: Guidance can detect contradictory memory writes but has no way to prevent them.
+**Problem**: Guidance could detect contradictory memory writes but had no way to prevent them.
 
 **Repo**: `@sparkleideas/claude-flow-guidance` ([claude-flow-guidance-implementation](https://github.com/sparkling/claude-flow-guidance-implementation)) -- **NOT a patch in this repo**. The write gate logic lives in Guidance; the CLI side only needs to call it if available.
 
-**What to change**: In Guidance's MemoryWriteGate, expose a `checkWrite(entry)` method that CLI memory can optionally call before storing. On the CLI side, the optional integration point is in `memory/memory-initializer.js` (MI), but the gate logic itself is a Guidance repo change.
+**What was done**: Added `MemoryWriteGateHook` with `checkWrite(entry)` that combines upstream authority/rate-limit/pattern checks with semantic similarity contradiction detection via the embedding provider (GD-001). Exported as `./memory-gate` from the guidance package.
 
 **Impact**: Prevents agents from storing contradictory memories (e.g., "always use tabs" alongside "always use spaces").
 
@@ -644,15 +640,15 @@ Reason: If a compromised agent can write to governance state, it can poison trus
 
 WM-008 did the hard work of upgrading AgentDB v2→v3 and exposing the new APIs. But it stopped at the API boundary. The methods exist, the config keys exist, the constructor parameters exist -- but nobody calls them.
 
-Five changes across two repos would complete the integration:
+Five changes across two repos completed the integration:
 
 **Patches in this repo (claude-flow-patch):**
-1. **WM-009**: Call `recordFeedback()` → search improves 36% over time
-2. **WM-010**: Call `verifyWitnessChain()` → detect tampered memory
-3. **WM-011**: Instantiate `ReasoningBank` → store/reuse successful reasoning patterns
+1. **WM-009**: Calls `recordFeedback()` → search improves 36% over time
+2. **WM-010**: Calls `verifyWitnessChain()` → detects tampered memory
+3. **WM-011**: Instantiates `ReasoningBank` → stores/reuses successful reasoning patterns
 
 **Changes in Guidance repo (claude-flow-guidance-implementation):**
-4. **GD-001**: Wire `IEmbeddingProvider` → Guidance gets real semantic shard retrieval
-5. **GD-002**: Wire `MemoryWriteGate` → prevent contradictory memory writes
+4. **GD-001**: Wires `IEmbeddingProvider` → Guidance gets real semantic shard retrieval
+5. **GD-002**: Wires `MemoryWriteGate` → prevents contradictory memory writes
 
 The trust boundary (separate `.rvf` files for agent vs governance) is the one architectural constraint that holds regardless of patching ability.

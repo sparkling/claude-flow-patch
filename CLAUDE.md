@@ -6,7 +6,7 @@ Runtime patches for `@claude-flow/cli` **v3.1.0-alpha.41**, `ruvector`, and `ruv
 
 | Term | Meaning | Example |
 |------|---------|---------|
-| **Defect** | A tracked problem (bug or missing feature). Each defect has its own directory under `patch/` with a README.md and fix.py. | "Defect HW-001", "29 defects across 13 categories" |
+| **Defect** | A tracked problem (bug or missing feature). Each defect has its own directory under `patch/` with a README.md and fix.py. | "Defect HW-001", "60 defects across 15 categories" |
 | **Patch** | The code change that addresses a defect. Implemented as `fix.py` (or `fix.sh`) using `patch()`/`patch_all()` calls. We patch because we can't fix upstream. | "fix.py contains 3 patch ops" |
 | **GitHub issue** | The upstream issue on github.com/ruvnet/claude-flow. Always say "GitHub issue", never just "issue". | "GitHub issue #1111" |
 | **Defect ID** | The unique identifier for a defect: `{PREFIX}-{NNN}`. | HW-001, NS-003, RS-001 |

@@ -10,6 +10,7 @@
   - [Dependency Order](#dependency-order)
   - [Key Design Decisions](#key-design-decisions)
   - [Repository Structure](#repository-structure)
+- [Memory System](#memory-system)
 - [Defect Index](#defect-index)
 - [Init-Script Patches](#init-script-patches)
 - [Auto-Reapply on Update](#auto-reapply-on-update)
@@ -20,7 +21,7 @@
 
 Community patches for [`@claude-flow/cli`](https://www.npmjs.com/package/@claude-flow/cli) **v3.1.0-alpha.41**, [`ruvector`](https://www.npmjs.com/package/ruvector), and [`ruv-swarm`](https://www.npmjs.com/package/ruv-swarm) **v1.0.20**.
 
-These patches fix 29 defects across 13 categories. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached source files.
+These patches fix 60 defects across 15 categories. They are applied at runtime via idempotent Python scripts that perform targeted string replacements on the npx-cached source files.
 
 <a id="quick-start"></a>
 
@@ -168,6 +169,44 @@ claude-flow-patch/
       sentinel           # Verification directives for check-patches.sh
     (29 defect directories total)
 ```
+
+<a id="memory-system"></a>
+
+## Memory System
+
+The patched CLI runs a dual-write memory backend (SQLite + AgentDB v3) with three learning subsystems:
+
+| Layer | What It Does | Key Patch |
+|-------|-------------|-----------|
+| **HybridBackend** | Dual-writes entries to SQLite (structured) + AgentDB RVF (vector search) | [WM-001](patch/350-WM-001-memory-wiring/) |
+| **AutoMemoryBridge** | Syncs `~/.claude/memory/*.json` into the backend at session start/end | [WM-003](patch/370-WM-003-auto-memory-bridge/) |
+| **Intelligence.cjs** | PageRank graph + trigram matching + confidence decay/boost | [IN-001](patch/170-IN-001-intelligence-stub/) |
+| **AgentDB self-learning** | Records search feedback to improve future vector search relevance | [WM-009](patch/570-WM-009-agentdb-learning-loop/) |
+| **Witness chain** | SHAKE-256 tamper detection on the memory database at session start | [WM-010](patch/580-WM-010-witness-chain-verify/) |
+| **ReasoningBank** | Stores and retrieves successful reasoning patterns across sessions | [WM-011](patch/590-WM-011-reasoning-bank-controller/) |
+
+Database files live in `.swarm/`:
+
+```
+.swarm/
+  hybrid-memory.db         # SQLite (structured queries, WAL mode)
+  agentdb-memory.rvf       # AgentDB v3 (HNSW vectors, learning state, witness chain)
+```
+
+All memory config is in `.claude-flow/config.json` under `memory.*`. Key settings:
+
+```json
+{
+  "memory": {
+    "backend": "hybrid",
+    "agentdb": { "enableLearning": true, "vectorBackend": "rvf" },
+    "learningBridge": { "enabled": true, "sonaMode": "balanced" },
+    "memoryGraph": { "enabled": true, "pageRankDamping": 0.85 }
+  }
+}
+```
+
+Full documentation: **[docs/memory-system.md](docs/memory-system.md)**
 
 <a id="defect-index"></a>
 
