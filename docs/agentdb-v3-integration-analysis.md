@@ -274,10 +274,10 @@ WM-011 correctly uses `@claude-flow/neural`'s version. This is the better choice
 | # | Gap | Description |
 |---|-----|-------------|
 | G13 | ADR-003 not updated for shared RVF | WM-011a shares `agentdb-memory.rvf` path with HybridBackend. ADR-003 (separate DB files) does not contemplate this. The neural ReasoningBank creates its own internal AgentDB handle to the same file. |
-| G14 | ADR-005 stale (YAML parser) | Describes config.yaml regex parsing; superseded by config.json migration (CF-004 through CF-008). |
+| G14 | ~~ADR-005 stale (YAML parser)~~ | **Fixed**: ADR-005 updated to reflect config.json parsing (JSON.parse). |
 | G15 | ADR-006 stale (busy_timeout) | Discusses ALLOWED_PRAGMAS on AgentDB's SQLite connections. RVF format may use different concurrency model. |
 | G16 | memory-backend-analysis.md stale paths | Still shows `agentdb-memory.db` instead of `.rvf`. |
-| G17 | WM-009 README wrong op count | Says 3 ops, fix.py has 4. |
+| G17 | WM-009 README wrong op count | Says 3 ops, fix.py has 7 (after R3/R6 amendments). |
 | G18 | ReasoningBank API documented incorrectly | memory-system-analysis.md describes `storePattern()`, `searchPatterns()` API. WM-011 actually uses `storeTrajectory()`, `distill()`, `retrieveByContent()`. |
 
 ---

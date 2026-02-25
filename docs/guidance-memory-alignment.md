@@ -50,9 +50,10 @@ Instead of merging, we should **tighten the alignment** between the two systems:
 4. **Separate RVF files** -- `.swarm/agentdb-memory.rvf` for agent knowledge,
    `.swarm/governance.rvf` for governance state (never merged)
 
-The two repos already generate matching `config.json` schemas (19 keys aligned
-since WM-007 and `buildConfigJson()` in the guidance repo). The bridges exist.
-The remaining work is wiring them into mandatory paths.
+The two repos already generate matching `config.json` schemas (19 memory+neural
+keys aligned between the guidance repo's `buildConfigJson()` and the patch
+repo's WM-007/WM-008h config wiring). The bridges exist. The remaining work
+is wiring them into mandatory paths.
 
 ---
 
@@ -392,7 +393,7 @@ Both repos generate `config.json` with the same schema. The guidance repo's
 |----------|-----------------|---------------|----------|
 | `memory.backend` | `'hybrid'` | `'hybrid'` | Yes |
 | `memory.enableHNSW` | `true` | `true` | Yes |
-| `memory.cacheSize` | `100` | `100` | Yes |
+| `memory.cacheSize` | `256` | `256` | Yes |
 | `memory.learningBridge.enabled` | `true` | `true` | Yes |
 | `memory.learningBridge.sonaMode` | `'balanced'` | `'balanced'` | Yes |
 | `memory.learningBridge.confidenceDecayRate` | `0.005` | `0.005` | Yes |

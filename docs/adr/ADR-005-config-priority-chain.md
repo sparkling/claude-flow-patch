@@ -32,12 +32,9 @@ This creates a `const` binding that cannot be reassigned.
 
 ### Priority chain (highest to lowest)
 
-1. **`CLAUDE_FLOW_MEMORY_BACKEND` env var** -- set in `.mcp.json` env block,
-   available to MCP server process. Takes absolute priority because the project
-   owner explicitly configured it.
-2. **`.claude-flow/config.yaml` `memory.backend`** -- project-level config file.
-   Read via regex match scoped to the `memory:` section.
-3. **Default: `'hybrid'`** -- per upstream ADR-009 design intent.
+1. **`.claude-flow/config.json` `memory.backend`** -- project-level config file.
+   Read via `JSON.parse()`.
+2. **Default: `'hybrid'`** -- per upstream ADR-009 design intent.
 
 ### Implementation
 
@@ -46,90 +43,71 @@ Use a **new variable** `backendChoice` to avoid reassigning the `const` binding:
 ```javascript
 let backendChoice = backend;  // start with options value
 
-// 1. Env var takes priority
-if (process.env.CLAUDE_FLOW_MEMORY_BACKEND) {
-  backendChoice = process.env.CLAUDE_FLOW_MEMORY_BACKEND;
-}
+// Read from config.json (absorbs WM-005)
+try {
+  const cfgPath = path.join(process.cwd(), '.claude-flow', 'config.json');
+  if (fs.existsSync(cfgPath)) {
+    const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf-8'));
+    if (cfg.memory && cfg.memory.backend) backendChoice = cfg.memory.backend;
+  }
+} catch {}
 
-// 2. Fall back to config.yaml if still at default
-if (backendChoice === 'hybrid') {
-  try {
-    const yamlPath = path.join(process.cwd(), '.claude-flow', 'config.yaml');
-    if (fs.existsSync(yamlPath)) {
-      const content = fs.readFileSync(yamlPath, 'utf-8');
-      const memSection = content.match(/^memory:\s*\n((?:[ \t]*.*\n)*?(?=^\S|\Z))/m);
-      if (memSection) {
-        const backendMatch = memSection[1].match(/^\s+backend:\s*(\S+)/m);
-        if (backendMatch) backendChoice = backendMatch[1].replace(/^["']|["']$/g, '');
-      }
-    }
-  } catch {}
-}
-
-// 3. Normalize
+// Normalize
 backendChoice = ['hybrid','sqlite','sqljs','agentdb','memory'].includes(backendChoice)
   ? backendChoice : 'hybrid';
 ```
 
-### YAML parsing approach
+### Config format
 
-Use a two-step regex match (section then field) instead of a YAML parser:
-1. Match `^memory:\s*\n(indented block)` to extract the memory section
-2. Match `^\s+backend:\s*(\S+)` within that section
-
-This matches the existing pattern in the codebase (`commands/config.js::readYamlConfig()`
-uses hand-rolled regex, not an npm YAML package). The regex handles blank lines
-within sections via `((?:[ \t]*.*\n)*?(?=^\S|\Z))`.
+The original decision (2026-02-21) specified YAML regex parsing of
+`.claude-flow/config.yaml`. This was superseded by the config.json migration
+(SG-008, CF-004 through CF-008) which converted all config reading to JSON.
+WM-005 (the YAML reader for `memory.backend`) was absorbed into WM-001, which
+now reads `config.json` directly via `JSON.parse()`. The env var override
+(`CLAUDE_FLOW_MEMORY_BACKEND`) was dropped during the migration -- config.json
+is the single source of truth.
 
 ## Consequences
 
 ### Positive
 
-- Env var (`.mcp.json`) and config.yaml are both respected for the first time
-- Priority chain is intuitive: explicit env var > project config > default
-- No new dependencies (regex, not a YAML parser)
+- Config.json is respected for backend selection
+- `JSON.parse()` is robust (no regex fragility)
 - `const` binding preserved -- no `TypeError` at runtime
 - All subsequent code uses `backendChoice` consistently
 
 ### Negative
 
-- Regex YAML parsing is fragile compared to a real parser
-- Only reads `memory.backend` -- not a general config reader
-- `process.cwd()` assumption: config.yaml must be in working directory
+- Only reads `memory.backend` -- not a general config reader (other keys
+  wired separately by WM-007)
+- `process.cwd()` assumption: config.json must be in working directory
 
 ### Risks
 
-- Regex could match a `backend:` key in a different YAML section -- mitigated
-  by scoping to the `memory:` block first
 - `process.cwd()` may not be the project root if the MCP server starts from
   a different directory -- pre-existing assumption in `memory-initializer.js`
 - Unrecognized backend values normalize to `'hybrid'` -- could mask typos
 
 ## Alternatives Considered
 
-### 1. Use an npm YAML parser
-
-Rejected: the codebase has no YAML parser dependency. Adding one for a single
-field read is excessive. The existing `config.js` already uses hand-rolled
-regex parsing.
-
-### 2. Reassign the const backend variable
+### 1. Reassign the const backend variable
 
 Rejected: `const { backend = 'hybrid', ... } = options` at line 898 creates
 a `const` binding. `backend = process.env...` throws `TypeError: Assignment
 to constant variable` at runtime.
 
-### 3. Only read env var, ignore config.yaml
-
-Rejected: `.mcp.json` env block is set by `init` but some users configure
-`config.yaml` directly. Ignoring it breaks their workflow. The env var takes
-priority, so both can coexist without conflict.
-
-### 4. General-purpose config reader
+### 2. General-purpose config reader
 
 Rejected: over-engineering for this scope. We need one value (`memory.backend`)
 from one file. A general reader would need to handle all config sections,
 nested values, type coercion -- all for a patch that should be minimal.
+
+### 3. YAML regex parsing (original approach)
+
+The original implementation (2026-02-21) used hand-rolled YAML regex to read
+`.claude-flow/config.yaml`. This was replaced during the config.json migration
+(SG-008) because JSON parsing is more robust and the entire codebase moved
+from config.yaml to config.json.
 
 ## Implementation
 

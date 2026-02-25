@@ -105,8 +105,8 @@ If native dependencies are unavailable, the system falls back gracefully:
 | Condition | Behavior |
 |-----------|----------|
 | `better-sqlite3` + `agentdb` available | Full HybridBackend (recommended) |
-| Native deps missing, `memory.backend` = `json` | JsonFileBackend at `.claude-flow/data/auto-memory-store.json` |
-| Native deps missing, `memory.backend` != `json` | Error with instructions to run `doctor --install` or set backend to `json` |
+| `memory.backend` = `sqljs` or `memory` | Skips HybridBackend, uses the built-in sql.js path (no native deps needed) |
+| Native deps missing, backend is `hybrid`/`sqlite`/`agentdb` | Error with instructions to run `doctor --install` or set backend to `sqljs` |
 
 Set the backend in `.claude-flow/config.json`:
 
@@ -118,7 +118,7 @@ Set the backend in `.claude-flow/config.json`:
 }
 ```
 
-Valid values: `hybrid` (default), `json`, `sqlite`, `agentdb`.
+Valid values: `hybrid` (default), `sqlite`, `sqljs`, `agentdb`, `memory`.
 
 ---
 
@@ -310,7 +310,7 @@ All memory settings live in `.claude-flow/config.json` under the `memory` key. G
   "memory": {
     "backend": "hybrid",
     "enableHNSW": true,
-    "cacheSize": 100,
+    "cacheSize": 256,
 
     "learningBridge": {
       "enabled": true,
@@ -336,7 +336,9 @@ All memory settings live in `.claude-flow/config.json` under the `memory` key. G
       "vectorBackend": "rvf",
       "enableLearning": true,
       "learningPositiveThreshold": 0.7,
-      "learningBatchSize": 32
+      "learningNegativeThreshold": 0.3,
+      "learningBatchSize": 32,
+      "learningTickInterval": 30000
     }
   },
 
@@ -351,14 +353,16 @@ All memory settings live in `.claude-flow/config.json` under the `memory` key. G
 |-----|------|---------|----------|
 | `memory.backend` | `hybrid\|json\|sqlite\|agentdb` | `hybrid` | WM-001 |
 | `memory.enableHNSW` | boolean | `true` | WM-007 |
-| `memory.cacheSize` | number | `100` | WM-007 |
+| `memory.cacheSize` | number | `256` | WM-007, SG-010 |
 | `memory.learningBridge.*` | object | see above | WM-007 |
 | `memory.memoryGraph.*` | object | see above | WM-007 |
 | `memory.agentScopes.*` | object | see above | WM-007 |
 | `memory.agentdb.vectorBackend` | `rvf\|auto` | `rvf` | WM-008 |
 | `memory.agentdb.enableLearning` | boolean | `true` | WM-008, WM-009 |
 | `memory.agentdb.learningPositiveThreshold` | number | `0.7` | WM-008 |
+| `memory.agentdb.learningNegativeThreshold` | number | `0.3` | WM-008 |
 | `memory.agentdb.learningBatchSize` | number | `32` | WM-008 |
+| `memory.agentdb.learningTickInterval` | number | `30000` | WM-008 |
 | `neural.enabled` | boolean | `true` | WM-002 |
 | `neural.modelPath` | string | `.claude-flow/neural` | WM-007 |
 
@@ -374,7 +378,7 @@ The memory system is built by 11 patches applied in order:
 WM-001  Wire HybridBackend into CLI
   └─ WM-003  Activate AutoMemoryBridge
        └─ WM-004  Source hook fail-loud (no silent JSON fallback)
-            └─ WM-007  Wire 19 dead config.json keys
+            └─ WM-007  Wire dead config.json keys into runtime
                  └─ WM-008  Upgrade AgentDB v2 → v3 (RVF, self-learning API)
                       ├─ WM-009  Wire learning feedback loop
                       ├─ WM-010  Wire witness chain verification

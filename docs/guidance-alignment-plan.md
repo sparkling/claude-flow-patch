@@ -19,6 +19,8 @@ Implements the 5 alignment recommendations from the alignment analysis:
 
 ## Phase 1: Mandatory Write Gate (WM-014)
 
+**Status: PLANNED -- not yet implemented. No GitHub issue, no fix.py, no directory created.**
+
 ### Defect: WM-014 -- Wire MemoryWriteGateHook as mandatory pre-write gate
 
 **Severity**: High
@@ -84,6 +86,8 @@ grep "_writeGate" memory/memory-initializer.js
 ---
 
 ## Phase 2: Trust-Aware Search Ranking (WM-013)
+
+**Status: PLANNED -- not yet implemented. No GitHub issue, no fix.py, no directory created.**
 
 ### Defect: WM-013 -- Wire trust scores into search result reranking
 
@@ -178,6 +182,8 @@ No patch defect needed -- this is a guidance repo change.
 
 ## Phase 4: Separate Governance RVF (future)
 
+**Status: DEFERRED -- no implementation planned in current cycle.**
+
 ### Defect: GV-002 -- Create separate governance RVF with witness chain
 
 Deferred to a later phase. Requires:
@@ -191,6 +197,8 @@ This is a larger effort and depends on the guidance repo having AgentDB as a non
 ---
 
 ## Test Strategy
+
+**Status: PLANNED -- tests listed below will be created when WM-013/WM-014 are implemented.**
 
 ### Test Categories
 

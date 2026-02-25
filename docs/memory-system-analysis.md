@@ -98,11 +98,14 @@ flowchart TB
             ReasonBank["ReasoningBank<br/>WM-011"]:::newpatch
         end
 
-        subgraph Dormant["Dormant Features"]
+        subgraph Dormant["Dormant Features (6)"]
             direction LR
+            ReflexMem["ReflexionMemory"]:::warning
             CausalMem["CausalMemoryGraph"]:::warning
             SkillLib["SkillLibrary"]:::warning
             NightLearn["NightlyLearner"]:::warning
+            ExplainRecall["ExplainableRecall"]:::warning
+            LearnSys["LearningSystem (9 RL)"]:::warning
         end
 
         subgraph Active["Active Features"]
@@ -340,7 +343,7 @@ flowchart TB
 - **Periodic tick loop** runs every 30 seconds to train on accumulated feedback (WM-008s2).
 - **HybridBackend** proxies `recordFeedback()`, `verifyWitnessChain()`, and `getWitnessChain()` to the AgentDB backend (WM-012).
 
-Three AgentDB v3 controllers remain dormant: CausalMemoryGraph, SkillLibrary, and NightlyLearner. These are available in the package but not yet instantiated.
+Six AgentDB v3 controllers remain dormant: ReflexionMemory, CausalMemoryGraph, SkillLibrary, NightlyLearner, ExplainableRecall, and LearningSystem (9 RL algorithms). These are available in the package but not yet instantiated.
 
 ### The Three Systems
 
@@ -348,7 +351,7 @@ Three AgentDB v3 controllers remain dormant: CausalMemoryGraph, SkillLibrary, an
 |--------|---------|--------------|-----------|
 | **CLI Memory** | Agent recall across sessions | Yes (full learning pipeline) | PageRank + confidence decay + AgentDB self-learning (WM-009) + ReasoningBank (WM-011) |
 | **Guidance** | Policy enforcement & rule evolution | No | A/B testing of rule variants, trust accumulation. No vector search. |
-| **AgentDB v3** | Self-learning vector DB | Is the storage layer | Self-learning search, witness chains, ReasoningBank **all active**. 3 cognitive patterns remain dormant. |
+| **AgentDB v3** | Self-learning vector DB | Is the storage layer | Self-learning search, witness chains, ReasoningBank **all active**. 6 controllers remain dormant. |
 
 ### Revised Recommendation
 
@@ -366,7 +369,7 @@ Since we can patch any upstream package:
 
 ### 1.1 What WM-008 Actually Changed
 
-WM-008 (15 ops across 8 files) does:
+WM-008 (23 ops across 8 files) does:
 
 | Change | Effect |
 |--------|--------|
@@ -527,7 +530,7 @@ const explainable = db.getController('explainable'); // ExplainableRecall
 
 **Problem**: `recordFeedback()` existed but had zero callers. AgentDB's self-learning was dormant.
 
-**Patch**: [WM-009](../patch/570-WM-009-agentdb-learning-loop/) (4 ops in `memory-initializer.js` + `memory-tools.js`)
+**Patch**: [WM-009](../patch/570-WM-009-agentdb-learning-loop/) (7 ops in `memory-initializer.js` + `memory-tools.js`)
 
 **What it does**: After `memory_search` returns results, their IDs are tracked in `_recentSearchHits`. When `memory_retrieve` fetches a tracked ID, the system calls `recordFeedback(id, 1.0)` -- positive signal. Also exports `recordSearchFeedback()` from memory-initializer for direct use.
 
@@ -547,7 +550,7 @@ const explainable = db.getController('explainable'); // ExplainableRecall
 
 **Problem**: AgentDB's ReasoningBank could store and retrieve successful reasoning patterns, complementing Intelligence.cjs's PageRank. Was not instantiated.
 
-**Patch**: [WM-011](../patch/590-WM-011-reasoning-bank-controller/) (6 ops in `memory-initializer.js` + `hooks-tools.js`)
+**Patch**: [WM-011](../patch/590-WM-011-reasoning-bank-controller/) (8 ops in `memory-initializer.js` + `hooks-tools.js`)
 
 **What it does**: After AgentDB backend initialization, imports `ReasoningBank` from `@claude-flow/neural`, instantiates it, and exports `getReasoningBank()`. Replaces `hooksPatternStore` with ReasoningBank trajectory distillation and `hooksPatternSearch` with MMR-diverse semantic retrieval.
 
@@ -598,11 +601,12 @@ Existing patches (already applied):
       → WM-007 (Config wiring)
         → WM-008 (AgentDB v2→v3)
 
-New patches (proposed):
+Implemented patches (WM-009 through WM-012):
   WM-008 (prerequisite)
-  → WM-009 (Learning loop)        # Needs WM-008's SelfLearningRvfBackend
-  → WM-010 (Witness verification) # Needs WM-008's witness chain methods
-  → WM-011 (ReasoningBank)        # Needs WM-008's AgentDB v3 + WM-001's backend init
+  → WM-009 (Learning loop, 7 ops)     # recordFeedback + trajectory tracking
+  → WM-010 (Witness verification)     # verifyWitnessChain at session start
+  → WM-011 (ReasoningBank, 8 ops)     # Pattern store/search via hooks tools
+  → WM-012 (HybridBackend proxies)    # recordFeedback/verifyWitnessChain proxies
 
   EmbeddingProvider (IEmbeddingProvider)      # Guidance repo, independent of CLI patches
   MemoryWriteGateHook (MemoryWriteGate hook)  # Guidance repo + optional CLI integration
@@ -649,9 +653,12 @@ New patches (proposed):
 Even with unlimited patching, governance state and agent memory MUST stay in separate files:
 
 ```
-.swarm/
-  agentdb-memory.rvf      # Agent recall (high-volume, agent-writable)
-  governance.rvf           # Trust/proofs (low-volume, guidance-only writes)
+Current state:
+  .swarm/agentdb-memory.rvf     # Agent recall (high-volume, agent-writable)
+  .claude-flow/guidance/        # Governance state (JSON files, guidance-only writes)
+
+Proposed (GV-002, deferred):
+  .swarm/governance.rvf          # Trust/proofs migrated to RVF for witness chain
 ```
 
 Reason: If a compromised agent can write to governance state, it can poison trust scores, forge proof chain envelopes, or corrupt the evolution pipeline. The MemoryWriteGate must protect governance storage even if both use AgentDB internally.
@@ -664,7 +671,7 @@ Reason: If a compromised agent can write to governance state, it can poison trus
 
 | v1 Conclusion | v2 Conclusion (with patching) |
 |---------------|-------------------------------|
-| "Three independent systems with integration seams" | **"AgentDB v3 learning pipeline fully wired -- 3 of 6 cognitive patterns active"** |
+| "Three independent systems with integration seams" | **"AgentDB v3 learning pipeline fully wired -- 3 of 9 cognitive controllers active (6 dormant)"** |
 | "<1ms startup blocks convergence" | **Only blocks Intelligence.cjs, NOT the auto-memory hook (30s timeout)** |
 | "Guidance should remain independent" | **Guidance should get AgentDB-backed embeddings via IEmbeddingProvider (in Guidance repo)** |
 | "Keep systems architecturally separate" | **Wire the learning loop, witness chain, and ReasoningBank that already exist** |

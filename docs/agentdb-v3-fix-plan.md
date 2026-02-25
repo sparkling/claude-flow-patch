@@ -115,7 +115,7 @@ Sentinel paths are relative to `@claude-flow/memory/dist/`.
 
 ### 3.1 WM-008 Amendments (R1, R8, R9, R5)
 
-Add 4 new ops to `patch/560-WM-008-agentdb-v3-upgrade/fix.py`:
+Add 6 new ops to `patch/560-WM-008-agentdb-v3-upgrade/fix.py`:
 
 **WM-008p (R1): Fix SelfLearningRvfBackend import path**
 
@@ -302,7 +302,7 @@ package: @claude-flow/memory
 
 ### 3.2 WM-009 Amendments (R3, R6)
 
-Add 2 new ops to `patch/570-WM-009-agentdb-learning-loop/fix.py`:
+Add 3 new ops to `patch/570-WM-009-agentdb-learning-loop/fix.py`:
 
 **WM-009e (R3): Use trajectory ID from search results for recordFeedback**
 
@@ -429,10 +429,10 @@ grep "WM-011f (R7b): Retry when unavailable" hooks-tools.js
 All fixes are in the same execution order chain. Within the existing WM-008/009/011 fix.py files, new ops run sequentially after existing ops. WM-012 gets order 600 (after WM-011 at 590).
 
 ```
-WM-008 (560): Existing 15 ops + 6 new ops (p, q, r, s, s2, t)
-WM-009 (570): Existing 4 ops + 3 new ops (e, f, g)
-WM-010 (580): No changes (witness chain call now works via WM-012 proxy)
-WM-011 (590): Existing 6 ops + 2 new ops (e, f)
+WM-008 (560): 17 original ops + 6 new ops (p, q, r, s, s2, t) = 23 total
+WM-009 (570): 4 original ops + 3 new ops (e, f, g) = 7 total
+WM-010 (580): 2 ops, no changes (witness chain call now works via WM-012 proxy)
+WM-011 (590): 6 original ops + 2 new ops (e, f) = 8 total
 WM-012 (600): 2 new ops (a, b) — NEW DEFECT
 ```
 

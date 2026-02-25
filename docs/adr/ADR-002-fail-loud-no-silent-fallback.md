@@ -58,7 +58,7 @@ Never silently degrade.
 ```
 ERROR: @claude-flow/memory not loadable -- better-sqlite3 native bindings missing.
   Fix: npx @claude-flow/cli doctor --install
-  Or:  Set memory.backend: sqljs in .claude-flow/config.yaml
+  Or:  Set "memory.backend": "sqljs" in .claude-flow/config.json
 ```
 
 ## Consequences
