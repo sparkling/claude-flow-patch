@@ -164,7 +164,7 @@ When `recall(query, topK)` is called:
 
 ### Closed write-read loops
 
-Unlike `@claude-flow/cli`'s dead-end writes (see `docs/memory-architecture-analysis.md`), **ruvector's data
+Unlike `@claude-flow/cli`'s dead-end writes (see `docs/memory-system-analysis.md`), **ruvector's data
 flows are complete**:
 
 | Write path | Read path | Loop closed? |
@@ -440,7 +440,7 @@ The new V3 packages have real ruvector integration:
 **`@claude-flow/memory`** (AgentDB backend):
 - `agentdb-backend.js` mentions ruvector in fallback chain:
   *"Automatic fallback: native hnswlib → ruvector → WASM"*
-- Uses `agentdb@2.0.0-alpha.3.7` as primary backend, not ruvector directly
+- Uses `agentdb@3.0.0-alpha.3` (v3 with RVF format) as primary backend, not ruvector directly
 
 **But the monolithic CLI does not import these packages.**  It imports from its
 own `../ruvector/` directory (the embedded copies), not from `@claude-flow/neural`

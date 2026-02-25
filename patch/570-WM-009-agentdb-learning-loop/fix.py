@@ -139,3 +139,42 @@ patch("WM-009d: call recordSearchFeedback on retrieve of recent search hit",
                         _recentSearchHits.delete(hitKey);
                         recordSearchFeedback(trackedId, 1.0).catch(() => {});
                     }""")
+
+# ── Op E: Track trajectory ID (not entry ID) for learning feedback (R3) ──
+# After WM-008q routes searches through the learning backend, results carry
+# _trajectoryId. We need to store the trajectory ID instead of plain entry ID.
+patch("WM-009e: Track trajectory ID (not entry ID) for learning feedback (R3)",
+    MCP_MEMORY,
+    """// WM-009c: Track entry ID for implicit feedback on later retrieve
+                    if (r.id && r.key) {
+                        const ns = r.namespace || 'default';
+                        _recentSearchHits.set(`${ns}:${r.key}`, r.id);
+                    }""",
+    """// WM-009e (R3): Track trajectory ID for learning feedback (falls back to entry ID)
+                    if (r.key) {
+                        const ns = r.namespace || 'default';
+                        const trackId = r._trajectoryId || r.id;
+                        if (trackId) _recentSearchHits.set(`${ns}:${r.key}`, trackId);
+                    }""")
+
+# ── Op F: Cap _recentSearchHits at 500 entries (R6) ──
+# Adds a max-size constant after the Map declaration.
+patch("WM-009f: Cap _recentSearchHits at 500 entries (R6)",
+    MCP_MEMORY,
+    """const _recentSearchHits = new Map();""",
+    """const _recentSearchHits = new Map();
+const _SEARCH_HITS_MAX = 500;""")
+
+# ── Op G: Evict oldest search hits when over cap (R6) ──
+# Depends on WM-009e having applied (uses its output as old_string).
+patch("WM-009g: Evict oldest search hits when over cap (R6)",
+    MCP_MEMORY,
+    """if (trackId) _recentSearchHits.set(`${ns}:${r.key}`, trackId);""",
+    """if (trackId) {
+                        _recentSearchHits.set(`${ns}:${r.key}`, trackId);
+                        // WM-009g (R6): LRU eviction
+                        if (_recentSearchHits.size > _SEARCH_HITS_MAX) {
+                            const oldest = _recentSearchHits.keys().next().value;
+                            _recentSearchHits.delete(oldest);
+                        }
+                    }""")

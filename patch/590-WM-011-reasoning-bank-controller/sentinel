@@ -2,3 +2,5 @@ grep "_reasoningBank" memory/memory-initializer.js
 grep "getReasoningBank" memory/memory-initializer.js
 grep "getReasoningBankInstance" mcp-tools/hooks-tools.js
 grep "reasoning-bank" mcp-tools/hooks-tools.js
+grep "hash-based pseudo-embedding" mcp-tools/hooks-tools.js
+grep "WM-011f (R7b): Retry when unavailable" mcp-tools/hooks-tools.js

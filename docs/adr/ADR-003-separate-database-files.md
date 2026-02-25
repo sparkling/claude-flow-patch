@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted (updated for AgentDB v3)
 
 ## Date
 
@@ -16,7 +16,7 @@ Three incompatible SQLite schemas exist across the memory system:
 |--------|----------|--------|
 | CLI monolith (sql.js) | `.swarm/memory.db` | `memories` table with `key`, `value`, `namespace`, `embedding` columns |
 | HybridBackend SQLiteBackend | (new) | `MemoryEntry` table with `id`, `namespace`, `key`, `content`, `type`, `tags`, `metadata`, `version`, `accessLevel`, `references`, `accessCount`, `lastAccessedAt`, `embedding` |
-| AgentDB | (new) | `episodes`, `skills`, `facts`, `notes` tables with vector indices |
+| AgentDB v3 (RVF) | (new) | Single `.rvf` file with HNSW vectors, learning state, witness chain |
 
 These schemas are fundamentally incompatible. The monolith uses `value` where
 HybridBackend uses `content`. The monolith lacks `type`, `accessLevel`,
@@ -34,7 +34,7 @@ Use **separate database files** for each backend. Do not reuse the existing
 .swarm/
   memory.db              # existing sql.js monolith (untouched, can be deleted)
   hybrid-memory.db       # NEW: SQLiteBackend (better-sqlite3)
-  agentdb-memory.db      # NEW: AgentDBBackend (agentdb package)
+  agentdb-memory.rvf     # NEW: AgentDB v3 RVF format (single-file, HNSW + learning + witness chain)
 ```
 
 Clean wipe -- no data migration from old schema. Old `.swarm/memory.db` can
@@ -44,7 +44,7 @@ be deleted when the user confirms the transition.
 
 ```javascript
 const hybridDbPath = path.join(swarmDir, 'hybrid-memory.db');
-const agentDbPath = path.join(swarmDir, 'agentdb-memory.db');
+const agentDbPath = path.join(swarmDir, 'agentdb-memory.rvf');
 ```
 
 **Critical config key names** (using the wrong key silently creates in-memory
@@ -53,7 +53,7 @@ databases that lose all data on process exit):
 | Backend | Config Key | Correct | Wrong |
 |---------|-----------|---------|-------|
 | SQLiteBackend | `sqlite.databasePath` | `.swarm/hybrid-memory.db` | ~~`sqlite.path`~~ |
-| AgentDBBackend | `agentdb.dbPath` | `.swarm/agentdb-memory.db` | ~~`agentdb.path`~~ |
+| AgentDBBackend | `agentdb.dbPath` | `.swarm/agentdb-memory.rvf` | ~~`agentdb.path`~~ |
 
 ## Consequences
 
@@ -105,6 +105,16 @@ merging which neither backend supports.
 ## Implementation
 
 - **Defect**: WM-001 (patch op WM-001c -- HybridBackendConfig construction)
-- **Plan**: [memory-wiring-plan.md](../memory-wiring-plan.md), Task 2 "WM-001c"
+- **Plan**: (originally in memory-wiring-plan.md, superseded by [memory-system.md](../memory-system.md))
 - **Target file**: `memory/memory-initializer.js` (path var `MI`)
 - **Config keys**: `sqlite.databasePath` and `agentdb.dbPath` -- see plan for critical notes
+
+### AgentDB v3 Update (WM-008)
+
+AgentDB v3 (`3.0.0-alpha.3`) replaced the multi-file `.db` format with a unified
+`.rvf` (RuVector Format) single-file database. The `.rvf` file contains the HNSW
+index, entry data, learning weights, and SHAKE-256 witness chain.
+
+- **Defect**: WM-008 (patch ops A-T -- 21 ops across 8 files)
+- **Config key**: `agentdb.dbPath` now points to `.swarm/agentdb-memory.rvf`
+- **Vector backend**: `vectorBackend: 'rvf'` (was `'auto'`)

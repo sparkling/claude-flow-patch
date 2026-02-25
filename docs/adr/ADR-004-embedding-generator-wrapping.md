@@ -123,6 +123,6 @@ value proposition of the hybrid backend.
 ## Implementation
 
 - **Defect**: WM-001 (patch op WM-001e -- embedding wrapper + model pre-load)
-- **Plan**: [memory-wiring-plan.md](../memory-wiring-plan.md), Task 2 "Embedding generator" + "WM-001e"
+- **Plan**: (originally in memory-wiring-plan.md, superseded by [memory-system.md](../memory-system.md))
 - **Target file**: `memory/memory-initializer.js` (path var `MI`)
 - **Existing code reused**: `loadEmbeddingModel()` lines 1160-1254, `generateEmbedding()` lines 1259-1287

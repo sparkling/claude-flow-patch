@@ -16,6 +16,7 @@ decision made during 4 rounds of Opus swarm review (12 agents, 48+ findings).
 | [ADR-007](ADR-007-auto-memory-hook-without-embeddings.md) | AutoMemoryBridge Hook Without Embedding Generator | Accepted | WM-003 |
 | [ADR-008](ADR-008-wizard-answers-must-propagate.md) | Wizard Answers Must Propagate to Execution | Accepted | SG-006 |
 | [ADR-009](ADR-009-config-driven-feature-gating.md) | Config-Driven Feature Gating at Runtime | Accepted | WM-002 |
+| [ADR-010](ADR-010-trust-boundary-alignment.md) | Trust Boundary Alignment -- Align, Do Not Merge | Accepted | WM-013, WM-014 |
 
 ## Format
 
@@ -30,7 +31,7 @@ Each ADR follows the [Michael Nygard template](https://cognitect.com/blog/2011/1
 ## Relationship to Plan
 
 These ADRs document the "why" behind decisions in the
-[memory wiring plan](../memory-wiring-plan.md). The plan documents the "what"
+[memory system documentation](../memory-system.md). The documentation covers the "what"
 and "how". Together they provide complete traceability from requirement through
 design to implementation.
 

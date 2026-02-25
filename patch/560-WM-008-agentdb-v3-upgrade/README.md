@@ -19,7 +19,7 @@ Multiple packages reference agentdb v2 APIs, paths, or version strings:
 
 ## Fix
 
-15 ops in fix.py + 1 fix.sh (package upgrade) across 8 files in 4 packages:
+21 ops in fix.py + 1 fix.sh (package upgrade) across 8 files in 4 packages:
 
 | Op | Package | File | Change |
 |----|---------|------|--------|
@@ -38,12 +38,18 @@ Multiple packages reference agentdb v2 APIs, paths, or version strings:
 | M | @claude-flow/neural | reasoning-bank.js | `vectorBackend: 'auto'` -> `'rvf'` |
 | N | @claude-flow/shared | defaults.js | Add `vectorBackend: 'rvf'` to agentdb defaults |
 | O | @claude-flow/cli | executor.js | Update version table `2.0.0-alpha.3.4` -> `3.0.0-alpha.3` |
+| P | @claude-flow/memory | agentdb-backend.js | Fallback to `agentdb/backends/self-learning` sub-path import (R1) |
+| Q | @claude-flow/memory | agentdb-backend.js | Route `search()` through `learningBackend.searchAsync()` for trajectory tracking (R8) |
+| R | @claude-flow/memory | agentdb-backend.js | Fix `verifyWitnessChain()` to use `vectorBackend.verifyWitness()` (R9) |
+| S | @claude-flow/memory | agentdb-backend.js | Run final `tick()` + clear interval before shutdown (R5) |
+| S2 | @claude-flow/memory | agentdb-backend.js | Start periodic tick loop after learning backend creation (R5) |
+| T | @claude-flow/memory | agentdb-backend.js | Fix `getWitnessChain()` to use vectorBackend (R9) |
 
 fix.sh upgrades the agentdb npm package from v2 to v3 via `npm pack` + `tar extract`.
 
 ## Files Patched
 
-- `@claude-flow/memory` `dist/agentdb-backend.js` (ops A-F, J)
+- `@claude-flow/memory` `dist/agentdb-backend.js` (ops A-F, J, P-T)
 - `@claude-flow/memory` `package.json` (op I)
 - `@claude-flow/cli` `memory/memory-initializer.js` (op G)
 - `@claude-flow/cli` `init/executor.js` (ops H, O)
@@ -54,4 +60,4 @@ fix.sh upgrades the agentdb npm package from v2 to v3 via `npm pack` + `tar extr
 
 ## Ops
 
-15 ops in fix.py, 1 fix.sh
+21 ops in fix.py, 1 fix.sh

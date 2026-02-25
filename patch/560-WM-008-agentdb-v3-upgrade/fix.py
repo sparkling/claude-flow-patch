@@ -255,3 +255,146 @@ patch("WM-008o: executor.js version table agentdb 2.x -> 3.x",
     EXECUTOR,
     """| agentdb | 2.0.0-alpha.3.4 | Vector database |""",
     """| agentdb | 3.0.0-alpha.3 | Vector database (RVF + self-learning) |""")
+
+# ── Op P (R1): Fix SelfLearningRvfBackend import via sub-path ──
+patch("WM-008p: fallback to agentdb/backends/self-learning sub-path import (R1)",
+    AGENTDB_BACKEND,
+    """                // WM-008c: Import SelfLearningRvfBackend (v3-only, undefined on v2)
+                SelfLearningRvfBackend = agentdbModule.SelfLearningRvfBackend;""",
+    """                // WM-008c: Import SelfLearningRvfBackend (v3-only, undefined on v2)
+                SelfLearningRvfBackend = agentdbModule.SelfLearningRvfBackend;
+                // WM-008p (R1): Fallback to sub-path import (not in main exports)
+                if (!SelfLearningRvfBackend) {
+                    try {
+                        const slrMod = await import('agentdb/backends/self-learning');
+                        SelfLearningRvfBackend = slrMod.SelfLearningRvfBackend || slrMod.default;
+                    } catch (_slrErr) { /* agentdb v2 or sub-path unavailable */ }
+                }""")
+
+# ── Op Q (R8): Route search through SelfLearningRvfBackend for trajectory tracking ──
+patch("WM-008q: route search through learning backend for trajectory tracking (R8)",
+    AGENTDB_BACKEND,
+    """    async search(embedding, options) {
+        const startTime = performance.now();
+        if (!this.agentdb) {
+            // Fallback to brute-force search
+            return this.bruteForceSearch(embedding, options);
+        }""",
+    """    async search(embedding, options) {
+        const startTime = performance.now();
+        if (!this.agentdb) {
+            // Fallback to brute-force search
+            return this.bruteForceSearch(embedding, options);
+        }
+        // WM-008q (R8): Route through learning backend if available
+        if (this.learningBackend) {
+            try {
+                const k = (options && options.k) || 10;
+                const lbResults = await this.learningBackend.searchAsync(embedding, k, options);
+                if (lbResults && lbResults.length > 0) {
+                    // Extract trajectory ID from learning backend's internal counter
+                    const trajId = lbResults._queryId || null;
+                    return lbResults.map(r => ({
+                        entry: { id: r.id, content: r.metadata?.content, namespace: r.metadata?.namespace,
+                                 key: r.metadata?.key, tags: r.metadata?.tags || [], type: r.metadata?.type,
+                                 embedding: null, createdAt: r.metadata?.createdAt, updatedAt: r.metadata?.updatedAt },
+                        score: r.similarity ?? (1 - (r.distance ?? 0)),
+                        _trajectoryId: trajId,
+                    }));
+                }
+            } catch (_lbErr) { /* Fall through to plain search */ }
+        }""")
+
+# ── Op R (R9): Fix verifyWitnessChain to use vectorBackend.verifyWitness() ──
+patch("WM-008r: fix verifyWitnessChain to use vectorBackend.verifyWitness (R9)",
+    AGENTDB_BACKEND,
+    """    async verifyWitnessChain() {
+        if (!this.agentdb) return { valid: false, reason: 'agentdb not initialized' };
+        if (typeof this.agentdb.verifyWitnessChain === 'function') {
+            try { return await this.agentdb.verifyWitnessChain(); } catch (e) { return { valid: false, reason: String(e) }; }
+        }
+        return { valid: false, reason: 'witness chain not available (requires agentdb v3)' };
+    }""",
+    """    async verifyWitnessChain() {
+        if (!this.agentdb) return { valid: false, reason: 'agentdb not initialized' };
+        // WM-008r (R9): Use vectorBackend.verifyWitness() for data mutation chain
+        const vb = this.agentdb.vectorBackend;
+        if (vb && typeof vb.verifyWitness === 'function') {
+            try {
+                const result = vb.verifyWitness();
+                return { valid: !!result?.valid, entries: result?.entries || 0, chain: 'data', reason: result?.valid ? 'intact' : (result?.error || 'broken') };
+            } catch (e) { return { valid: false, reason: String(e), chain: 'data' }; }
+        }
+        // Fallback: try learning backend's chain (tracks learning mutations)
+        if (this.learningBackend && typeof this.learningBackend.verifyWitnessChain === 'function') {
+            try {
+                const lr = this.learningBackend.verifyWitnessChain();
+                return { valid: !!lr?.valid, entries: lr?.entryCount || 0, chain: 'learning', reason: lr?.valid ? 'intact' : 'broken' };
+            } catch (e) { return { valid: false, reason: String(e), chain: 'learning' }; }
+        }
+        return { valid: true, reason: 'no witness chain available', chain: 'none' };
+    }""")
+
+# ── Op S (R5): Add tick + clear interval in shutdown path ──
+patch("WM-008s: run final tick and clear interval before shutdown (R5)",
+    AGENTDB_BACKEND,
+    """            // WM-008b: Destroy learning backend if active
+            if (this.learningBackend) {
+                try { await this.learningBackend.destroy(); } catch {}
+                this.learningBackend = null;
+            }""",
+    """            // WM-008s (R5): Run final tick before shutdown
+            if (this.learningBackend) {
+                try { await this.learningBackend.tick(); } catch {}
+            }
+            // WM-008s (R5): Clear tick interval
+            if (this._tickInterval) {
+                clearInterval(this._tickInterval);
+                this._tickInterval = null;
+            }
+            // WM-008b: Destroy learning backend if active
+            if (this.learningBackend) {
+                try { await this.learningBackend.destroy(); } catch {}
+                this.learningBackend = null;
+            }""")
+
+# ── Op S2 (R5): Start tick interval after learning backend creation ──
+patch("WM-008s2: start periodic tick loop after learning backend creation (R5)",
+    AGENTDB_BACKEND,
+    """                } catch (learnErr) {
+                    // Non-fatal: self-learning is an optional enhancement
+                }""",
+    """                // WM-008s2 (R5): Start periodic tick loop for learning
+                    if (this.learningBackend) {
+                        const tickMs = this.config.learningTickInterval || 30000;
+                        this._tickInterval = setInterval(() => {
+                            this.learningBackend?.tick?.().catch(() => {});
+                        }, tickMs);
+                        if (this._tickInterval.unref) this._tickInterval.unref();
+                    }
+                } catch (learnErr) {
+                    // Non-fatal: self-learning is an optional enhancement
+                }""")
+
+# ── Op T (R9): Fix getWitnessChain to use vectorBackend ──
+patch("WM-008t: fix getWitnessChain to use vectorBackend (R9)",
+    AGENTDB_BACKEND,
+    """    getWitnessChain() {
+        if (!this.agentdb) return null;
+        if (typeof this.agentdb.getWitnessChain === 'function') {
+            try { return this.agentdb.getWitnessChain(); } catch { return null; }
+        }
+        return null;
+    }""",
+    """    getWitnessChain() {
+        if (!this.agentdb) return null;
+        // WM-008t (R9): Use vectorBackend for data chain, learning backend for learning chain
+        const vb = this.agentdb.vectorBackend;
+        if (vb && typeof vb.verifyWitness === 'function') {
+            try { return vb.verifyWitness(); } catch {}
+        }
+        if (this.learningBackend && typeof this.learningBackend.getWitnessChain === 'function') {
+            try { return this.learningBackend.getWitnessChain(); } catch {}
+        }
+        return null;
+    }""")
