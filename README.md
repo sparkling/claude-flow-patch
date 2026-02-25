@@ -213,7 +213,7 @@ Full documentation: **[docs/memory-system.md](docs/memory-system.md)**
 ## Defect Index
 
 <!-- GENERATED:defect-index:begin -->
-60 defects across 15 categories.
+61 defects across 15 categories.
 
 ### CF -- Config & Doctor
 
@@ -343,6 +343,7 @@ Full documentation: **[docs/memory-system.md](docs/memory-system.md)**
 | [WM&#8209;009](patch/570-WM-009-agentdb-learning-loop/) | Wire AgentDB learning loop (recordFeedback) | High | [#1209](https://github.com/ruvnet/claude-flow/issues/1209) |
 | [WM&#8209;010](patch/580-WM-010-witness-chain-verify/) | Wire witness chain verification at session start | High | [#1208](https://github.com/ruvnet/claude-flow/issues/1208) |
 | [WM&#8209;011](patch/590-WM-011-reasoning-bank-controller/) | Instantiate ReasoningBank controller | High | [#1210](https://github.com/ruvnet/claude-flow/issues/1210) |
+| [WM&#8209;012](patch/600-WM-012-hybrid-backend-proxies/) | HybridBackend proxy methods for learning + witness chain | High | [#1212](https://github.com/ruvnet/claude-flow/issues/1212) |
 
 ### DOC -- Documentation
 

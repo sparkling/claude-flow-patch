@@ -118,5 +118,5 @@ it would look like the code uses them when it doesn't.
 ## Implementation
 
 - **Defect**: SG-006 (patch ops SG-006b + SG-006c)
-- **Plan**: [memory-wiring-plan.md](../memory-wiring-plan.md), Task 1
+- **Plan**: (originally in memory-wiring-plan.md, superseded by [memory-system.md](../memory-system.md))
 - **Target file**: `commands/init.js` (path var `INIT_CMD`)

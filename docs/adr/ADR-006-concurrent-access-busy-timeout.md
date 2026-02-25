@@ -18,7 +18,7 @@ Two separate processes access the same SQLite database files concurrently:
    at session start (import) and session end (sync), lifetime ~500ms
 
 Both write to `.swarm/hybrid-memory.db` (SQLiteBackend) and
-`.swarm/agentdb-memory.db` (AgentDBBackend).
+`.swarm/agentdb-memory.rvf` (AgentDBBackend).
 
 `better-sqlite3` is synchronous and has **NO default busy timeout**. If both
 processes attempt to write simultaneously, the second writer gets `SQLITE_BUSY`
@@ -82,7 +82,7 @@ process.on('SIGINT', () => { shutdownHybrid().then(() => process.exit(0)); });
 
 ### Negative
 
-- AgentDB connections (`agentdb-memory.db`) are **unprotected** against
+- AgentDB connections (`agentdb-memory.rvf`) are **unprotected** against
   `SQLITE_BUSY` due to the `ALLOWED_PRAGMAS` whitelist
 - Dual-write means BOTH databases receive writes -- if SQLiteBackend succeeds
   but AgentDB's write collides, the databases diverge
@@ -131,6 +131,6 @@ simultaneous writers still produce `SQLITE_BUSY`. The hook script's timing
 ## Implementation
 
 - **Defects**: WM-001 (patch op WM-001d -- MCP server), WM-003 (patch ops WM-003a/b -- hook script)
-- **Plan**: [memory-wiring-plan.md](../memory-wiring-plan.md), Task 2 "Concurrent access" + "MCP server shutdown handler", Task 4
+- **Plan**: (originally in memory-wiring-plan.md, superseded by [memory-system.md](../memory-system.md))
 - **Target files**: `memory/memory-initializer.js` (MCP server), `init/helpers-generator.js` (hook)
 - **AgentDB gap**: Documented in plan R4 #39a -- `ALLOWED_PRAGMAS` whitelist blocks busy_timeout

@@ -35,7 +35,7 @@ The hook script creates `HybridBackend` **without `embeddingGenerator`**.
 ```javascript
 const backend = new HybridBackend({
   sqlite: { databasePath: join(PROJECT_ROOT, '.swarm', 'hybrid-memory.db') },
-  agentdb: { dbPath: join(PROJECT_ROOT, '.swarm', 'agentdb-memory.db') },
+  agentdb: { dbPath: join(PROJECT_ROOT, '.swarm', 'agentdb-memory.rvf'), vectorBackend: 'rvf' },
   dualWrite: true,
   // No embeddingGenerator -- hook does file I/O only
 });
@@ -122,6 +122,6 @@ server stores in AgentDB. Maintaining consistency by using the same
 ## Implementation
 
 - **Defect**: WM-003 (patch ops WM-003a/b -- doImport + doSync)
-- **Plan**: [memory-wiring-plan.md](../memory-wiring-plan.md), Task 4
+- **Plan**: (originally in memory-wiring-plan.md, superseded by [memory-system.md](../memory-system.md))
 - **Target file**: `init/helpers-generator.js` (path var `HELPERS_GEN`)
 - **Template escaping**: `\${...}` in fix.py -- see plan R4 #39b

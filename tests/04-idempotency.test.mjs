@@ -83,6 +83,8 @@ describe('patch idempotency', () => {
     // WM-011: ReasoningBank controller instantiation
     { id: 'WM-011', file: 'memory/memory-initializer.js' },
     { id: 'WM-011', file: 'mcp-tools/hooks-tools.js' },
+    // WM-012: HybridBackend proxy methods for learning + witness chain
+    { id: 'WM-012', file: '../../../memory/dist/hybrid-backend.js' },
   ];
 
   for (const { id, file } of PATCHES) {

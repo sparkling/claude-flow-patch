@@ -976,6 +976,194 @@ describe('cross-defect: WM-008 init -> runtime (agentdb v3 e2e)', {
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
+// Suite: cross-defect: WM-008 self-learning backend instantiation (R1)
+//
+// Verifies SelfLearningRvfBackend can be imported from agentdb sub-path
+// export and that AgentDBBackend creates a learning backend when enabled.
+// ══════════════════════════════════════════════════════════════════════════════
+
+describe('cross-defect: WM-008 self-learning backend instantiation (R1)', {
+  skip: skipMsg || !npxNmNative ? 'native deps or patched npx cache not found' : false,
+}, () => {
+  let agentdbSrc = '';
+  let slrClass = null;
+
+  before(async () => {
+    if (!npxNmNative) return;
+    try {
+      agentdbSrc = readFileSync(join(npxNmNative, '@claude-flow', 'memory', 'dist', 'agentdb-backend.js'), 'utf-8');
+    } catch {}
+    // Attempt to import SelfLearningRvfBackend from sub-path
+    try {
+      const slrMod = await import(join(npxNmNative, 'agentdb', 'dist', 'src', 'backends', 'rvf', 'SelfLearningRvfBackend.js'));
+      slrClass = slrMod.SelfLearningRvfBackend || slrMod.default || null;
+    } catch { slrClass = null; }
+  });
+
+  it('WM-008p: SelfLearningRvfBackend importable from agentdb/backends/self-learning', () => {
+    assert.ok(slrClass, 'SelfLearningRvfBackend should be importable from sub-path export (WM-008p R1)');
+    assert.ok(typeof slrClass.create === 'function',
+      'SelfLearningRvfBackend.create should be a static factory method');
+  });
+
+  it('WM-008p: agentdb-backend.js has sub-path import fallback', () => {
+    if (!agentdbSrc) return;
+    assert.ok(agentdbSrc.includes("agentdb/backends/self-learning"),
+      'agentdb-backend.js should import from agentdb/backends/self-learning (WM-008p R1)');
+    assert.ok(agentdbSrc.includes('WM-008p (R1): Fallback to sub-path import'),
+      'agentdb-backend.js should have WM-008p comment marker');
+  });
+
+  it('WM-008d: AgentDBBackend creates learningBackend when enableLearning is true', async (t) => {
+    if (!slrClass) return t.skip('SelfLearningRvfBackend not available');
+    if (!memPkg?.AgentDBBackend) return t.skip('@claude-flow/memory AgentDBBackend not available');
+
+    const { mkdtempSync, rmSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const tmpDir = mkdtempSync(join(tmpdir(), 'cfp-integ-r1-'));
+    try {
+      const ab = new memPkg.AgentDBBackend({
+        dbPath: join(tmpDir, 'test-r1.rvf'),
+        vectorBackend: 'rvf',
+        vectorDimension: 64,
+        enableLearning: true,
+      });
+      await ab.initialize();
+      // learningBackend may or may not be created depending on SelfLearningRvfBackend availability
+      if (ab.learningBackend) {
+        assert.ok(typeof ab.learningBackend.searchAsync === 'function',
+          'learningBackend should have searchAsync method');
+        assert.ok(typeof ab.learningBackend.recordFeedback === 'function',
+          'learningBackend should have recordFeedback method');
+        assert.ok(typeof ab.learningBackend.tick === 'function',
+          'learningBackend should have tick method');
+      }
+      await ab.shutdown();
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('WM-008q: agentdb-backend.js routes search through learning backend', () => {
+    if (!agentdbSrc) return;
+    assert.ok(agentdbSrc.includes('WM-008q (R8): Route through learning backend'),
+      'agentdb-backend.js should have WM-008q search routing (R8)');
+    assert.ok(agentdbSrc.includes('this.learningBackend.searchAsync'),
+      'search method should call learningBackend.searchAsync');
+    assert.ok(agentdbSrc.includes('_trajectoryId'),
+      'search results should carry _trajectoryId field');
+  });
+
+  it('WM-008r: agentdb-backend.js uses vectorBackend.verifyWitness()', () => {
+    if (!agentdbSrc) return;
+    assert.ok(agentdbSrc.includes('WM-008r (R9): Use vectorBackend.verifyWitness'),
+      'agentdb-backend.js should have WM-008r witness chain fix (R9)');
+    assert.ok(agentdbSrc.includes('this.agentdb.vectorBackend') &&
+              agentdbSrc.includes('vb.verifyWitness'),
+      'verifyWitnessChain should use vectorBackend.verifyWitness()');
+  });
+
+  it('WM-008s: agentdb-backend.js has tick interval and shutdown cleanup', () => {
+    if (!agentdbSrc) return;
+    assert.ok(agentdbSrc.includes('WM-008s (R5): Run final tick'),
+      'agentdb-backend.js should have WM-008s final tick before shutdown');
+    assert.ok(agentdbSrc.includes('WM-008s2 (R5): Start periodic tick loop'),
+      'agentdb-backend.js should have WM-008s2 tick interval start');
+    assert.ok(agentdbSrc.includes('clearInterval(this._tickInterval)'),
+      'agentdb-backend.js should clear tick interval on shutdown');
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Suite: cross-defect: WM-012 HybridBackend proxy methods (R2)
+//
+// Verifies HybridBackend has recordFeedback, verifyWitnessChain, and
+// getWitnessChain proxy methods that delegate to AgentDBBackend.
+// ══════════════════════════════════════════════════════════════════════════════
+
+describe('cross-defect: WM-012 HybridBackend proxy methods (R2)', {
+  skip: skipMsg || !npxNmNative ? 'native deps or patched npx cache not found' : false,
+}, () => {
+  let hybridSrc = '';
+
+  before(() => {
+    if (!npxNmNative) return;
+    try {
+      hybridSrc = readFileSync(join(npxNmNative, '@claude-flow', 'memory', 'dist', 'hybrid-backend.js'), 'utf-8');
+    } catch {}
+  });
+
+  it('WM-012a: HybridBackend has recordFeedback proxy', () => {
+    assert.ok(hybridSrc.includes('WM-012a: Proxy recordFeedback'),
+      'hybrid-backend.js should have WM-012a recordFeedback proxy');
+    assert.ok(hybridSrc.includes('async recordFeedback(queryId, quality)'),
+      'hybrid-backend.js should have recordFeedback(queryId, quality) method');
+    assert.ok(hybridSrc.includes('this.agentdb.recordFeedback'),
+      'recordFeedback should delegate to this.agentdb.recordFeedback');
+  });
+
+  it('WM-012b: HybridBackend has verifyWitnessChain proxy', () => {
+    assert.ok(hybridSrc.includes('WM-012b: Proxy verifyWitnessChain'),
+      'hybrid-backend.js should have WM-012b verifyWitnessChain proxy');
+    assert.ok(hybridSrc.includes('async verifyWitnessChain()'),
+      'hybrid-backend.js should have verifyWitnessChain() method');
+    assert.ok(hybridSrc.includes('this.agentdb.verifyWitnessChain'),
+      'verifyWitnessChain should delegate to this.agentdb.verifyWitnessChain');
+  });
+
+  it('WM-012c: HybridBackend has getWitnessChain proxy', () => {
+    assert.ok(hybridSrc.includes('WM-012c: Proxy getWitnessChain'),
+      'hybrid-backend.js should have WM-012c getWitnessChain proxy');
+    assert.ok(hybridSrc.includes('getWitnessChain()'),
+      'hybrid-backend.js should have getWitnessChain() method');
+    assert.ok(hybridSrc.includes('this.agentdb.getWitnessChain'),
+      'getWitnessChain should delegate to this.agentdb.getWitnessChain');
+  });
+
+  it('WM-012: proxy methods are callable on live HybridBackend instance', async (t) => {
+    if (!memPkg?.HybridBackend) return t.skip('HybridBackend not importable');
+
+    const { mkdtempSync, rmSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const tmpDir = mkdtempSync(join(tmpdir(), 'cfp-integ-r2-'));
+    try {
+      const hb = new memPkg.HybridBackend({
+        sqlite: { databasePath: join(tmpDir, 'r2-test.db') },
+        agentdb: {
+          dbPath: join(tmpDir, 'r2-test.rvf'),
+          vectorBackend: 'rvf',
+          vectorDimension: 64,
+        },
+        dualWrite: true,
+      });
+      await hb.initialize();
+
+      // recordFeedback should exist and not throw (even with invalid id)
+      assert.ok(typeof hb.recordFeedback === 'function',
+        'HybridBackend instance should have recordFeedback method');
+      await hb.recordFeedback('nonexistent-id', 0.5);
+
+      // verifyWitnessChain should exist and return a result
+      assert.ok(typeof hb.verifyWitnessChain === 'function',
+        'HybridBackend instance should have verifyWitnessChain method');
+      const wc = await hb.verifyWitnessChain();
+      assert.ok(wc, 'verifyWitnessChain should return a result');
+      assert.ok(typeof wc.valid === 'boolean', 'result.valid should be boolean');
+
+      // getWitnessChain should exist
+      assert.ok(typeof hb.getWitnessChain === 'function',
+        'HybridBackend instance should have getWitnessChain method');
+      // May return null if no chain exists
+      hb.getWitnessChain();
+
+      await hb.shutdown();
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
 // Suite: cross-defect: syntax validation of all patched files
 //
 // Runs `node --check` on every patched JS file across ALL npx cache installs

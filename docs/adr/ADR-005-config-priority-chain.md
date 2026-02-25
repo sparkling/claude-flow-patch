@@ -134,6 +134,6 @@ nested values, type coercion -- all for a patch that should be minimal.
 ## Implementation
 
 - **Defect**: WM-001 (patch op WM-001a -- config reading at top of `initializeMemoryDatabase()`)
-- **Plan**: [memory-wiring-plan.md](../memory-wiring-plan.md), Task 2 "Config consumption"
+- **Plan**: (originally in memory-wiring-plan.md, superseded by [memory-system.md](../memory-system.md))
 - **Target file**: `memory/memory-initializer.js` (path var `MI`)
 - **Critical detail**: Must use `let backendChoice = backend` (new variable) -- see plan R4-2

@@ -1,7 +1,9 @@
 /**
  * AgentDB Backend - Integration with agentdb@2.0.0-alpha.3.4
  *
- * Minimal fixture for WM-008 testing — matches old_string patterns from agentdb-backend.js
+ * Minimal fixture for WM-008 testing -- matches old_string patterns from agentdb-backend.js.
+ * Contains upstream (pre-WM-008) code sections that ops a through t target.
+ * Ops a-o transform these sections; ops p-t then match against a-o output.
  */
 
 import { EventEmitter } from 'node:events';
@@ -89,6 +91,24 @@ export class AgentDBBackend extends EventEmitter {
     }
     async getByKey(namespace, key) {
         return null;
+    }
+    // WM-008q old_string target: search method (unchanged by ops a-o)
+    async search(embedding, options) {
+        const startTime = performance.now();
+        if (!this.agentdb) {
+            // Fallback to brute-force search
+            return this.bruteForceSearch(embedding, options);
+        }
+        try {
+            const results = await this.searchWithAgentDB(embedding, options);
+            return results;
+        }
+        catch (error) {
+            return this.bruteForceSearch(embedding, options);
+        }
+    }
+    bruteForceSearch(embedding, options) {
+        return [];
     }
     isAvailable() {
         return this.available;

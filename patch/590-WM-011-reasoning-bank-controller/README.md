@@ -23,6 +23,8 @@ As a result:
 | WM-011b | `mcp-tools/hooks-tools.js` | Add `getReasoningBankInstance()` lazy loader |
 | WM-011c | `mcp-tools/hooks-tools.js` | Replace `hooksPatternStore` handler to use ReasoningBank trajectory distillation with fallback |
 | WM-011d | `mcp-tools/hooks-tools.js` | Replace `hooksPatternSearch` handler to use ReasoningBank MMR-diverse retrieval with fallback |
+| WM-011e | `mcp-tools/hooks-tools.js` | Replace zero-vector `stateAfter` with hash-based pseudo-embedding so HNSW index can distinguish entries (R7a) |
+| WM-011f | `mcp-tools/hooks-tools.js` | Fix lazy-loader to retry when ReasoningBank was previously unavailable instead of permanently caching null (R7b) |
 
 ## Files Patched
 
@@ -31,4 +33,4 @@ As a result:
 
 ## Ops
 
-6 ops in fix.py
+8 ops in fix.py

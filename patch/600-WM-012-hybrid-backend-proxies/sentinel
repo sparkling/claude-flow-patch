@@ -1,0 +1,3 @@
+grep "WM-012a: Proxy recordFeedback" hybrid-backend.js
+grep "WM-012b: Proxy verifyWitnessChain" hybrid-backend.js
+package: @claude-flow/memory

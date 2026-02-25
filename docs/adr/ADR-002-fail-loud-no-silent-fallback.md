@@ -106,5 +106,5 @@ choice, not have it made silently for them.
 ## Implementation
 
 - **Defect**: WM-001 (error handling in WM-001a), CF-003 (doctor --install repair path)
-- **Plan**: [memory-wiring-plan.md](../memory-wiring-plan.md), Task 2 "Design philosophy" + Task 5
+- **Plan**: (originally in memory-wiring-plan.md, superseded by [memory-system.md](../memory-system.md))
 - **Target files**: `memory/memory-initializer.js` (error messages), `commands/doctor.js` (backend check + auto-fix)

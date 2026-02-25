@@ -158,10 +158,10 @@ Save the returned GitHub issue number for the defect README.md.
 | RV | RuVector Intelligence | 3 |
 | SG | Settings Generator | 10 |
 | UI | Display & Cosmetic | 2 |
-| WM | Wiring / Memory Integration | 11 |
+| WM | Wiring / Memory Integration | 12 |
 | DOC | Documentation | 1 |
 
-## All 60 Defects
+## All 61 Defects
 
 | ID | GitHub Issue | Severity |
 |----|-------------|----------|
@@ -225,6 +225,7 @@ Save the returned GitHub issue number for the defect README.md.
 | WM-009 | [#1209 Wire AgentDB learning loop (recordFeedback)](https://github.com/ruvnet/claude-flow/issues/1209) | High |
 | WM-010 | [#1208 Wire witness chain verification at session start](https://github.com/ruvnet/claude-flow/issues/1208) | High |
 | WM-011 | [#1210 Instantiate ReasoningBank controller](https://github.com/ruvnet/claude-flow/issues/1210) | High |
+| WM-012 | [#1212 HybridBackend proxy methods for learning + witness chain](https://github.com/ruvnet/claude-flow/issues/1212) | High |
 <!-- GENERATED:defect-tables:end -->
 
 ---

@@ -69,6 +69,8 @@ Wired by [WM-001](../patch/350-WM-001-memory-wiring/). Dual-writes to two backen
 | SQLiteBackend | better-sqlite3 (native C++) | Exact key lookups, prefix queries, tag filters | `.swarm/hybrid-memory.db` |
 | AgentDBBackend | AgentDB v3 SelfLearningRvfBackend | HNSW vector search (O(log n)), self-learning | `.swarm/agentdb-memory.rvf` |
 
+[WM-012](../patch/600-WM-012-hybrid-backend-proxies/) adds proxy methods (`recordFeedback()`, `verifyWitnessChain()`, `getWitnessChain()`) so callers interact with HybridBackend directly without reaching into the AgentDB backend.
+
 Query routing is automatic:
 
 | Query type | Routes to | Why |
@@ -376,7 +378,8 @@ WM-001  Wire HybridBackend into CLI
                  └─ WM-008  Upgrade AgentDB v2 → v3 (RVF, self-learning API)
                       ├─ WM-009  Wire learning feedback loop
                       ├─ WM-010  Wire witness chain verification
-                      └─ WM-011  Instantiate ReasoningBank controller
+                      ├─ WM-011  Instantiate ReasoningBank controller
+                      └─ WM-012  HybridBackend proxy methods
 
 Supporting patches:
   IN-001   Copy full Intelligence.cjs (not stub)

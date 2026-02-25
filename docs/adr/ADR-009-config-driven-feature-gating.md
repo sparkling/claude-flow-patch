@@ -141,6 +141,6 @@ needed.
 ## Implementation
 
 - **Defect**: WM-002 (patch op WM-002c)
-- **Plan**: [memory-wiring-plan.md](../memory-wiring-plan.md), Task 3
+- **Plan**: (originally in memory-wiring-plan.md, superseded by [memory-system.md](../memory-system.md))
 - **Target file**: `memory/intelligence.js` (path var `INTEL` -- new, add to `lib/common.py`)
 - **Critical detail**: Must set `intelligenceInitialized = true` in gating path -- see plan R4-6

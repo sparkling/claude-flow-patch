@@ -11,3 +11,8 @@ package: @claude-flow/neural
 grep "vectorBackend: 'rvf'" dist/reasoning-bank.js
 package: @claude-flow/shared
 grep "vectorBackend: 'rvf'" dist/core/config/defaults.js
+package: @claude-flow/memory
+grep "WM-008p (R1): Fallback to sub-path import" agentdb-backend.js
+grep "WM-008q (R8): Route through learning backend" agentdb-backend.js
+grep "WM-008r (R9): Use vectorBackend.verifyWitness" agentdb-backend.js
+grep "WM-008s (R5): Run final tick" agentdb-backend.js

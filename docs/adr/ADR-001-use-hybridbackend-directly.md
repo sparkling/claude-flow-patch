@@ -103,6 +103,6 @@ minimal.
 ## Implementation
 
 - **Defect**: WM-001 (patch ops WM-001a through WM-001e)
-- **Plan**: [memory-wiring-plan.md](../memory-wiring-plan.md), Task 2
+- **Plan**: (originally in memory-wiring-plan.md, superseded by [memory-system.md](../memory-system.md))
 - **Target file**: `memory/memory-initializer.js` (path var `MI`)
 - **Adapter mapping**: Plan Task 2, "API compatibility -- adapter mapping" section

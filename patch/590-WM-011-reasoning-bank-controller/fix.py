@@ -66,14 +66,22 @@ export function getReasoningBank() {
 // WM-009a: Expose search feedback for self-learning loop
 export async function recordSearchFeedback(entryId, quality) {""")
 
-# ── Op B: hooks-tools.js — add ReasoningBank lazy loader ──
-# Insert after getRealStoreFunction and before Neural Module Lazy Loaders section.
-patch("WM-011b: add ReasoningBank lazy loader to hooks-tools.js",
-    MCP_HOOKS,
-    """// =============================================================================
-// Neural Module Lazy Loaders (SONA, EWC++, MoE, LoRA, Flash Attention)
-// =============================================================================""",
-    """// WM-011b: ReasoningBank lazy loader
+# ── Op B-cleanup: hooks-tools.js — remove stale WM-011b blocks from prior runs ──
+# Older patch versions wrote different WM-011b blocks. If the file was patched
+# by a prior run, there may be duplicate and/or old-format blocks that cause
+# `let reasoningBankRef` to be declared multiple times (SyntaxError).
+#
+# The standard patch() idempotency check (new in code → skip) can't handle
+# cleanup because the desired result is always a subset of the corrupt state.
+# We use raw Python with re.sub to collapse duplicate blocks.
+if MCP_HOOKS:
+    try:
+        with open(MCP_HOOKS, 'r') as _f:
+            _hooks_code = _f.read()
+        _dirty = False
+
+        # Case 1: Remove old null-based WM-011b block (from pre-fix patch version)
+        _old_null_block = """// WM-011b: ReasoningBank lazy loader
 let reasoningBankRef = null;
 async function getReasoningBankInstance() {
     if (reasoningBankRef === null) {
@@ -82,6 +90,68 @@ async function getReasoningBankInstance() {
             reasoningBankRef = getReasoningBank() || undefined;
         } catch {
             reasoningBankRef = undefined;
+        }
+    }
+    return reasoningBankRef || null;
+}
+"""
+        if _old_null_block in _hooks_code:
+            _hooks_code = _hooks_code.replace(_old_null_block, "")
+            _dirty = True
+            print("  Applied: WM-011b-cleanup1: remove old null-based ReasoningBank lazy loader")
+
+        # Case 2: Collapse duplicate new-format blocks (keep only the last one before header)
+        _new_block = """// WM-011b: ReasoningBank lazy loader
+// WM-011f (R7b): Retry when unavailable (don't permanently cache null)
+let reasoningBankRef = undefined;
+async function getReasoningBankInstance() {
+    if (!reasoningBankRef) {
+        try {
+            const { getReasoningBank } = await import('../memory/memory-initializer.js');
+            reasoningBankRef = getReasoningBank() || undefined;
+        } catch {
+            // Not available yet \u2014 will retry on next call
+        }
+    }
+    return reasoningBankRef || null;
+}
+"""
+        # Count occurrences; if more than 1, keep only one
+        _count = _hooks_code.count(_new_block)
+        if _count > 1:
+            # Remove all but the last occurrence
+            for _ in range(_count - 1):
+                _hooks_code = _hooks_code.replace(_new_block, "", 1)
+            _dirty = True
+            print(f"  Applied: WM-011b-cleanup2: collapsed {_count} duplicate ReasoningBank blocks to 1")
+
+        if _dirty:
+            with open(MCP_HOOKS, 'w') as _f:
+                _f.write(_hooks_code)
+            applied += 1
+    except FileNotFoundError:
+        pass
+    except Exception as _e:
+        print(f"  ERROR: WM-011b-cleanup — {_e}")
+
+# ── Op B: hooks-tools.js — add ReasoningBank lazy loader ──
+# Insert after getRealStoreFunction and before Neural Module Lazy Loaders section.
+# Writes the FINAL retry-on-null version directly (absorbs WM-011f for fresh installs).
+patch("WM-011b: add ReasoningBank lazy loader to hooks-tools.js",
+    MCP_HOOKS,
+    """// =============================================================================
+// Neural Module Lazy Loaders (SONA, EWC++, MoE, LoRA, Flash Attention)
+// =============================================================================""",
+    """// WM-011b: ReasoningBank lazy loader
+// WM-011f (R7b): Retry when unavailable (don't permanently cache null)
+let reasoningBankRef = undefined;
+async function getReasoningBankInstance() {
+    if (!reasoningBankRef) {
+        try {
+            const { getReasoningBank } = await import('../memory/memory-initializer.js');
+            reasoningBankRef = getReasoningBank() || undefined;
+        } catch {
+            // Not available yet — will retry on next call
         }
     }
     return reasoningBankRef || null;
@@ -379,3 +449,52 @@ patch("WM-011d: replace hooksPatternSearch handler to use ReasoningBank",
     },
 };
 // Intelligence stats hook""")
+
+# ── Op E: hooks-tools.js — replace zero-vector with hash-based pseudo-embedding ──
+# WM-011c writes a Float32Array of zeros for stateAfter; this replaces it with a
+# deterministic hash-based vector derived from pattern + type + timestamp so that
+# the HNSW index can distinguish entries.
+patch("WM-011e: Hash-based pseudo-embedding instead of zero-vector (R7a)",
+    MCP_HOOKS,
+    """stateAfter: new Float32Array(rb.config?.vectorDimension || 768),""",
+    """stateAfter: (() => { // WM-011e: hash-based pseudo-embedding
+                        const { createHash } = require('node:crypto');
+                        const dim = rb.config?.vectorDimension || 768;
+                        const h = createHash('sha256').update(pattern + type + timestamp).digest();
+                        const arr = new Float32Array(dim);
+                        for (let i = 0; i < dim; i++) arr[i] = (h[i % h.length] - 128) / 128;
+                        return arr; })(),""")
+
+# ── Op F: hooks-tools.js — fix lazy-loader to retry when null (LEGACY UPGRADE) ──
+# Handles already-patched installations where WM-011b previously wrote the old
+# (non-retry) version. On fresh installs WM-011b now writes the retry version
+# directly, so this op skips (idempotent).
+patch("WM-011f: Retry-on-null ReasoningBank lazy loader (R7b)",
+    MCP_HOOKS,
+    """// WM-011b: ReasoningBank lazy loader
+let reasoningBankRef = null;
+async function getReasoningBankInstance() {
+    if (reasoningBankRef === null) {
+        try {
+            const { getReasoningBank } = await import('../memory/memory-initializer.js');
+            reasoningBankRef = getReasoningBank() || undefined;
+        } catch {
+            reasoningBankRef = undefined;
+        }
+    }
+    return reasoningBankRef || null;
+}""",
+    """// WM-011b: ReasoningBank lazy loader
+// WM-011f (R7b): Retry when unavailable (don't permanently cache null)
+let reasoningBankRef = undefined;
+async function getReasoningBankInstance() {
+    if (!reasoningBankRef) {
+        try {
+            const { getReasoningBank } = await import('../memory/memory-initializer.js');
+            reasoningBankRef = getReasoningBank() || undefined;
+        } catch {
+            // Not available yet — will retry on next call
+        }
+    }
+    return reasoningBankRef || null;
+}""")

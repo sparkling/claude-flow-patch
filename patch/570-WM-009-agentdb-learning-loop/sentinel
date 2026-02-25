@@ -1,3 +1,5 @@
 grep "_recentSearchHits" mcp-tools/memory-tools.js
 grep "recordSearchFeedback" memory/memory-initializer.js
 grep "WM-009d" mcp-tools/memory-tools.js
+grep "_trajectoryId" mcp-tools/memory-tools.js
+grep "_SEARCH_HITS_MAX" mcp-tools/memory-tools.js

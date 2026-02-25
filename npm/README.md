@@ -13,7 +13,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 - `ruv-swarm`
 
 <!-- GENERATED:npm-defects:begin -->
-60 tracked defects across 15 categories.
+61 tracked defects across 15 categories.
 
 | Defect | Description | GitHub Issue |
 |--------|-------------|-------------|
@@ -76,6 +76,7 @@ This package applies verified, idempotent patches to your local CLI source in th
 | [WM-009](https://github.com/sparkling/claude-flow-patch/tree/master/patch/570-WM-009-agentdb-learning-loop) | Wire AgentDB learning loop (recordFeedback) | [#1209](https://github.com/ruvnet/claude-flow/issues/1209) |
 | [WM-010](https://github.com/sparkling/claude-flow-patch/tree/master/patch/580-WM-010-witness-chain-verify) | Wire witness chain verification at session start | [#1208](https://github.com/ruvnet/claude-flow/issues/1208) |
 | [WM-011](https://github.com/sparkling/claude-flow-patch/tree/master/patch/590-WM-011-reasoning-bank-controller) | Instantiate ReasoningBank controller | [#1210](https://github.com/ruvnet/claude-flow/issues/1210) |
+| [WM-012](https://github.com/sparkling/claude-flow-patch/tree/master/patch/600-WM-012-hybrid-backend-proxies) | HybridBackend proxy methods for learning + witness chain | [#1212](https://github.com/ruvnet/claude-flow/issues/1212) |
 | [DOC-001](https://github.com/sparkling/claude-flow-patch/tree/master/patch/480-DOC-001-readme-docs) | Update upstream README.md to match patched CLI behavior | [#1201](https://github.com/ruvnet/claude-flow/issues/1201) |
 <!-- GENERATED:npm-defects:end -->
 

@@ -639,6 +639,48 @@ describe('individual patch application', () => {
       absent: '2.0.0-alpha.3.4',
       deps: ['SG-008'],
     },
+    // WM-008p: SelfLearningRvfBackend sub-path import fallback (R1)
+    {
+      id: 'WM-008',
+      file: '../../../memory/dist/agentdb-backend.js',
+      sentinel: 'agentdb/backends/self-learning',
+      absent: null,
+    },
+    // WM-008q: Route search through learning backend for trajectory tracking (R8)
+    {
+      id: 'WM-008',
+      file: '../../../memory/dist/agentdb-backend.js',
+      sentinel: 'WM-008q (R8): Route through learning backend',
+      absent: null,
+    },
+    // WM-008r: Fix verifyWitnessChain to use vectorBackend.verifyWitness (R9)
+    {
+      id: 'WM-008',
+      file: '../../../memory/dist/agentdb-backend.js',
+      sentinel: 'vectorBackend.verifyWitness',
+      absent: 'witness chain not available (requires agentdb v3)',
+    },
+    // WM-008s: Tick loop shutdown cleanup (R5)
+    {
+      id: 'WM-008',
+      file: '../../../memory/dist/agentdb-backend.js',
+      sentinel: 'Run final tick before shutdown',
+      absent: null,
+    },
+    // WM-008s2: Start tick interval after learning backend creation (R5)
+    {
+      id: 'WM-008',
+      file: '../../../memory/dist/agentdb-backend.js',
+      sentinel: 'WM-008s2 (R5): Start periodic tick loop',
+      absent: null,
+    },
+    // WM-008t: Fix getWitnessChain to use vectorBackend (R9)
+    {
+      id: 'WM-008',
+      file: '../../../memory/dist/agentdb-backend.js',
+      sentinel: 'WM-008t (R9)',
+      absent: null,
+    },
     // WM-009: AgentDB learning loop (recordFeedback)
     {
       id: 'WM-009',
@@ -656,6 +698,24 @@ describe('individual patch application', () => {
       id: 'WM-009',
       file: 'mcp-tools/memory-tools.js',
       sentinel: 'WM-009d',
+      absent: null,
+    },
+    {
+      id: 'WM-009',
+      file: 'mcp-tools/memory-tools.js',
+      sentinel: '_trajectoryId',
+      absent: 'Track entry ID for implicit feedback',
+    },
+    {
+      id: 'WM-009',
+      file: 'mcp-tools/memory-tools.js',
+      sentinel: '_SEARCH_HITS_MAX',
+      absent: null,
+    },
+    {
+      id: 'WM-009',
+      file: 'mcp-tools/memory-tools.js',
+      sentinel: 'WM-009g (R6): LRU eviction',
       absent: null,
     },
     // WM-011: ReasoningBank controller instantiation
@@ -683,6 +743,39 @@ describe('individual patch application', () => {
       id: 'WM-011',
       file: 'mcp-tools/hooks-tools.js',
       sentinel: 'reasoning-bank',
+      absent: null,
+    },
+    // WM-011e: hash-based pseudo-embedding replaces zero-vector
+    {
+      id: 'WM-011',
+      file: 'mcp-tools/hooks-tools.js',
+      sentinel: 'hash-based pseudo-embedding',
+      absent: 'new Float32Array(rb.config?.vectorDimension || 768)',
+    },
+    // WM-011f: lazy-loader retry-on-null
+    {
+      id: 'WM-011',
+      file: 'mcp-tools/hooks-tools.js',
+      sentinel: 'WM-011f (R7b): Retry when unavailable',
+      absent: 'let reasoningBankRef = null',
+    },
+    // WM-012: HybridBackend proxy methods for learning + witness chain
+    {
+      id: 'WM-012',
+      file: '../../../memory/dist/hybrid-backend.js',
+      sentinel: 'WM-012a: Proxy recordFeedback',
+      absent: null,
+    },
+    {
+      id: 'WM-012',
+      file: '../../../memory/dist/hybrid-backend.js',
+      sentinel: 'WM-012b: Proxy verifyWitnessChain',
+      absent: null,
+    },
+    {
+      id: 'WM-012',
+      file: '../../../memory/dist/hybrid-backend.js',
+      sentinel: 'WM-012c: Proxy getWitnessChain',
       absent: null,
     },
   ];
